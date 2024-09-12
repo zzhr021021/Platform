@@ -38,7 +38,7 @@ const ll inf = 1e18;
 const ll INF = 1e18; 
 const int N = 200005;
 using namespace std;
- 
+  
 ll tt;
 ll ttt;
 ll n,k,m,d,q,t,x,y,z,h;
