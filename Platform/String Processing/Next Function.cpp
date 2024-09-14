@@ -6,10 +6,9 @@
 #define rep01n(i, n) for (int i = 0; i <= (n); ++i)
 #define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
 
-#define ll long long
 #define ull unsigned long long
-
-#define pll pair<long long, long long>
+#define ll long long
+#define pll pair<ll, ll>
 #define vi vector<int>
 #define vll vector<long long>
 #define vb vector<bool>
@@ -40,35 +39,42 @@ const ll inf = 1e18;
 const ll INF = 1e18; 
 const int N = 200005;
 using namespace std;
- 
+  
 ll tt;
 ll ttt;
 ll n,k,m,d,q,t,x,y,z,h;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
-void printvec(vll & v){
-	for(ll &x : v){
-		cout << x << " ";
-	}
-	cendl;
+
+vector<int> prefix_function(string s) {
+  int n = (int)s.length();
+  vector<int> pi(n);
+  for (int i = 1; i < n; i++) {
+    int j = pi[i - 1];
+    while (j > 0 && s[i] != s[j]) j = pi[j - 1];
+    if (s[i] == s[j]) j++;
+    pi[i] = j;
+  }
+  return pi;
 }
 
+
 void sol(){
-	cin>>n>>k;
 	
 }
 
 
 int main(){
-	// ios_base::sync_with_stdio(false);
-	// cin.tie(nullptr);
-	// cout.tie(nullptr);
+//	ios_base::sync_with_stdio(false);
+//	cin.tie(nullptr);
+//	cout.tie(nullptr);
+	
+//	initinv();
 		
 	tt = 1;
-	// cin>>tt;
+//	cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
-    system("pause");
-	return 0;
+	// system("pause");
 }
