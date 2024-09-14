@@ -6,6 +6,8 @@
 #define rep01n(i, n) for (int i = 0; i <= (n); ++i)
 #define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
 
+#define ull unsigned long long
+#define ll long long
 #define pll pair<ll, ll>
 #define vi vector<int>
 #define vll vector<long long>
@@ -28,8 +30,7 @@
 #define alice cout<<"Alice\n"
 #define bob cout<<"Bob\n"
 #define draw cout<<"Draw\n"
- 
-typedef long long int ll;
+
 const ll MOD = 1e9+7;
 const ll MODD = 1e9+9;
 const ll MOOD = 998244353;
@@ -132,56 +133,20 @@ ll vesum(vll & v){
 	}
 	return ret;
 }
- 
+
+vector<int> next_array(string & s){
+	auto z_arr = z_func(s);
+	vector<int> next(n);
+	next[0] = 0;
+	for(int i = 1, j = -1; i < n;i++){
+		while(j >= 0 && s[i] != s[j + 1])j = next[j];
+		if(s[i] != s[j + 1])j++;
+		next[i] = j;
+	}
+	return next;
+}
 
 void sol(){
-	cin>>n;
-	ll Scenario = 0;
-	while(n){
-		Scenario++;
-		csp("Scenario");cout << '#' << Scenario << endl;
-		deque<ll> kumiqueue;
-		vector<deque<ll>> resqueue(n);
-		map<ll, ll> codetokumi;
-		rep(i,n){
-			cin>>m;
-			rep(j,m){
-				cin>>x;
-				codetokumi[x] = i;
-			}
-		}
-		
-		string s;cin>>s;
-		while(s != "STOP"){
-			if(s[0] == 'E'){
-				cin>>x;
-				ll code = x;
-				ll kumi = codetokumi[code];
-				if(resqueue[kumi].size()){
-					resqueue[kumi].pb(code);
-				}
-				else{
-					resqueue[kumi].pb(code);
-					kumiqueue.pb(kumi);
-				}
-			}
-			else{
-				ll kumi = kumiqueue.front();
-				cend(resqueue[kumi].front());
-				resqueue[kumi].pop_front();
-				if(resqueue[kumi].size()){
-					
-				}
-				else{
-					kumiqueue.pop_front();
-				}
-			}
-			cin>>s;
-		}
-		
-		cendl;
-		cin>>n;
-	}
 	
 }
 
@@ -198,5 +163,5 @@ int main(){
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
-	return 0;
+	// system("pause");
 }

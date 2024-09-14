@@ -70,7 +70,7 @@ vector<int> manacher_odd(string s){
 
 vector<int> palin;
 
-// get the appended s (#a#b#a#z) manacher vector
+// get the appended s (#a#b#a#z#) manacher vector
 vector<int> manacher_append(string s){
 	string s_append;
 	for(auto c: s) {

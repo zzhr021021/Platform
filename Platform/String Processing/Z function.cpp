@@ -55,6 +55,8 @@ vector<int> z_func(string & s){
 	return z;
 }
 
+
+
 void sol(){
 	string s = "abcdabd";
 	vector<int> zz = z_func(s);
