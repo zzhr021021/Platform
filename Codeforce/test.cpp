@@ -6,6 +6,8 @@
 #define rep01n(i, n) for (int i = 0; i <= (n); ++i)
 #define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
 
+#define ll long long
+#define ull unsigned long long
 #define pll pair<ll, ll>
 #define vi vector<int>
 #define vll vector<long long>
@@ -28,8 +30,7 @@
 #define alice cout<<"Alice\n"
 #define bob cout<<"Bob\n"
 #define draw cout<<"Draw\n"
- 
-typedef long long int ll;
+
 const ll MOD = 1e9+7;
 const ll MODD = 1e9+9;
 const ll MOOD = 998244353;
@@ -132,55 +133,42 @@ ll vesum(vll & v){
 	}
 	return ret;
 }
- 
+
+// return a vec, z[i] indicate for substring s[i]-s[n-1] and the original string, the longest common prefix length
+// z[0] not usable
+vector<int> z_func(string & s){
+	int n = (int)s.length();
+	vector<int> z(n);
+	for(int i = 1, l = 0, r = 0; i < n; ++i){
+		if(i <= r && z[i - l] < r - i + 1){
+			z[i] = z[i - l];
+		}
+		else{
+			z[i] = max(0, r - i + 1);
+			while(i + z[i] < n && s[z[i]] == s[i + z[i]]) ++z[i];
+		}
+		if(i + z[i] - 1 > r)l = i, r = i + z[i] - 1;
+	}
+	return z;
+}
 
 void sol(){
-	cin>>n;
-	ll Scenario = 0;
-	while(n){
-		Scenario++;
-		csp("Scenario");cout << '#' << Scenario << endl;
-		deque<ll> kumiqueue;
-		vector<deque<ll>> resqueue(n);
-		map<ll, ll> codetokumi;
-		rep(i,n){
-			cin>>m;
-			rep(j,m){
-				cin>>x;
-				codetokumi[x] = i;
-			}
-		}
-		
-		string s;cin>>s;
-		while(s != "STOP"){
-			if(s[0] == 'E'){
-				cin>>x;
-				ll code = x;
-				ll kumi = codetokumi[code];
-				if(resqueue[kumi].size()){
-					resqueue[kumi].pb(code);
-				}
-				else{
-					resqueue[kumi].pb(code);
-					kumiqueue.pb(kumi);
-				}
-			}
-			else{
-				ll kumi = kumiqueue.front();
-				cend(resqueue[kumi].front());
-				resqueue[kumi].pop_front();
-				if(resqueue[kumi].size()){
-					
-				}
-				else{
-					kumiqueue.pop_front();
-				}
-			}
-			cin>>s;
-		}
-		
-		cendl;
-		cin>>n;
+	cin>>n>>m>>q;
+	string s1, s2;cin>>s1>>s2;
+	
+	vll ans(200005);
+	
+	string ss = s2 + s1;
+	auto z_vec = z_func(ss);
+	
+	for(int i = m;i < m + n;i++){
+		x = min(z_vec[i], (int)m);
+		ans[x]++;
+	}
+	
+	rep(i,q){
+		cin>>x;
+		cend(ans[x]);
 	}
 	
 }
