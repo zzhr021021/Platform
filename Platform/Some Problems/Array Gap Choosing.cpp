@@ -75,61 +75,16 @@ void delpoint(vector<Point> & v, ll pos){
 // give a resonable number m, choose m number from array
 // make their sum mininum, but any two chosen elements can not be adjacent.
 void sol(){
-    cin>>n>>m;
-    vll a(n);
-    ll mx = -inf;
-    ll mn = inf;
-    rep(i,n){
-        cin>>a[i];
-        mx = max(mx, a[i]);
-        mn = min(mn, a[i]);
-    }
-
-    if(mx <= 0){
-        cend(0);return;
-    }
-
-    ll pol = 0;
-    ll por = n - 1;
-    while(a[pol] <= 0)pol++;
-    while(a[por] <= 0)por--;
-
-    vll st;
-    for(int i = pol;i <= por;i++){
-        if(a[i] == 0)continue;
-        if(st.size() == 0){
-            st.pb(a[i]);
-        }
-        else if(st.back() * a[i] > 0){
-            st[st.size() - 1] += a[i];
-        }
-        else{
-            st.pb(a[i]);
-        }
-    }
-
-    ll cs = (st.size() + 1) / 2;
-    ll all = 0;
-    for(auto o : st){
-        if(o > 0)all += o;
-    }
-
-    if(cs <= m){
-        cend(all);return;
-    }
-
-
-    k = cs - m;
-    n = st.size();
+    k = 2;
     vector<Point> vd;
     vb banned;
     rep(i,n+5){
         vd.pb({inf, vd.size() - 1, vd.size() + 1});
     }
-
-    for(auto o : st){
-        vd.pb({llabs(o), vd.size() - 1, vd.size() + 1});
-    }
+    vd.pb({2, vd.size() - 1, vd.size() + 1});
+    vd.pb({1, vd.size() - 1, vd.size() + 1});
+    vd.pb({2, vd.size() - 1, vd.size() + 1});
+    vd.pb({2, vd.size() - 1, vd.size() + 1});
 
     rep(i,n+5){
         vd.pb({inf, vd.size() - 1, vd.size() + 1});
@@ -160,7 +115,7 @@ void sol(){
         banned.pb(false);
         pq.push({tpval, pos});
     }
-    cend(all - ans);
+    cend(ans);
 
 }
 
