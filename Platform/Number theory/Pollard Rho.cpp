@@ -52,9 +52,32 @@ void printvec(vll & v){
 	cendl;
 }
 
-void sol(){
-	cin>>n>>m>>q;
+ll pollardRhoCore(ll x, ll md){
+    return (x * x + 1) % md;
+}
 
+// return 0 if failure
+ll pollardRho(ll n){
+    ll x = 2;
+    ll y = x;
+    ll d = 1;
+    while(d == 1){
+        x = pollardRhoCore(x, n);
+        y = pollardRhoCore(y, n);
+        y = pollardRhoCore(y, n);
+        d = __gcd(llabs(x - y), n);
+    }
+    if(d == n){
+        return 0;
+    }
+    else{
+        return d;
+    }
+}
+
+void sol(){
+    cin>>n;
+    cend(pollardRho(n));
 }
 
 
