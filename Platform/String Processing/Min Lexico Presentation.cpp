@@ -8,6 +8,7 @@
 
 #define ll long long
 #define ull unsigned long long
+
 #define pll pair<long long, long long>
 #define vi vector<int>
 #define vll vector<long long>
@@ -52,24 +53,6 @@ void printvec(vll & v){
 	cendl;
 }
 
-// 
-
-struct Point
-{
-    ll val;
-    ll l, r;
-};
-
-void delpoint(vector<Point> & v, ll pos){
-    if(v[pos].l != -1){
-        v[v[pos].l].r = v[pos].r;
-    } 
-    if(v[pos].r != -1){
-        v[v[pos].r].l = v[pos].l;
-    } 
-
-}
-
 ll getMinLexicoPos(string & s){
     ll n = s.size();
     if(n == 1)return 0;
@@ -91,25 +74,8 @@ ll getMinLexicoPos(string & s){
 }
 
 void sol(){
-	string s1, s2;
-	cin>>s1>>s2;
-	n = s1.size();
-	string so1, so2;
-
-	ll n1 = getMinLexicoPos(s1);
-	so1 = s1.substr(n1) + s1.substr(0, n1);
-
-	ll n2 = getMinLexicoPos(s2);
-	so2 = s2.substr(n2) + s2.substr(0, n2);
-
-	if(so1 == so2){
-		cout << "Yes\n";
-		cout << so1;
-	}
-	else{
-		cout << "No\n";
-	}
-
+    string s;cin>>s;
+    cend(getMinLexicoPos(s));
 
 }
 

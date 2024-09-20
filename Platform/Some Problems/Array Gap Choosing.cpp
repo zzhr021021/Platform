@@ -8,7 +8,6 @@
 
 #define ll long long
 #define ull unsigned long long
-
 #define pll pair<long long, long long>
 #define vi vector<int>
 #define vll vector<long long>
