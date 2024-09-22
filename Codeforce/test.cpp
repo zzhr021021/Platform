@@ -52,9 +52,47 @@ void printvec(vll & v){
 	cendl;
 }
 
-void sol(){
-	cin>>n>>m>>q;
+ll mygcd(ll x, ll y){
+	if(x == 0 && y == 0)return inf;
+	return __gcd(x, y);
+}
 
+void sol(){
+	ll n;
+	cin>>n;
+	vll a(n);
+	ll g = 0;
+	rep(i,n){
+		cin>>a[i];
+		g = __gcd(g, a[i]);
+	}
+	rep(i,n){
+		a[i] /= g;
+	}
+	
+	a.pb(0);
+	
+	ll ans = 0;
+	ll cur = 0;
+	vb vis(n + 1);
+	rep(i,n){
+		if(cur == 1){
+			ans += n - i;
+			break;
+		}
+		ll rec = n;
+		rep(j,n){
+			if(vis[j] == false){
+				if(mygcd(cur, a[j]) < mygcd(cur, a[rec])){
+					rec = j;
+				}
+			}
+		}
+		vis[rec] = true;
+		cur = __gcd(cur, a[rec]);
+		ans += cur;
+	}
+	cend(ans * g);
 }
 
 
@@ -68,6 +106,6 @@ int main(){
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
-    system("pause");
+//    system("pause");
 	return 0;
 }
