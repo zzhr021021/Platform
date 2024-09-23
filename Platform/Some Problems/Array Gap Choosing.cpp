@@ -70,9 +70,9 @@ void delpoint(vector<Point> & v, ll pos){
 
 }
 
-// given an positive array 
+// given a positive array 
 // give a resonable number m, choose m number from array
-// make their sum mininum, but any two chosen elements can not be adjacent.
+// make the sum mininum, but any two chosen elements cannot be adjacent.
 void sol(){
     k = 2;
     vector<Point> vd;

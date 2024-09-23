@@ -16,13 +16,6 @@
 #define smpq priority_queue<long long, vector<long long>, greater<long long>>
 #define bgpq priority_queue<long long> 
 
-
-#define yes cout<<"YES\n"
-#define no cout<<"NO\n"
-#define csp(n) cout << n << " "
-#define cend(n) cout << n << endl
-#define cendl cout << endl
-#define ctest cout << "test   "
 #define pb push_back
 #define all(a) a.begin(), a.end()
 #define rall(a) a.rbegin(), a.rend()
@@ -30,6 +23,12 @@
 #define alice cout<<"Alice\n"
 #define bob cout<<"Bob\n"
 #define draw cout<<"Draw\n"
+#define yes cout<<"YES\n"
+#define no cout<<"NO\n"
+#define csp(n) cout << n << " "
+#define cend(n) cout << n << endl
+#define cendl cout << endl
+#define ctest cout << "test   "
 
 const ll MOD = 1e9+7;
 const ll MODD = 1e9+9;
@@ -57,42 +56,37 @@ ll mygcd(ll x, ll y){
 	return __gcd(x, y);
 }
 
+set<ll> g[40000];
+bool rec[40000];
+bitset<30005> reach[40000];
+
+bitset<30005> dfs(ll o){
+	bitset<30005> ret;
+	ret.set(o);
+	for(auto ad : g[o]){
+		if(rec[ad])ret |= reach[ad];
+		else{
+			dfs(ad);
+			ret |= reach[ad];
+		}
+	}
+	reach[o] = ret;
+	rec[o] = true;
+	return ret;
+}
+
 void sol(){
-	ll n;
-	cin>>n;
-	vll a(n);
-	ll g = 0;
-	rep(i,n){
-		cin>>a[i];
-		g = __gcd(g, a[i]);
+	cin>>n>>m;
+	rep(i,m){
+		cin>>x>>y;
+		g[x].insert(y);
 	}
-	rep(i,n){
-		a[i] /= g;
+	rep1n(i,n){
+		dfs(i);
+		cend(reach[i].count());
 	}
 	
-	a.pb(0);
 	
-	ll ans = 0;
-	ll cur = 0;
-	vb vis(n + 1);
-	rep(i,n){
-		if(cur == 1){
-			ans += n - i;
-			break;
-		}
-		ll rec = n;
-		rep(j,n){
-			if(vis[j] == false){
-				if(mygcd(cur, a[j]) < mygcd(cur, a[rec])){
-					rec = j;
-				}
-			}
-		}
-		vis[rec] = true;
-		cur = __gcd(cur, a[rec]);
-		ans += cur;
-	}
-	cend(ans * g);
 }
 
 
@@ -102,10 +96,10 @@ int main(){
 	// cout.tie(nullptr);
 		
 	tt = 1;
-	cin>>tt;
+	// cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
-//    system("pause");
+	system("pause");
 	return 0;
 }
