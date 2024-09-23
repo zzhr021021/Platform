@@ -51,40 +51,26 @@ void printvec(vll & v){
 	cendl;
 }
 
-ll mygcd(ll x, ll y){
-	if(x == 0 && y == 0)return inf;
-	return __gcd(x, y);
+bool cmp(ll x, ll y){
+	return x > y;
 }
 
-set<ll> g[40000];
-bool rec[40000];
-bitset<30005> reach[40000];
+ll a[25];
+ll cart[25];
+ll ans = inf;
+ll cur = 0;
 
-bitset<30005> dfs(ll o){
-	bitset<30005> ret;
-	ret.set(o);
-	for(auto ad : g[o]){
-		if(rec[ad])ret |= reach[ad];
-		else{
-			dfs(ad);
-			ret |= reach[ad];
-		}
-	}
-	reach[o] = ret;
-	rec[o] = true;
-	return ret;
+void dfs(ll ind){
+
 }
 
 void sol(){
 	cin>>n>>m;
-	rep(i,m){
-		cin>>x>>y;
-		g[x].insert(y);
+	rep(i,n){
+		cin>>a[i];
 	}
-	rep1n(i,n){
-		dfs(i);
-		cend(reach[i].count());
-	}
+	sort(all(a), cmp);
+
 	
 	
 }
