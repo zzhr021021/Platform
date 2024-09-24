@@ -53,66 +53,101 @@ void printvec(vll & v){
 	cendl;
 }
 
+
+// Luogu P3808, Aho-Corasick Automaton
+// this is without topo version
 struct Trie{
-    ll val = 0;
+    ll val = 0; // reserve?
+    ll dep = 0;
+    ll ind = 0;
     Trie * ptr[26];
-    bool endNode;
+    Trie * fail;
+    ll appear;
     Trie(){
-        val = 0;
-        endNode = false;
+        val = dep = 0;
         rep(i,26){
             ptr[i] = nullptr;
         }
+        fail = nullptr;
+        appear = 0;
     }
 
 };
 
-void addString(Trie * rt_trie, string & s){
+void addString(Trie * rt_trie, string & s, ll ind){
     Trie * curr = rt_trie;
     ll sn = s.size();
     rep(i,sn){
+        Trie * fa = curr;
         ll ind = s[i] - 'a';
         if(curr->ptr[ind] == nullptr){
             Trie * node = new Trie();
             curr->ptr[ind] = node;
         }
         curr = curr->ptr[ind];
+        curr->ind = ind;
+        curr->dep = fa->dep + 1;
     }
-    curr->endNode = true;
-    curr->val += 1;
+    curr->appear += 1;
 }
 
-ll queryPrefix(Trie * rt_trie, string & s){
-    Trie * curr = rt_trie;
-    ll sn = s.size();
-    ll ret = 0;
-    rep(i,sn){
-        ll ind = s[i] - 'a';
-        if(curr->ptr[ind] != nullptr){
-            curr = curr->ptr[ind];
-            if(curr->endNode == true)ret += curr->val;
+void getFail(Trie * rt_trie){
+    queue<Trie *> node_q;
+    node_q.push(rt_trie);
+    while(node_q.size()){
+        Trie * tp_node = node_q.front();
+        node_q.pop();
+        for(int i = 0;i < 26;i++){
+            if(tp_node->ptr[i] != nullptr){
+                Trie * son_node = tp_node->ptr[i];
+                if(son_node->dep == 1){
+                    son_node->fail = rt_trie;
+                }
+                else{
+                    Trie * fail_node = tp_node->fail;
+                    while(fail_node != rt_trie && fail_node->ptr[i] == nullptr){
+                        fail_node = fail_node->fail;
+                    }
+                    if(fail_node->ptr[i] != nullptr)fail_node = fail_node->ptr[i];
+                    son_node->fail = fail_node;
+                }
+                node_q.push(son_node);
+            }
         }
-        else{
-            return ret;
+    }
+}
+
+ll find_ans(Trie * rt_trie, string & s){
+    Trie * curr = rt_trie;
+    ll ret = 0;
+    for(int i = 0;i < s.size();i++){
+        ll ind = s[i] - 'a';
+        while(curr != rt_trie && curr->ptr[ind] == nullptr){
+            curr = curr->fail;
+        }
+        if(curr->ptr[ind] != nullptr)curr = curr->ptr[ind];
+        Trie * tp_node = curr;
+        while(tp_node != rt_trie && tp_node->appear != -1){
+            ret += tp_node->appear;
+            tp_node->appear = -1;
+            tp_node = tp_node->fail;
         }
     }
     return ret;
 }
 
-
 void sol(){
-    cin>>n>>m;
+    cin>>n;
     Trie * rt_trie = new Trie();
-    ll ans = 0;
-    string s;
+    vector<string> ves(n);
     rep(i,n){
-        cin>>s;
-        addString(rt_trie, s);
+        cin>>ves[i];
+        addString(rt_trie, ves[i], i);
     }
-    rep(i,m){
-        cin>>s;
-        cend(queryPrefix(rt_trie, s));
-    }
+    getFail(rt_trie);
+
+    string s;cin>>s;
+    cend(find_ans(rt_trie, s));
 
 }
 
