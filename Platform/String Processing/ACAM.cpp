@@ -162,6 +162,5 @@ int main(){
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
-    system("pause");
 	return 0;
 }
