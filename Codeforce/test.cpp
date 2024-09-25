@@ -53,159 +53,33 @@ void printvec(vll & v){
 	cendl;
 }
 
-
-// Luogu P3808, Aho-Corasick Automaton
-// this is without topo version
-struct Trie{
-    ll val = 0; // reserve?
-    ll dep = 0;
-    ll ind = 0;
-    Trie * ptr[30];
-    Trie * fail;
-    ll appear;
-    ll cnt;
-    ull hash;
-    ll indeg = 0;
-    Trie(){
-        val = dep = 0;
-        rep(i,30){
-            ptr[i] = nullptr;
-        }
-        fail = nullptr;
-        appear = 0;
-        cnt = 0;
-        indeg = 0;
-    }
-
-};
-
-map<ull, ll> hashtoans;
-
-void addString(Trie * rt_trie, string & s, ull hash){
-    Trie * curr = rt_trie;
-    ll sn = s.size();
-    rep(i,sn){
-        Trie * fa = curr;
-        ll ind = s[i] - 'a';
-        if(curr->ptr[ind] == nullptr){
-            Trie * node = new Trie();
-            curr->ptr[ind] = node;
-        }
-        curr = curr->ptr[ind];
-        curr->ind = ind;
-        curr->dep = fa->dep + 1;
-    }
-    curr->appear += 1;
-    curr->hash = hash;
-}
-
-void getFail(Trie * rt_trie){
-    queue<Trie *> node_q;
-    node_q.push(rt_trie);
-    while(node_q.size()){
-        Trie * tp_node = node_q.front();
-        node_q.pop();
-        for(int i = 0;i < 30;i++){
-            if(tp_node->ptr[i] != nullptr){
-                Trie * son_node = tp_node->ptr[i];
-                if(son_node->dep == 1){
-                    son_node->fail = rt_trie;
-                    rt_trie->indeg += 1;
-                }
-                else{
-                    Trie * fail_node = tp_node->fail;
-                    while(fail_node != rt_trie && fail_node->ptr[i] == nullptr){
-                        fail_node = fail_node->fail;
-                    }
-                    if(fail_node->ptr[i] != nullptr)fail_node = fail_node->ptr[i];
-                    son_node->fail = fail_node;
-                    fail_node->indeg += 1;
-                }
-                node_q.push(son_node);
-            }
-        }
-    }
-}
-
-void find_ans(Trie * rt_trie, string & s){
-    Trie * curr = rt_trie;
-    ll ans = 0;
-    for(int i = 0;i < s.size();i++){
-        ll ind = s[i] - 'a';
-        while(curr != rt_trie && curr->ptr[ind] == nullptr){
-            curr = curr->fail;
-        }
-        if(curr->ptr[ind] != nullptr)curr = curr->ptr[ind];
-        curr->cnt += 1;
-    }
-
-    queue<Trie *> bfsq;
-    queue<Trie *> topoq;
-
-    bfsq.push(rt_trie);
-    while(bfsq.size()){
-        Trie * now_node = bfsq.front();
-        bfsq.pop();
-        rep(i,30){
-            if(now_node->ptr[i] != nullptr){
-                bfsq.push(now_node->ptr[i]);
-            }
-        }
-        if(now_node->indeg == 0){
-            topoq.push(now_node);
-        }
-    }
-
-    // ctest;cend(topoq.size());
-
-    while(topoq.size()){
-        Trie * now_node = topoq.front();
-        topoq.pop();
-        if(now_node->appear != 0){
-            hashtoans[now_node->hash] = now_node->cnt;
-        }
-        Trie * fail_node = now_node->fail;
-        if(fail_node != rt_trie){
-            fail_node->cnt += now_node->cnt;
-            fail_node->indeg -= 1;
-            if(fail_node->indeg == 0){
-                topoq.push(fail_node);
-            }
-        }
-    }
-
-}
-
-ull gethash(string & s){
-    ull base = 13331;
-    ull ret = 0;
-    for(int i = 0;i < s.size();i++){
-        ret = ret * base + s[i];
-    }
-    return ret;
-}
-
 void sol(){
-    cin>>n;
-    Trie * rt_trie = new Trie();
-    vector<string> ves(n);
-    vector<ull> hashs;
-    rep(i,n){
-        cin>>ves[i];
-        ull thehash = gethash(ves[i]);
-        hashs.pb(thehash);
-        addString(rt_trie, ves[i], thehash);
+    cin>>n>>k;
+    if(n >= k){
+        if(n & 1){
+            if(k % 4 == 1 || k % 4 == 2){
+                no;
+            }
+            else{
+                yes;
+            }
+        }
+        else{
+            if(k % 4 == 2 || k % 4 == 3){
+                no;
+            }
+            else{
+                yes;
+            }
+        }
     }
-    getFail(rt_trie);
-
-    string s;
-    for(auto o : ves){
-        s = s + o + char('z' + 1);
-    }
-    ctest;cend(s);
-    find_ans(rt_trie, s);
-    for(auto o : hashs){
-        cend(hashtoans[o]);
+    else{
+        if(n % 4 == 1 || n % 4 == 2){
+            no;
+        }
+        else{
+            yes;
+        }
     }
 
 }
@@ -217,7 +91,7 @@ int main(){
 	// cout.tie(nullptr);
 		
 	tt = 1;
-	// cin>>tt;
+	cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
