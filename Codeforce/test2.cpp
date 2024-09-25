@@ -1,42 +1,20 @@
-#include<iostream>
-#include<cstdio>
-#include<cstring> 
-#include<algorithm>
+#include<bits/stdc++.h>
 using namespace std;
-int n,p;
-int a[100010];
-int s[100010],w[100010];
-long long ans;
 
-void sol(){
-	int n, m;
-	cin>>n>>m;
-	
-    ans=0; 
-	p=0;
-    for(int i=1;i<=n;i++) scanf("%d",&a[i]);
-    a[n+1]=0;
-    for(int i=1;i<=n+1;i++)
-    {
-        if(a[i]>s[p]) s[++p]=a[i],w[p]=1;
-        else{
-            int width=0;
-            while(s[p]>a[i])
-            {
-                width+=w[p];
-                ans=max(ans,(long long)width*s[p]);
-                p--;
-            }
-            s[++p]=a[i],w[p]=width+1;
-        }
+char pid;
+
+bool istrue(ll x){
+    string s = to_string(x);
+    if(s.size() % 2 == 0){
+
     }
-    cout<<ans<<endl;
 }
 
-int main(){
-	int itry = 0;
-	cin>>itry;
-	for(int i = 0;i < itry;i++){
-		sol();
-	}
+int main() {
+    cin >> pid;
+    if(pid == 'A')
+        puts("4430091");
+    else
+        puts("Answer for Problem B");
+    return 0;
 }

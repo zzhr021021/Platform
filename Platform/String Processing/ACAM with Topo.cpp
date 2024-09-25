@@ -60,7 +60,7 @@ struct Trie{
     ll val = 0; // reserve?
     ll dep = 0;
     ll ind = 0;
-    Trie * ptr[30];
+    Trie * ptr[26];
     Trie * fail;
     ll appear;
     ll cnt;
@@ -68,7 +68,7 @@ struct Trie{
     ll indeg = 0;
     Trie(){
         val = dep = 0;
-        rep(i,30){
+        rep(i,26){
             ptr[i] = nullptr;
         }
         fail = nullptr;
@@ -105,7 +105,7 @@ void getFail(Trie * rt_trie){
     while(node_q.size()){
         Trie * tp_node = node_q.front();
         node_q.pop();
-        for(int i = 0;i < 30;i++){
+        for(int i = 0;i < 26;i++){
             if(tp_node->ptr[i] != nullptr){
                 Trie * son_node = tp_node->ptr[i];
                 if(son_node->dep == 1){
@@ -146,7 +146,7 @@ void find_ans(Trie * rt_trie, string & s){
     while(bfsq.size()){
         Trie * now_node = bfsq.front();
         bfsq.pop();
-        rep(i,30){
+        rep(i,26){
             if(now_node->ptr[i] != nullptr){
                 bfsq.push(now_node->ptr[i]);
             }
@@ -198,11 +198,7 @@ void sol(){
     }
     getFail(rt_trie);
 
-    string s;
-    for(auto o : ves){
-        s = s + o + char('z' + 1);
-    }
-    ctest;cend(s);
+    string s;cin>>s;
     find_ans(rt_trie, s);
     for(auto o : hashs){
         cend(hashtoans[o]);
