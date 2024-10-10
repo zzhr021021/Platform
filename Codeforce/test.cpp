@@ -52,50 +52,88 @@ void printvec(vll & v){
 	cendl;
 }
 
-ll numtocnt[10] = {13, 1, 2, 3, 5, 4, 4, 2, 2, 2};
-ll daycount[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+ll c[200005];
+vll g[200005];
 
-bool check(ll o){
-	ll ck = 0;
-	rep(i,8){
-		ll tp = o % 10;
-		o /= 10;
-		ck += numtocnt[tp];
+ll tin[200005];
+ll tout[200005];
+ll dep[200005];
+ll fa[200005];
+ll baians[200005][20];
+
+ll ti = 0;
+
+void dfs(ll o, ll p_fa, ll p_dep){
+	fa[o] = p_fa;
+
+	baians[o][0] = p_fa;
+	rep1(i,20){
+		ll tp = baians[o][i - 1];
+		if(tp != -1){
+			baians[o][i] = baians[tp][i - 1];
+		}
+		if(baians[o][i] = -1){
+			break;
+		}
 	}
-	return ck > 50;
+	
+	dep[o] = p_dep;
+	ti++;
+	tin[o] = ti;
+
+	for(auto ad : g[o]){
+		if(ad != p_fa){
+			dfs(ad, o, p_dep + 1);
+		}
+	}
+
+	ti++;
+	tout[o] = ti;
 }
 
-bool isdate(ll o){
-	ll year = o / 10000;
-	ll month = o % 10000 / 100;
-	ll day = o % 100;
-	if(month == 2 && day == 29 && year % 4 == 0){
-		return true;
-	}
-	if(day == 0 || month == 0 || month > 12){
-		return false;
-	}
-	if(day > daycount[month]){
-		return false;
-	}
-	return true;
-	
+ll fun_isfa(ll fa, ll o){
+	if(tin[o] > tin[fa] && tout[o] < tout[fa])return true;
+	else return false;
+}
 
+// make sure it exist
+ll fun_getans(ll o, ll dist){
+	if(dist > dep[o]){
+		return -1;
+	}
+	if(dist == 0){
+		return o;
+	}
+	while(dist != 0){
+		
+	}
+}
+
+ll fun_LCA(ll u, ll v){
 
 }
 
 void sol(){
-	ll ans = 0;
-	for(ll i = 20000101;i <= 20240413;i++){
-		if(isdate(i)){
-			// ctest;cend(i);
-			if(check(i)){
-				ans++;
-			}
+	rep(i,100005){
+		rep(j,20){
+			baians[i][j] = -1;
 		}
 	}
-	cend(ans);
-	
+	cin>>n>>q;
+	rep1n(i,n){
+		cin>>c[i];
+	}
+	rep(i,n - 1){
+		cin>>x>>y;
+		g[x].pb(y);
+		g[y].pb(x);
+	}
+	rep(i,q){
+		cin>>x>>y;
+	}
+
+	dfs(1, -1, 0);
+
 }
 
 
