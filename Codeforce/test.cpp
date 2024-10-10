@@ -52,91 +52,49 @@ void printvec(vll & v){
 	cendl;
 }
 
-ll ans ;
-ll stk[1000];
-struct DLX{
-	static const int MAXSIZE = 1e5 + 10;
-	int n, m, tot, first[MAXSIZE + 10], siz[MAXSIZE + 10];
-	int L[MAXSIZE + 10], R[MAXSIZE + 10], U[MAXSIZE + 10], D[MAXSIZE + 10];
-	int col[MAXSIZE + 10], row[MAXSIZE + 10];
-	
-	void build(const int &r, const int &c) {
-		n = r, m = c;
-		for (int i = 0; i <= c; ++i) {
-			L[i] = i - 1, R[i] = i + 1;
-			U[i] = D[i] = i;
-		}
-		L[0] = c, R[c] = 0, tot = c;
-		memset(first, 0, sizeof(first));
-		memset(siz, 0, sizeof(siz));
-	}
-	
-	void insert(const int &r, const int &c) {
-		col[++tot] = c, row[tot] = r, ++siz[c];
-		D[tot] = D[c], U[D[c]] = tot, U[tot] = c, D[c] = tot;
-		if (!first[r])
-			first[r] = L[tot] = R[tot] = tot;
-		else {
-			R[tot] = R[first[r]], L[R[first[r]]] = tot;
-			L[tot] = first[r], R[first[r]] = tot;
-		}
-	}
-	
-	void remove(const int &c) {
-		int i, j;
-		L[R[c]] = L[c], R[L[c]] = R[c];
-		for (i = D[c]; i != c; i = D[i])
-		for (j = R[i]; j != i; j = R[j])
-		U[D[j]] = U[j], D[U[j]] = D[j], --siz[col[j]];
-	}
-	
-	void recover(const int &c) {
-		int i, j;
-		for (i = U[c]; i != c; i = U[i])
-		for (j = L[i]; j != i; j = L[j]) U[D[j]] = D[U[j]] = j, ++siz[col[j]];
-		L[R[c]] = R[L[c]] = c;
-	}
-	
-	bool dance(int dep) {
-		if (!R[0]) {
-			ans = dep;
-			return 1;
-		}
-		int i, j, c = R[0];
-		for (i = R[0]; i != 0; i = R[i])if (siz[i] < siz[c]) c = i;
-		remove(c);
-		for (i = D[c]; i != c; i = D[i]) {
-			stk[dep] = row[i];
-			for (j = R[i]; j != i; j = R[j]) remove(col[j]);
-			if (dance(dep + 1)) return 1;
-			for (j = L[i]; j != i; j = L[j]) recover(col[j]);
-		}
-		recover(c);
-		return 0;
-	}
-}solver;
+ll numtocnt[10] = {13, 1, 2, 3, 5, 4, 4, 2, 2, 2};
+ll daycount[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
+bool check(ll o){
+	ll ck = 0;
+	rep(i,8){
+		ll tp = o % 10;
+		o /= 10;
+		ck += numtocnt[tp];
+	}
+	return ck > 50;
+}
+
+bool isdate(ll o){
+	ll year = o / 10000;
+	ll month = o % 10000 / 100;
+	ll day = o % 100;
+	if(month == 2 && day == 29 && year % 4 == 0){
+		return true;
+	}
+	if(day == 0 || month == 0 || month > 12){
+		return false;
+	}
+	if(day > daycount[month]){
+		return false;
+	}
+	return true;
+	
+
+
+}
 
 void sol(){
-	cin>>n>>m;
-	solver.build(n, m);
-	rep1n(i,n){
-		rep1n(j,m){
-			cin>>x;
-			if(x){
-				solver.insert(i, j);
+	ll ans = 0;
+	for(ll i = 20000101;i <= 20240413;i++){
+		if(isdate(i)){
+			// ctest;cend(i);
+			if(check(i)){
+				ans++;
 			}
 		}
 	}
-	
-	solver.dance(1);
-	
-	if(ans){
-		for (int i = 1; i < ans; ++i) cout << stk[i] << ' ';
-	}
-	else{
-		cend("No Solution!");
-	}
+	cend(ans);
 	
 }
 
@@ -151,6 +109,6 @@ int main(){
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
-//	system("pause");
+	system("pause");
 	return 0;
 }
