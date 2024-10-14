@@ -1,33 +1,103 @@
 #include<bits/stdc++.h>
+#define rep(i, n) for (int i = 0; i < (n); ++i)
+#define rep1(i, n) for (int i = 1; i < (n); ++i)
+#define rep1n(i, n) for (int i = 1; i <= (n); ++i)
+#define rep1nr(i, n) for (int i = (n); i >= 1; --i)
+#define rep01n(i, n) for (int i = 0; i <= (n); ++i)
+#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
+
+#define ll long long
+#define ull unsigned long long
+#define pll pair<long long, long long>
+#define vi vector<int>
+#define vll vector<long long>
+#define vb vector<bool>
+#define vpl vector<pair<long long, long long>>
+#define smpq priority_queue<long long, vector<long long>, greater<long long>>
+#define bgpq priority_queue<long long> 
+
+
+#define yes cout<<"YES\n"
+#define no cout<<"NO\n"
+#define csp(n) cout << n << " "
+#define cend(n) cout << n << endl
+#define cendl cout << endl
+#define ctest cout << "test   "
+#define pb push_back
+#define all(a) a.begin(), a.end()
+#define rall(a) a.rbegin(), a.rend()
+ 
+#define alice cout<<"Alice\n"
+#define bob cout<<"Bob\n"
+#define draw cout<<"Draw\n"
+
+const ll MOD = 1e9;
+const ll MODD = 1e9+9;
+const ll MOOD = 998244353;
+ll p = MOD;
+const ll inf = 1e18;
+const ll INF = 1e18; 
+const int N = 200005;
 using namespace std;
-const int N=1e4+5;
-long long n,maxd,ans[N];
-bool dfs(int k){
-	if(k>maxd)return ans[k-1]==n;
-	if(ans[k-1]*((long long)1<<(maxd-k+1))<n)return 0;//最优化剪枝：后面每一项最多是前一项的2倍 
-	for(int i=0;i<k;i++)
-		for(int j=i;j<k;j++){
-			long long t=ans[i]+ans[j];
-			if(t>n)break;//可行性剪枝：ans单调递增，如果t>n则后面的j都会大于n； 
-			if(t<=ans[k-1])continue; //保证ans单调递增 
-			ans[k]=t;
-			if(dfs(k+1))return 1;
-		}
-	return 0;
-}
-int main(){
-	ans[0]=1;
-	while(scanf("%lld",&n)&&n){
-		printf("1");
-		for(maxd=0;;maxd++){
-			if(dfs(1)){
-				for(int i=1;i<=maxd;i++)
-					printf(" %lld",ans[i]);
-				printf("\n");
-				break;
-			}
-		}
+ 
+ll tt;
+ll ttt;
+ll n,k,m,d,q,t,x,y,z,h;
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+
+void printvec(vll & v){
+	for(ll &x : v){
+		cout << x << " ";
 	}
-    system("pause");
+	cendl;
+}
+
+ll digit(ll x){
+	ll ret = 0;
+	while(x){
+		ret += x % 10;
+		x /= 10;
+	}
+	return ret;
+}
+
+void sol(){
+	ll ans = 0;
+	for(int ii = 1;ii <= 4;ii++){
+		ll base = 10;
+		ll mx = 1;
+		rep(i,ii){
+			mx *= base;
+		}
+		vll buc(100);
+		vll bucno0(100);
+		rep(i,mx){
+			ll tp = digit(i);
+			if(i >= mx / 10){
+				bucno0[tp]++;
+			}
+			buc[tp]++;
+		}
+		ll tans = 0;
+		rep(i,100){
+			tans += bucno0[i] * buc[i];
+		}
+		ans += tans;
+	}
+	cend(ans);
+}
+
+
+int main(){
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
+
+	tt = 1;
+//	cin>>tt;
+	for(ttt = 1;ttt <= tt;ttt++){
+		sol();
+	}
+	system("pause");
 	return 0;
 }

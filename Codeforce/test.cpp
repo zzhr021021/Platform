@@ -52,8 +52,42 @@ void printvec(vll & v){
 	cendl;
 }
 
+ll a[40];
+ll cursum = 0;
+ll cut = 0;
+ll ans = inf;
+void dfs(ll pos){
+	if(cursum == m){
+		ans = min(ans, cut);
+	}
+	if(cursum >= m)return;
+	if(pos == n)return;
+
+	dfs(pos + 1);
+
+	cursum += a[pos] / 2;
+	cut++;
+	dfs(pos + 1);
+	cut--;
+	cursum -= a[pos] / 2;
+
+	cursum += a[pos];
+	dfs(pos + 1);
+	cursum -= a[pos];
+
+}
+
+
 void sol(){
+	cin>>n>>m;m *= 2;
+	rep(i,n){
+		cin>>a[i];
+		a[i] *= 2;
+	}
+	dfs(0);
 	
+	cend(ans);
+
 }
 
 
@@ -61,11 +95,6 @@ int main(){
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
-
-	for(int i = 0, j = 1;i < 30;i++, j *= 2){
-		expo[j] = i;
-		pow2[i] = j;
-	}
 
 	tt = 1;
 //	cin>>tt;
