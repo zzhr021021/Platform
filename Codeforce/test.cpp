@@ -43,7 +43,7 @@ using namespace std;
 ll tt;
 ll ttt;
 ll n,k,m,d,q,t,x,y,z,h;
-mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+// mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 void printvec(vll & v){
 	for(ll &x : v){
@@ -52,41 +52,8 @@ void printvec(vll & v){
 	cendl;
 }
 
-ll a[40];
-ll cursum = 0;
-ll cut = 0;
-ll ans = inf;
-void dfs(ll pos){
-	if(cursum == m){
-		ans = min(ans, cut);
-	}
-	if(cursum >= m)return;
-	if(pos == n)return;
-
-	dfs(pos + 1);
-
-	cursum += a[pos] / 2;
-	cut++;
-	dfs(pos + 1);
-	cut--;
-	cursum -= a[pos] / 2;
-
-	cursum += a[pos];
-	dfs(pos + 1);
-	cursum -= a[pos];
-
-}
-
-
 void sol(){
-	cin>>n>>m;m *= 2;
-	rep(i,n){
-		cin>>a[i];
-		a[i] *= 2;
-	}
-	dfs(0);
 	
-	cend(ans);
 
 }
 
