@@ -37,6 +37,8 @@ ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18; 
 const int N = 200005;
+ll dx[4] = {-1, -1, 1, 1};
+ll dy[4] = {1, -1, -1, 1};
 using namespace std;
  
 ll tt;
@@ -51,61 +53,105 @@ void printvec(vll & v){
 	cendl;
 }
 
-ll dx[4] = {0, -1, 0, 1};
-ll dy[4] = {1, 0, -1, 0};
-string enws = "enws";
-string enwsupper = "ENWS";
-vector<vector<char>> a(25, vector<char>(25));
-ll hx, hy, bx, by, tarx, tary;
-ll dist_h[25][25][25][25];
-ll dist_b[25][25][25][25];
+ll g[300000][4];
+bool vis[300000];
+bool ext[300000];
+ll dist[300000];
 struct node{
-	ll hx, hy, bx, by, dist_h, dist_b;
-	string path;
+	ll id, dist;
 };
 
 void sol(){
+	
 	cin>>n>>m;
-	ll maze = 0;
-	while(n){
-		maze += 1;
-		cout << "Maze #" << maze << endl;
-		vector<string> rows(n);
-		rep(i,n)cin>>rows[i];
-		
-		rep(i, n + 2){
-			rep(j,m + 2){
-				a[i][j] = '#';
-				rep(idir, 4){
-					dist_b[i][j][idir] = inf;
-					dist_h[i][j][idir] = inf;
-				}
-			}
+
+	ll nodecnt = (n + 1) * (m + 1);
+	rep(i,(n * 5) * (m * 5)){
+		rep(idir, 4){
+			g[i][idir] = inf;
 		}
+		vis[i] = ext[i] = false;
+		dist[i] = inf;
+	}
+	vector<string> rows(n);
+
+	rep(i,n)cin>>rows[i];
+
+	if((n + m) % 2 == 1){
+		cend("NO SOLUTION");
+	}
+	else{
+		ll nodecnt = (n + 1) * (m + 1);
 		rep(i,n){
 			rep(j,m){
-				a[i + 1][j + 1] = rows[i][j];
+				if(rows[i][j] == '/'){
+					x = (i * (m + 1)) + j + 1;
+					y = (i * (m + 1)) + j + m + 1;
+					g[y][0] = 0;
+					g[x][2] = 0;
+					x = (i * (m + 1)) + j;
+					y = (i * (m + 1)) + j + m + 1 + 1;
+					g[x][3] = 1;
+					g[y][1] = 1;
+				}
+				else{
+					x = (i * (m + 1)) + j + 1;
+					y = (i * (m + 1)) + j + m + 1;
+					g[y][0] = 1;
+					g[x][2] = 1;
+					x = (i * (m + 1)) + j;
+					y = (i * (m + 1)) + j + m + 1 + 1;
+					g[x][3] = 0;
+					g[y][1] = 0;
+				}
 			}
 		}
-		n += 2;m += 2;
-		rep(i,n){
-			rep(j,m){
-				if(a[i][j] == 'S'){
-					hx = i;hy = j;a[i][j] = '.';
-				}
-				if(a[i][j] == 'B'){
-					bx = i;by = j;a[i][j] = '.';
-				}
-				if(a[i][j] == 'T'){
-					tarx = i;tary = j;a[i][j] = '.';
+
+
+		deque<node> nodeq;
+		nodeq.push_back({0, 0});
+		vis[0] = true;
+		dist[0] = 0;
+		while(nodeq.size()){
+			auto o = nodeq.front();
+			// ctest;csp(o.id + 1);cend(o.dist);
+			nodeq.pop_front();
+			ll id = o.id;
+			x = id / (m + 1);
+			y = id % (m + 1);
+			if(ext[id])continue;
+			ext[id] = true;
+			rep(idir, 4){
+				ll nx = x + dx[idir];
+				ll ny = y + dy[idir];
+				ll nid = nx * (m + 1) + ny;
+				// csp("sub");
+				// csp(nx);csp(ny);cend(nid);
+				if(nx >= 0 && ny >= 0 && nx < n + 1 && ny < m + 1 && !ext[nid]){
+					// csp("truesub");
+					// cend(nid);
+					if(g[id][idir] == 0){
+						// cend(nid);
+						vis[nid] = true;
+						if(o.dist < dist[nid]){
+							dist[nid] = o.dist;
+							node u = {nid, o.dist};
+							nodeq.push_front(u);
+						}
+					}
+					else if(g[id][idir] == 1){
+						vis[nid] = true;
+						if(o.dist + 1 < dist[nid]){
+							dist[nid] = o.dist + 1;
+							node u = {nid, o.dist + 1};
+							nodeq.push_back(u);
+						}
+					}
 				}
 			}
 		}
+		cend(dist[nodecnt - 1]);
 
-		
-
-
-		cin>>n>>m;
 	}
 
 }
