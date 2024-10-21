@@ -37,14 +37,13 @@ ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18; 
 const int N = 200005;
-ll dix[4] = {0, -1, 0, 1};
-ll diy[4] = {1, 0, -1, 0};
+// ll dix[4] = {0, -1, 0, 1};
+// ll diy[4] = {1, 0, -1, 0};
 using namespace std;
- 
-ll tt;
-ll ttt;
-ll n,k,m,d,q,t,x,y,z,h;
 // mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+
+ll tt, ttt;
+ll n,k,m,d,q,t,x,y,z,h;
 
 void printvec(vll & v){
 	for(ll &x : v){
@@ -53,142 +52,37 @@ void printvec(vll & v){
 	cendl;
 }
 
-struct node{
-	ll dist, x, y;
+struct person{
+	string name, post;
+	ll contri, level;
+	ll idx;
 };
-char a[900][900];
-ll dista[900][900];
-ll distb[900][900];
-ll ax, ay;
-ll bx, by;
-ll cx, cy;
-ll dx, dy;
-
-bool placenotgood(ll i, ll j, ll turn){
-	ll d1 = llabs(i - cx) + llabs(j - cy);
-	if(d1 <= turn * 2)return true;
-	ll d2 = llabs(i - dx) + llabs(j - dy);
-	if(d2 <= turn * 2)return true;
-	return false;
-}
-bool placegood(ll i, ll j, ll turn){
-	return !placenotgood(i, j, turn);
-}
-bool inbound(ll i, ll j){
-	return i >= 0 && j >= 0 && i < n && j < m && !(a[i][j] == 'X');
+bool cmp(const person & p1, const person & p2){
+	if(p1.contri == p2.contri)return p1.idx < p2.idx;
+	return p1.contri > p2.contri;
 }
 
 void sol(){
-	cin>>n>>m;
-	vector<string> rows(n);
-	rep(i,n)cin>>rows[i];
-	rep(i,n+2){
-		rep(j,m+2){
-			a[i][j] = 'X';
-		}
-	}
+	cin>>n;
+	vector<person> vperson;
 	rep(i,n){
-		rep(j,m){
-			a[i + 1][j + 1] = rows[i][j];
-		}
+		string s1, s2;
+		cin>>s1>>s2;
+		cin>>x>>y;
+		vperson.push_back({s1, s2, x, y, z});
 	}
-	n += 2;m += 2;
+	sort(all(vperson), cmp);
 
-	ll cghost = 0;
-	rep(i,n){
-		rep(j,m){
-			dista[i][j] = distb[i][j] = inf;
-			if(a[i][j] == 'M'){
-				ax = i;ay = j;
-			}
-			if(a[i][j] == 'G'){
-				bx = i;by = j;
-			}
-			if(a[i][j] == 'Z'){
-				if(cghost == 0){
-					cx = i;cy = j;
-				}
-				else{
-					dx = i;dy = j;
-				}
-				cghost++;
-			}
-		}
-	}
-
-	ll turn = 1;
-	queue<node> qa;
-	queue<node> qb;
-	qa.push({0, ax, ay});
-	qb.push({0, bx, by});
-	dista[ax][ay] = 0;
-	distb[bx][by] = 0;
-	bool flag = false;
-	while(true){
-		if(flag){
-			break;
-		}
-		if(qa.size() + qb.size() == 0){
-			break;
-		}
-		while(qa.size() && qa.front().dist < turn * 3){
-			auto o = qa.front();
-			qa.pop();
-			if(placenotgood(o.x, o.y, turn)){
-				continue;
-			}
-			rep(idir, 4){
-				ll nx = o.x + dix[idir];
-				ll ny = o.y + diy[idir];
-				if(inbound(nx, ny) && placegood(nx, ny, turn)){
-					if(dista[nx][ny] == inf){
-						dista[nx][ny] = o.dist + 1;
-						qa.push({o.dist + 1, nx, ny});
-						if(!flag && distb[nx][ny] != inf){
-							flag = true;
-							cend(turn);
-						}
-					}
-				}
-			}
-		}
-		// girl
-		while(qb.size() && qb.front().dist < turn * 1){
-			auto o = qb.front();
-			qb.pop();
-			if(placenotgood(o.x, o.y, turn)){
-				continue;
-			}
-			rep(idir, 4){
-				ll nx = o.x + dix[idir];
-				ll ny = o.y + diy[idir];
-				if(inbound(nx, ny) && placegood(nx, ny, turn)){
-					if(distb[nx][ny] == inf){
-						distb[nx][ny] = o.dist + 1;
-						// csp("girl push");csp(o.dist + 1);csp(nx);csp(ny);cend(turn);
-						qb.push({o.dist + 1, nx, ny});
-						if(!flag && dista[nx][ny] != inf){
-							flag = true;
-							cend(turn);
-						}
-					}
-				}
-			}
-		}
-
-		turn++;
-	}
-	if(!flag)cend(-1);
 
 }
 
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
 
 	tt = 1;
-	cin>>tt;
+	// cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
