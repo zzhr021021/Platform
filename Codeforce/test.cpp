@@ -52,37 +52,51 @@ void printvec(vll & v){
 	cendl;
 }
 
-struct person{
-	string name, post;
-	ll contri, level;
-	ll idx;
-};
-bool cmp(const person & p1, const person & p2){
-	if(p1.contri == p2.contri)return p1.idx < p2.idx;
-	return p1.contri > p2.contri;
+vector<string> indi(7);
+ll estimate(vector<vll> & vv, ll tar){
+	ll err = 0;
+	for(int i = 2;i <= 4;i++){
+		for(int j = 2;j <= 4;j++){
+			if(i != 3 && j != 3){
+				if(vv[i][j] != tar){
+					err++;
+				}
+			}
+		}
+	}
+	return err;
 }
 
 void sol(){
-	cin>>n;
-	vector<person> vperson;
-	rep(i,n){
-		string s1, s2;
-		cin>>s1>>s2;
-		cin>>x>>y;
-		vperson.push_back({s1, s2, x, y, z});
+	vector<vll> a(7, vll(7, 0));
+	vll araw(24);
+	rep(i,24)cin>>araw[i];
+	ll pos = 0;
+	rep(i,7){
+		rep(j,7){
+			if(indi[i][j] == '1'){
+				a[i][j] = araw[pos];
+				pos++;
+			}
+		}
 	}
-	sort(all(vperson), cmp);
-
-
 }
 
 int main(){
-	// ios_base::sync_with_stdio(false);
-	// cin.tie(nullptr);
-	// cout.tie(nullptr);
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
+
+	indi[0] = "0010100";
+	indi[1] = "0010100";
+	indi[2] = "1111111";
+	indi[3] = "0010100";
+	indi[4] = "1111111";
+	indi[5] = "0010100";
+	indi[6] = "0010100";
 
 	tt = 1;
-	// cin>>tt;
+	cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
