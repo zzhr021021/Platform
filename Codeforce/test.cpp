@@ -13,6 +13,7 @@
 #define vll vector<long long>
 #define vb vector<bool>
 #define vpl vector<pair<long long, long long>>
+#define vstr vector<string>
 #define smpq priority_queue<long long, vector<long long>, greater<long long>>
 #define bgpq priority_queue<long long> 
 
@@ -29,6 +30,8 @@
 #define alice cout<<"Alice\n"
 #define bob cout<<"Bob\n"
 #define draw cout<<"Draw\n"
+
+#define NODE array<array<ll, 7>, 7> 
 
 const ll MOD = 1e9;
 const ll MODD = 1e9+9;
@@ -52,34 +55,8 @@ void printvec(vll & v){
 	cendl;
 }
 
-vector<string> indi(7);
-ll estimate(vector<vll> & vv, ll tar){
-	ll err = 0;
-	for(int i = 2;i <= 4;i++){
-		for(int j = 2;j <= 4;j++){
-			if(i != 3 && j != 3){
-				if(vv[i][j] != tar){
-					err++;
-				}
-			}
-		}
-	}
-	return err;
-}
-
 void sol(){
-	vector<vll> a(7, vll(7, 0));
-	vll araw(24);
-	rep(i,24)cin>>araw[i];
-	ll pos = 0;
-	rep(i,7){
-		rep(j,7){
-			if(indi[i][j] == '1'){
-				a[i][j] = araw[pos];
-				pos++;
-			}
-		}
-	}
+	
 }
 
 int main(){
@@ -87,16 +64,8 @@ int main(){
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
-	indi[0] = "0010100";
-	indi[1] = "0010100";
-	indi[2] = "1111111";
-	indi[3] = "0010100";
-	indi[4] = "1111111";
-	indi[5] = "0010100";
-	indi[6] = "0010100";
-
 	tt = 1;
-	cin>>tt;
+	// cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
