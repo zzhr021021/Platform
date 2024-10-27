@@ -39,8 +39,8 @@ ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18; 
 const int N = 200005;
-// ll dix[4] = {0, -1, 0, 1};
-// ll diy[4] = {1, 0, -1, 0};
+ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
+ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
 // mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
@@ -54,11 +54,81 @@ void printvec(vll & v){
 	cendl;
 }
 
-void sol(){
-	ll x, y;
-	while(cin>>x>>y){
-
+#define node array<ll, 10>
+ll primes[10] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
+ll divmin[1024];
+ull base = 13331;
+set<ull> rec;
+ull gethash(node & o){
+	ll ret = 0;
+	for(auto x : o){
+		ret *= base;
+		ret += x;
 	}
+	return ret;
+}
+bool outbound(node & o){
+	ll cnt = 0;
+	for(auto x : o){
+		cnt += x;
+	}
+	if(cnt >= 31)return true;
+	return false;
+}
+ll cntdiv(node & o){
+	ll cnt = 1;
+	for(auto x : o){
+		cnt *= (x + 1);
+	}
+	return cnt;
+}
+void printnode(node & o){
+	rep(i,10){
+		csp(o[i]);
+	}
+	cendl;
+}
+void dfs(node o, ll x){
+	// ctest;printnode(o);cend(x);
+	if(outbound(o))return;
+	if(x > 2e9)return;
+	ull thehash = gethash(o);
+	if(rec.count(thehash))return;
+	rec.insert(thehash);
+	ll divcnt = cntdiv(o);
+	divmin[divcnt] = min(divmin[divcnt], x);
+	rep(i,10){
+		node u = o;
+		if(i == 0){
+			u[0]++;
+			dfs(u, x * primes[0]);
+		}
+		else{
+			if(u[i] < u[i - 1]){
+				u[i]++;
+				dfs(u, x * primes[i]);
+			}
+		}
+	}
+}
+
+void sol(){
+	rep(i,1024){
+		divmin[i] = inf;
+	}
+	cin>>n;
+	node sto;
+	rep(i,10){
+		sto[i] = 0;
+	}
+	dfs(sto, 1);
+	ll ans = 0;
+	rep(i,1024){
+		if(divmin[i] != inf && divmin[i] <= n){
+			ans = divmin[i];
+		}
+	}
+	cend(ans);
 
 }
 
