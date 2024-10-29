@@ -58,21 +58,22 @@ ll pollardRhoCore(ll x, ll md){
 
 // return 0 if failure
 ll pollardRho(ll n){
-    ll x = 2;
-    ll y = x;
-    ll d = 1;
-    while(d == 1){
-        x = pollardRhoCore(x, n);
-        y = pollardRhoCore(y, n);
-        y = pollardRhoCore(y, n);
-        d = __gcd(llabs(x - y), n);
-    }
-    if(d == n){
-        return 0;
-    }
-    else{
+    rep1n(corei, 20){
+        ll x = corei;
+        ll y = x;
+        ll d = 1;
+        while(d == 1){
+            x = pollardRhoCore(x, n);
+            y = pollardRhoCore(y, n);
+            y = pollardRhoCore(y, n);
+            d = __gcd(llabs(x - y), n);
+        }
+        if(d == n || d == 0){
+            continue;
+        }
         return d;
     }
+    return 1;
 }
 
 void sol(){
