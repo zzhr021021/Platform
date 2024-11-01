@@ -1,94 +1,111 @@
-#include<bits/stdc++.h>
-#define rep(i, n) for (int i = 0; i < (n); ++i)
-#define rep1(i, n) for (int i = 1; i < (n); ++i)
-#define rep1n(i, n) for (int i = 1; i <= (n); ++i)
-#define rep1nr(i, n) for (int i = (n); i >= 1; --i)
-#define rep01n(i, n) for (int i = 0; i <= (n); ++i)
-#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
+#include<cstdlib>
+#include<cstdio>
+#include<iostream>
+#include<cmath>
+#include<algorithm>
+
+using namespace std;
 
 #define ll long long
-#define ull unsigned long long
-#define pll pair<long long, long long>
-#define vi vector<int>
-#define vll vector<long long>
-#define vb vector<bool>
-#define vpl vector<pair<long long, long long>>
-#define vstr vector<string>
-#define smpq priority_queue<long long, vector<long long>, greater<long long>>
-#define bgpq priority_queue<long long> 
-
-#define yes cout<<"YES\n"
-#define no cout<<"NO\n"
-#define csp(n) cout << n << " "
+#define rep(i,n) for(int i = 0;i < n;i++)
+#define rep1n(i,n) for(int i = 1;i <= n;i++)
 #define cend(n) cout << n << endl
-#define cendl cout << endl
-#define ctest cout << "test   "
-#define pb push_back
-#define all(a) a.begin(), a.end()
-#define rall(a) a.rbegin(), a.rend()
- 
-#define alice cout<<"Alice\n"
-#define bob cout<<"Bob\n"
-#define draw cout<<"Draw\n"
 
-
-const ll MOD = 1e9;
-const ll MODD = 1e9+9;
-const ll MOOD = 998244353;
-ll p = MOD;
+const ll N = 100000;
+const ll NP = 100005;
 const ll inf = 1e18;
-const ll INF = 1e18; 
-const int N = 200005;
-// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
-// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
-using namespace std;
-// mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
-ll tt, ttt;
-ll n,k,m,d,t,x,y,z,h, q;
-
-void printvec(vll & v){
-	for(ll &x : v){
-		cout << x << " ";
+bool isprime[NP];
+ll minprime[NP];
+ll primes[NP];
+ll pp = 0;
+void preprocess_prime(){
+	for(int i = 2;i <= N;i++){
+		isprime[i] = true;
+		minprime[i] = inf;
 	}
-	cendl;
+	for(int i = 2;i <= N;i++){
+		if(isprime[i]){
+			minprime[i] = i;
+			for(int j = 2 * i;j <= N;j += i){
+				minprime[j] = min(minprime[j], (ll)i);
+				isprime[j] = false;
+			}
+			primes[pp] = i;
+			pp++;
+		}
+	}
 }
 
-ll segtree[1000000];
-ll lazy[1000000];
-void maintain(ll o){
-	segtree[o] = segtree[o<<1] + segtree[o<<1|1];
-}
-void delazy(ll o, ll l, ll r){
-	segtree[o] += (r - l + 1) * lazy[o];
-	lazy[o<<1] = lazy[o];
-	lazy[o<<1|1] = lazy[o];
-	lazy[o] = 0;
-}
-void add(ll o, ll l, ll r, ll L, ll R, ll num){
-	if(r < L || l > R)return;
-	if(l >= L && r <= R)lazy[o] += num;
-	
-}
-ll query(ll o, ll l, ll r, ll L, ll R){
-
+ll eulerArr[NP];
+void preprocess_euler(){
+	eulerArr[1] = 1;
+	for(int i = 2;i <= N;i++){
+		ll tp = minprime[i];
+		if(i % (tp * tp) == 0)eulerArr[i] = eulerArr[i / tp] * tp;
+		else eulerArr[i] = eulerArr[i / tp] * (tp - 1);
+	}
 }
 
-void sol(){
-	
+ll quick_power_mod(ll x, ll y, ll m){
+	ll ret = 1;
+	if(y == 0)return 1;
+	if(y & 1)ret = x;
+	ll tp = quick_power_mod(x, y / 2, m);
+	ret = (ret * tp) % m;
+	ret = (ret * tp) % m;
+	return ret;
+}
 
+ll getEuler(ll x){
+	if(x <= N)return eulerArr[x];
+	for(int j = 0;j < pp;j++){
+		int i = primes[j];
+		if(x % i == 0){
+			if(x % (i * i) == 0)return getEuler(x / i) * i;
+			else return getEuler(x / i) * (i - 1);
+		}
+	}
+	return x - 1;
 }
 
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+	preprocess_prime();
+	preprocess_euler();
+	ll icase = 0;
+	while(true){
+		icase++;
+		
+		ll n;cin>>n;
 
-	tt = 1;
-	cin>>tt;
-	for(ttt = 1;ttt <= tt;ttt++){
-		sol();
+
+		if(n == 0)return 0;
+		cout << "Case " << icase << ": ";
+		ll d = __gcd(n, (ll)8);
+
+		if(__gcd((ll)10, 9 * n / d) != 1){
+			cout << 0 << endl;
+			continue;
+		}
+
+		ll theEuler = getEuler(9 * n / d);
+		
+		ll ans = inf;
+		for(int i = 1;i * i <= theEuler;i++){
+			if(theEuler % i == 0){
+				ll x;
+				x = i;
+				if(quick_power_mod(10, x, 9 * n / d) == 1){
+					ans = min(ans, (ll)x);
+					break;
+				}
+				x = theEuler / i;
+				if(quick_power_mod(10, x, 9 * n / d) == 1){
+					ans = min(ans, (ll)x);
+				}
+			}
+		}
+		cout << ans << endl;
 	}
-	system("pause");
 	return 0;
 }
