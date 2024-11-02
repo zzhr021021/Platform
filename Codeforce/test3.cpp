@@ -1,36 +1,52 @@
 #include<bits/stdc++.h>
-#define rep(i, n) for (int i = 0; i < (n); ++i)
-#define rep1(i, n) for (int i = 1; i < (n); ++i)
-#define rep1n(i, n) for (int i = 1; i <= (n); ++i)
-
-#define ll long long
-#define pll pair<long long, long long>
-#define vi vector<int>
-#define vll vector<long long>
-
-#define csp(n) cout << n << " "
-#define cend(n) cout << n << endl
-#define cendl cout << endl
-#define ctest cout << "test   "
-#define pb push_back
-
-const ll MOD = 1e9;
-ll p = MOD;
-const ll inf = 1e18;
 using namespace std;
- 
-ll tt;
-ll ttt;
-ll n,k,m,d,q,t,x,y,z,h;
+#define ll long long
+const int base = 1000000000;
+const int base_digits = 9;
+const ll fullbit = -1;
+struct ll128 {
+    array<ll, 2> a; // make a[0] high, a[1] low;
 
-void sol(){
-	cin>>n>>m;
+	ll128(){
+		a[0] = a[1] = 0;
+    }
+	ll128(long long v) {
+		if(v >= 0){
+			a[1] = v;
+		}
+		else{
+			v = -v;
+			a[0] = a[1] = fullbit;
+			a[1] -= v - 1;
+		}
+    }
+    // ll128(const string &s) {
+    //     read(s);
+    // }
+	void operator=(const ll128 &v) {
+		a[0] = v.a[0];
+		a[1] = v.a[1];
+    }
+    void operator=(long long v) {
+		if(v >= 0){
+			a[1] = v;
+		}
+		else{
+			v = -v;
+			a[0] = a[1] = fullbit;
+			a[1] -= v - 1;
+		}
+    }
 	
-}
 
-int main(){
-	tt = 1;
-	sol();
-	system("pause");
-	return 0;
+
+};
+
+int main(int argc, char const *argv[]){
+    cout << "test  ";
+    ll128 x = 37;
+    ll128 y = 109;
+	
+    system("pause");
+    return 0;
 }

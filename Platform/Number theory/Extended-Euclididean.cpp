@@ -29,7 +29,6 @@ ll k,m,x,y,d,q,f,h,w,t,R;
 struct triple {
     ll d, x, y;
 };
- 
 triple eucl(ll a, ll b) {
     if (b == 0) {
         return {a, 1, 0};
@@ -52,7 +51,7 @@ int main(){
 	// gcd x y
 	csp(tp.d);csp(tp.x);csp(tp.y);cendl;
     
-    // for problem lime 9x = b(mod 21), find all x
+    // for problem like 9x = b(mod 21), find all x
     // b % gcd != 0, like b = 16, no ans
 	// b % gcd == 0, like b = 15:
 	ll a = 9;
@@ -67,8 +66,5 @@ int main(){
 		minans = (minans + n) % n;
 		cend(minans);
 	}
-	
-	
-	
 	return 0;
 }

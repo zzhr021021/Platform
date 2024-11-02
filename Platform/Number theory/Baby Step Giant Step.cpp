@@ -54,57 +54,28 @@ void printvec(vll & v){
 	cendl;
 }
 
-const ll MMint = 1e5+5;
-bool isp[MMint];
-int primes[MMint];
-int pp = 0;
-int minprime[MMint];
-ll a[100005];
-ll b[100005];
-
-struct triple {
-    ll d, x, y;
-};
-triple eucl(ll a, ll b) {
-    if (b == 0) {
-        return {a, 1, 0};
+// given a, b, p, gcd(a, p) == 1
+// output any non-negtive integer x, such that pow(a, x) = b (mod p)
+ll baby_step_giant_step(ll a, ll b, ll p){
+    map<ll, ll> hash;
+    hash.clear();
+    b %= p;
+    ll t = (ll)sqrt(p) + 1;
+    for(int j = 0;j < t;j++){
+        ll val = (ll)b * power(a, j, p) % p;
+        hash[val] = j;
     }
-    ll k = a / b;
-    triple tp = eucl(b, a - k * b);
-    ll d = tp.d;
-    ll x = tp.x;
-    ll y = tp.y;
-    return {d, y, x - k * y};
+    a = power(a, t, p);
+    if(a == 0)return b == 0 ? 1 : -1;
+    for(int i = 0;i <= t;i++){
+        ll val = power(a, i, p);
+        ll j = hash.find(val) == hash.end() ? -1 : hash[val];
+        if(j >= 0 && i * t - j >= 0)return i * t - j;
+    }
+    return -1;
 }
-ll qmul(ll A, ll B, ll mod){
-	ll ans = 0;
-   while(B > 0){
-     	if(B & 1) ans = (ans + A % mod) % mod;
-   		A = (A + A) % mod;
-   		B >>= 1;
-	}
-	return ans;
-}
-
 void sol(){
-	cin>>n;
-	ll xk = 0;
-	ll mk = 1;
-	ll thelcm = 1;
-	rep(i,n){
-		cin>>a[i]>>b[i];
-		auto tp = eucl(mk, a[i]);
-		// ctest;csp(tp.x);csp(tp.y);cend(tp.d);
-		ll am = (b[i] - xk) / tp.d * tp.x;
-		ll ax = xk + mk * am;
-		thelcm = thelcm * a[i] / __gcd(thelcm, a[i]);
-		mk = thelcm;
-		xk = (ax % mk + mk) % mk;
-		ctest;
-		csp(mk);
-		cend(xk);
-	}
-	cend(xk);
+    
 
 }
 
