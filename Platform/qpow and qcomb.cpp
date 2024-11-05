@@ -22,21 +22,18 @@ vector<unordered_map<ll,ll>> gss(200005);
 ll side[200005][2];
 
 
-ll qpow(ll x,ll y)
-{
-    ll ans=1;
-    while(y)
-    {
-        if(y&1) ans=ans*x%p;
-        x=x*x%p,y>>=1;
+ll qpow(ll x,ll y){
+    ll ans = 1;
+    while(y){
+        if(y&1) ans = ans * x % p;
+        x = x * x % p,y>>=1;
     }
     return ans;
 }
 
-ll C(ll x,ll y)
-{
-    if(x<y) return 0;
-    return fac[x]*qpow(fac[y]*fac[x-y]%p,p-2)%p;
+ll C(ll x,ll y){
+    if(x < y) return 0;
+    return fac[x] * qpow(fac[y] * fac[x - y] % p, p - 2) % p;
 }
 
 ll dfss(ll o, ll fa){

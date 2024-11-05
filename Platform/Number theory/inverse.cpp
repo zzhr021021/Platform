@@ -21,15 +21,15 @@ using namespace std;
 ll tt;
 ll n,k,m,x,y,d;
 
-
-ll a[N];
-
 ll inv[N]; 
 ll fac[N];
 ll ifac[N];
 
-
 // calculate inverse
+// for inv[k], let p = sk + r
+// sk + r == 0 (mode p)
+// sk(k^-1)(r^-1) + r(k^-1)(r^-1) == 0 (mode p)
+// k^-1 == -s(r^-1) (mode p)
 void initinv(){
 	fac[0] = ifac[0] = inv[1] = fac[1] = ifac[1] = 1;
 	for(int i = 2;i <= N-5;i++){

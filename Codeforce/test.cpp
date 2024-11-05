@@ -32,13 +32,12 @@
 #define draw cout<<"Draw\n"
 
 
-const ll MOD = 1e9;
-const ll MODD = 1e9+9;
+const ll MOD = 1e9 + 7;
+const ll MODD = 1e9 + 9;
 const ll MOOD = 998244353;
 ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18; 
-const int N = 200005;
 // ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
 // ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
@@ -54,68 +53,66 @@ void printvec(vll & v){
 	cendl;
 }
 
-const ll MMint = 1e5+5;
-bool isp[MMint];
-int primes[MMint];
-int pp = 0;
-int minprime[MMint];
-ll a[100005];
-ll b[100005];
-
-struct triple {
-    ll d, x, y;
-};
-triple eucl(ll a, ll b) {
-    if (b == 0) {
-        return {a, 1, 0};
+ll qpow(ll x,ll y){
+    ll ans = 1;
+    while(y){
+        if(y&1) ans = ans * x % MODD;
+        x = x * x % MODD,y>>=1;
     }
-    ll k = a / b;
-    triple tp = eucl(b, a - k * b);
-    ll d = tp.d;
-    ll x = tp.x;
-    ll y = tp.y;
-    return {d, y, x - k * y};
+    return ans;
 }
-ll qmul(ll A, ll B, ll mod){
-	ll ans = 0;
-   while(B > 0){
-     	if(B & 1) ans = (ans + A % mod) % mod;
-   		A = (A + A) % mod;
-   		B >>= 1;
-	}
-	return ans;
-}
+
+ll a[100005];
+bool vis[100005];
+ll inv[100005];
+ll fac[100005];
+ll ifac[100005];
 
 void sol(){
 	cin>>n;
-	ll xk = 0;
-	ll mk = 1;
-	ll thelcm = 1;
-	rep(i,n){
-		cin>>a[i]>>b[i];
-		auto tp = eucl(mk, a[i]);
-		// ctest;csp(tp.x);csp(tp.y);cend(tp.d);
-		ll am = (b[i] - xk) / tp.d * tp.x;
-		ll ax = xk + mk * am;
-		thelcm = thelcm * a[i] / __gcd(thelcm, a[i]);
-		mk = thelcm;
-		xk = (ax % mk + mk) % mk;
-		ctest;
-		csp(mk);
-		cend(xk);
+	rep1n(i,n){
+		cin>>a[i];
+		vis[i] = false;
 	}
-	cend(xk);
+	ll ans = 1;
+	ll cnt = 0;
+	rep1n(i,n){
+		if(vis[i] == false){
+			cnt++;
+			ll ringlen = 1;
+			vis[i] = true;
+			ll cur = a[i];
+			while(vis[cur] == false){
+				vis[cur] = true;
+				ringlen++;
+				cur = a[cur];
+			}
+			ll tp = 1;
+			if(ringlen >= 2)tp = qpow(ringlen, ringlen - 2);
+			ans = ans * tp % MODD;
+			if(ringlen >= 2)ans = ans * ifac[ringlen - 1] % MODD;
+		}
+	}
+	ans = ans * fac[n - cnt] % MODD;
+
+	cend(ans);
 
 }
 
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
 
+	inv[1] = fac[1] = ifac[1] = fac[0] = ifac[0] = 1;
+	for(int i = 2;i <= 100000;i++){
+		inv[i] = inv[MODD % i] * (MODD - MODD / i) % MODD;
+		fac[i] = fac[i - 1] * i % MODD;
+		ifac[i] = ifac[i - 1] * inv[i] % MODD;
+	}
 
 	tt = 1;
-	// cin>>tt;
+	cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
