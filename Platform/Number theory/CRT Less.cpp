@@ -1,57 +1,22 @@
 #include<bits/stdc++.h>
 #define rep(i, n) for (int i = 0; i < (n); ++i)
-#define rep1(i, n) for (int i = 1; i < (n); ++i)
 #define rep1n(i, n) for (int i = 1; i <= (n); ++i)
-#define rep1nr(i, n) for (int i = (n); i >= 1; --i)
-#define rep01n(i, n) for (int i = 0; i <= (n); ++i)
-#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
 
 #define ll long long
-#define ull unsigned long long
-#define pll pair<long long, long long>
-#define vi vector<int>
-#define vll vector<long long>
-#define vb vector<bool>
-#define vpl vector<pair<long long, long long>>
-#define vstr vector<string>
-#define smpq priority_queue<long long, vector<long long>, greater<long long>>
-#define bgpq priority_queue<long long> 
 
-#define yes cout<<"YES\n"
-#define no cout<<"NO\n"
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
 #define ctest cout << "test   "
-#define pb push_back
-#define all(a) a.begin(), a.end()
-#define rall(a) a.rbegin(), a.rend()
- 
-#define alice cout<<"Alice\n"
-#define bob cout<<"Bob\n"
-#define draw cout<<"Draw\n"
-
 
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
 const ll MOOD = 999911659;
 ll p = MOD;
 const ll inf = 1e18;
-const ll INF = 1e18; 
-// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
-// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
-// mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-
 ll tt, ttt;
-ll n,k,m,d,t,x,y,z,h,q;
-
-void printvec(vll & v){
-	for(ll &x : v){
-		cout << x << " ";
-	}
-	cendl;
-}
+ll n,k,m,d,q;
 
 ll qpow(ll x, ll y, ll p){
     ll ans = 1;
@@ -66,6 +31,7 @@ ll primes[4] = {2, 3, 4679, 35617};
 ll inv[4][100005];
 ll fac[4][100005];
 ll ifac[4][100005];
+ll val;
 
 ll C(ll u, ll d, ll ip){
 	ll mod = primes[ip];
@@ -90,19 +56,12 @@ void proc(ll d){
 	}
 }
 
-struct triple {
-    ll d, x, y;
-};
-triple eucl(ll a, ll b) {
-    if (b == 0) {
-        return {a, 1, 0};
+void CRT(){
+	// mod is a not very big inprime
+	ll mod = 999911659 - 1;
+	for(ll i = 0;i < 4;i++){
+		val = (val + a[i] * (mod / b[i]) % mod * qpow(mod / b[i], b[i] - 2,b[i])) % mod;
     }
-    ll k = a / b;
-    triple tp = eucl(b, a - k * b);
-    ll d = tp.d;
-    ll x = tp.x;
-    ll y = tp.y;
-    return {d, y, x - k * y};
 }
 
 void sol(){
@@ -133,28 +92,25 @@ void sol(){
 	}
 	rep(i,4)b[i] = primes[i];
 
-	ll xk = 0;
-	ll mk = 1;
-	ll thelcm = 1;
-	rep(i,4){
-		auto tp = eucl(mk, b[i]);
-		ll am = (a[i] - xk) / tp.d * tp.x;
-		ll ax = xk + mk * am;
-		thelcm = thelcm * b[i] / eucl(thelcm, b[i]).d;
-		mk = thelcm;
-		xk = (ax % mk + mk) % mk;
-	}
-	cend(qpow(q, xk, MOOD));
+	CRT();
+	// ll xk = 0;
+	// ll mk = 1;
+	// ll thelcm = 1;
+	// rep(i,4){
+	// 	auto tp = eucl(mk, b[i]);
+	// 	ll am = (a[i] - xk) / tp.d * tp.x;
+	// 	ll ax = xk + mk * am;
+	// 	thelcm = thelcm * b[i] / eucl(thelcm, b[i]).d;
+	// 	mk = thelcm;
+	// 	xk = (ax % mk + mk) % mk;
+	// }
+	cend(qpow(q, val, MOOD));
 
 
 
 }
 
 int main(){
-	// ios_base::sync_with_stdio(false);
-	// cin.tie(nullptr);
-	// cout.tie(nullptr);
-
 	tt = 1;
 	// cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
