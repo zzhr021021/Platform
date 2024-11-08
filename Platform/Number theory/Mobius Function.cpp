@@ -46,14 +46,54 @@ using namespace std;
 ll tt, ttt;
 ll n,k,m,d,t,x,y,z,h,q;
 
+ll a,b;
+
+bool isp[100005];
+ll minprime[100005];
+ll primes[100005];
+ll pp = 0;
+ll mobius[100005];
+ll mobiussm[100005];
+
+void pre_mobius(){
+	rep(i,100005){
+		isp[i] = true;
+		minprime[i] = inf;
+		mobius[i] = 1;
+	}
+	for(int i = 2;i <= 100000;i++){
+		if(isp[i]){
+			mobius[i] = -1;
+			primes[pp] = i;
+			pp++;
+			minprime[i] = i;
+			for(int j = 2 * i;j <= 100000;j += i){
+				isp[j] = false;
+				minprime[j] = min(minprime[j], (ll)i);
+				if(j % (i * i) == 0){
+					mobius[j] = 0;
+				}
+				else{
+					mobius[j] = -mobius[j];
+				}
+			}
+		}
+	}
+	mobius[1] = 1;
+	rep1n(i,100000){
+		mobiussm[i] = mobiussm[i - 1] + mobius[i];
+	}
+}
+
+
 void sol(){
 
 }
 
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
 
 	pre_mobius();
 
