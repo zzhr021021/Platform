@@ -35,7 +35,7 @@
 const ll MOD = 1e9;
 const ll MODD = 1e9+9;
 const ll MOOD = 998244353;
-ll p = 7;
+ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18; 
 const int N = 200005;
@@ -54,23 +54,13 @@ void printvec(vll & v){
 	cendl;
 }
 
-ll inv7[10] = {0,1,4,5,2,4,6,0,0,0};
-
-string pat = "SUN MON TUE WED THU FRI SAT";
-
-ll getdaynum(string & s){
-	return pat.find(s) / 4;
-}
-ll getmd(string & u, string & v){
-	return (getdaynum(v) - getdaynum(u) + 8) % 7;
-}
-
-ll mat[305][305];
+double a[20][20];
+double mat[20][20];
 
 void fiddle(ll st){
-	if(st == n || st == m)return;
+	if(st == n)return;
 	ll pos = st;
-	for(int i = st;i < m;i++){
+	for(int i = st;i < n;i++){
 		if(mat[i][st] != 0){
 			pos = i;
 			break;
@@ -81,98 +71,48 @@ void fiddle(ll st){
 			swap(mat[st][ij], mat[pos][ij]);
 		}
 	}
-	if(mat[st][st] == 0){
-		fiddle(st + 1);
-		return;
-	}
-	ll inv = inv7[mat[st][st]];
+	double inv = 1 / mat[st][st];
 	rep(ij, n + 1){
-		mat[st][ij] = mat[st][ij] * inv % 7;
+		mat[st][ij] *= inv;
 	}
-	for(int i = st + 1;i < m;i++){
-		ll tp = mat[i][st];
+	for(int i = st + 1;i < n;i++){
+		double tp = mat[i][st];
 		mat[i][st] = 0;
 		for(int j = st + 1;j < n + 1;j++){
 			mat[i][j] -= tp * mat[st][j];
-			mat[i][j] %= 7;
-			mat[i][j] = (mat[i][j] + 7) % 7;
 		}
 	}
 	fiddle(st + 1);
 }
-void printmat(){
-	rep(i,m){
-		rep(j,n + 1){
-			csp(mat[i][j]);
-		}
-		cendl;
-	}
-}
-
-void solve(){
-	memset(mat, 0, sizeof(mat));
-	string s1, s2;
-	rep(i,m){
-		cin>>k;
-		cin>>s1>>s2;
-		mat[i][n] = getmd(s1, s2);
-		rep(j,k){
-			ll tp;cin>>tp;
-			mat[i][tp - 1]++;
-		}
-	}
-
-	fiddle(0);
-	printmat();
-	ll rank = min(n, m);
-	rep(i,m){
-		ll pos = -1;
-		rep(j,n + 1){
-			if(mat[i][j])pos = j;
-		}
-		if(pos == n){
-			cend("Inconsistent data.");
-			return;
-		}
-		else if(pos != -1){
-			ll inv = inv7[mat[i][pos]];
-			rep(j,n + 1){
-				mat[i][j] *= inv;
-				mat[i][j] %= 7;
+void idlize(){
+	for(int i = n;i >= 0;i--){
+		for(int j = i + 1;j < n;j++){
+			if(mat[i][j] != 0){
+				mat[i][n] -= mat[j][n] * mat[i][j];
+				mat[i][j] = 0;
 			}
 		}
 	}
-	for(int i = rank - 1;i >= 0;i--){
-		if(mat[i][i] == 1){
-			for(int j = i - 1;j >= 0;j--){
-				mat[j][n] -= mat[j][i] * mat[i][n];
-				mat[j][n] %= 7;
-				mat[j][n] += 7;
-				mat[j][n] %= 7;
-				mat[j][i] = 0;
-			}
-		}
-	}
-	rep(i,rank){
-		if(mat[i][i] == 0){
-			cend("Multiple solutions.");
-			return;
-		}
-	}
-	rep(i,rank){
-		ll tp = mat[i][n];
-		if(tp < 3)tp += 7;
-		if(i == rank - 1)cout << tp;
-		else cout << tp << " ";
-	}
-	cout << endl;
 }
+
 
 void sol(){
-	while(cin>>n>>m){
-		if(n == 0)break;
-		solve();
-
+	cin>>n;
+	rep(i,n + 1){
+		rep(j,n){
+			cin>>a[i][j];
+		}
+	}
+	rep(i,n){
+		rep(j,n){
+			mat[i][j] = 2 * (a[i + 1][j] - a[i][j]);
+			mat[i][n] += a[i + 1][j] * a[i + 1][j] - a[i][j] * a[i][j];
+		}
+	}
+	fiddle(0);
+	idlize();
+	rep(i,n){
+		cout << setprecision(3) << fixed << mat[i][n] << " ";
 	}
 
 }
