@@ -34,7 +34,7 @@
 
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
-const ll MOOD = 999911659;
+const ll MOOD = 666623333;
 ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18; 
@@ -46,57 +46,15 @@ using namespace std;
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q;
 
-bool isp[10000005];
-ll minprime[10000005];
-ll primes[10000005];
-ll pp = 0;
-ll euler_value[10000005];
-ll euler_value_presum[10000005];
-
-void pre_mobius(){
-	rep(i,10000005){
-		isp[i] = true;
-		minprime[i] = inf;
-	}
-	for(int i = 2;i <= 10000000;i++){
-		if(isp[i]){
-			primes[pp] = i;
-			pp++;
-			minprime[i] = i;
-			for(int j = 2 * i;j <= 10000000;j += i){
-				isp[j] = false;
-				minprime[j] = min(minprime[j], (ll)i);
-			}
-		}
-	}
-	euler_value[1] = 1;
-	for(int i = 2;i <= 10000000;i++){
-		ll tp = minprime[i];
-		if(i % (tp * tp) == 0)euler_value[i] = euler_value[i / tp] * tp;
-		else euler_value[i] = euler_value[i / tp] * (tp - 1);
-	}
-	rep1n(i,10000000){
-		euler_value_presum[i] = euler_value_presum[i - 1] + euler_value[i];
-	}
-}
-
 void sol(){
-	cin>>n;
-	ll ans = 0;
-	rep(i,pp){
-		if(primes[i] > n)break;
-		// ctest;cend(primes[i]);
-		ans += 2 * euler_value_presum[n / primes[i]] - 1;
-	}
-	cend(ans);
+	
+
 }
 
 int main(){
 	// ios_base::sync_with_stdio(false);
 	// cin.tie(nullptr);
 	// cout.tie(nullptr);
-
-	pre_mobius();
 
 	tt = 1;
 	// cin>>tt;

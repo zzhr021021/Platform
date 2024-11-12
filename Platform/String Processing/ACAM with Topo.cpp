@@ -55,7 +55,7 @@ void printvec(vll & v){
 
 
 // Luogu P3808, Aho-Corasick Automaton
-// this is without topo version
+// this is topo version
 struct Trie{
     ll val = 0; // reserve?
     ll dep = 0;
