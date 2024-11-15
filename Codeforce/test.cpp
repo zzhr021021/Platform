@@ -46,39 +46,22 @@ using namespace std;
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q;
 
-ll getlog(ll x){
-	ll ret = 0;
-	while(x){
-		ret++;
-		x /= 2;
-	}
-	return ret - 1;
-}
-
+ll a[2000];
 void sol(){
-	map<ll, ll> lb;
 	cin>>n;
-	rep(i,n){
-		cin>>x;
-		while(x != 0 && lb[getlog(x)]){
-			x ^= lb[getlog(x)];
-		}
-		if(x == 0)continue;
-		else{
-			lb[getlog(x)] = x;
-		}
+	rep(i,n)cin>>a[i];
+	if(n & 1){
+		a[n] = 0;
+		n++;
 	}
-	ll ans = 0;
-	for(ll i = 51;i >= 0;i--){
-		if(lb[i]){
-			if(((ans >> i) & 1) == 0){
-				
-				ans ^= lb[i];
-			}
-		}
+	sort(a,a+n);
+	ll xr = 0;
+	rep(i,n / 2){
+		xr ^= a[i*2+1] - a[i * 2] - 1;
 	}
-	cend(ans);
 
+	if(xr != 0)cend("Georgia will win");
+	else cend("Bob will win");
 }
 
 int main(){
@@ -87,7 +70,7 @@ int main(){
 	// cout.tie(nullptr);
 
 	tt = 1;
-	// cin>>tt;
+	cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
