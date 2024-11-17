@@ -46,22 +46,115 @@ using namespace std;
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q;
 
-ll a[2000];
-void sol(){
-	cin>>n;
-	rep(i,n)cin>>a[i];
-	if(n & 1){
-		a[n] = 0;
-		n++;
+ll base = 5;
+ll fa[500000];
+
+vector<pll> op;
+
+ll getfa(ll o){
+	if(fa[o] == o)return o;
+	// ctest;csp(o);csp(fa[o]);cendl;
+	op.push_back({o, fa[o]});
+	fa[o] = getfa(fa[o]);
+	return fa[o];
+}
+
+void recover(){
+	while(op.size()){
+		auto o = op.back();
+		fa[o.first] = o.second;
+		op.pop_back();
 	}
-	sort(a,a+n);
-	ll xr = 0;
-	rep(i,n / 2){
-		xr ^= a[i*2+1] - a[i * 2] - 1;
+}
+
+ll merge(ll u, ll v){
+	u = getfa(u);
+	v = getfa(v);
+	op.push_back({v, fa[v]});
+	fa[v] = u;
+	return u;
+}
+
+void sol(){
+	// init;
+	rep(i,60000){
+		rep(j,4){
+			fa[i * base + j] = i * base + j;
+		}
 	}
 
-	if(xr != 0)cend("Georgia will win");
-	else cend("Bob will win");
+	// process
+	cin>>n>>k;
+	ll fal = 0;
+	rep(i,k){
+		
+		// ctest;
+		// csp(i + 1);csp(fal);cendl;
+		op.clear();
+		cin>>z>>x>>y;
+		if(x > n || y > n)fal++;
+		else{
+			if(z == 1){
+				merge(x * base + 0, y * base + 0);
+				merge(x * base + 1, y * base + 1);
+				merge(x * base + 2, y * base + 2);
+				if(getfa(x * base + 0) == getfa(x * base + 1)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(x * base + 2) == getfa(x * base + 1)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(x * base + 0) == getfa(x * base + 2)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(y * base + 0) == getfa(y * base + 1)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(y * base + 2) == getfa(y * base + 1)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(y * base + 0) == getfa(y * base + 2)){
+					fal++;
+					recover();continue;
+				}
+			}
+			else{
+				merge(x * base + 0, y * base + 1);
+				merge(x * base + 1, y * base + 2);
+				merge(x * base + 2, y * base + 0);
+				if(getfa(x * base + 0) == getfa(x * base + 1)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(x * base + 2) == getfa(x * base + 1)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(x * base + 0) == getfa(x * base + 2)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(y * base + 0) == getfa(y * base + 1)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(y * base + 2) == getfa(y * base + 1)){
+					fal++;
+					recover();continue;
+				}
+				if(getfa(y * base + 0) == getfa(y * base + 2)){
+					fal++;
+					recover();continue;
+				}
+			}
+		}
+	}
+	cend(fal);
 }
 
 int main(){
@@ -70,7 +163,7 @@ int main(){
 	// cout.tie(nullptr);
 
 	tt = 1;
-	cin>>tt;
+	// cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
