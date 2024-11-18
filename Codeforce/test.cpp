@@ -46,121 +46,74 @@ using namespace std;
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q;
 
-ll base = 5;
-ll fa[500000];
+ll a[10000];
+ll seg[40050];
+ll b[10050];
+void init(){
 
-vector<pll> op;
-
-ll getfa(ll o){
-	if(fa[o] == o)return o;
-	// ctest;csp(o);csp(fa[o]);cendl;
-	op.push_back({o, fa[o]});
-	fa[o] = getfa(fa[o]);
-	return fa[o];
 }
-
-void recover(){
-	while(op.size()){
-		auto o = op.back();
-		fa[o.first] = o.second;
-		op.pop_back();
+void maintain(ll o){
+	seg[o] = seg[o << 1] + seg[o << 1 | 1];
+}
+void add(ll o, ll l, ll r, ll L, ll R, ll val){
+}
+void add(ll o, ll l, ll r, ll pos, ll val){
+	if(pos < l || pos > r)return;
+	if(l == r){
+		seg[o] += val;
+		return;
 	}
+	else{
+		ll mid = (l + r) / 2;
+		add(o << 1, l, mid, pos, val);
+		add(o << 1 | 1, mid + 1, r, pos, val);
+		maintain(o);
+	} 
 }
-
-ll merge(ll u, ll v){
-	u = getfa(u);
-	v = getfa(v);
-	op.push_back({v, fa[v]});
-	fa[v] = u;
-	return u;
+ll query(ll o, ll l, ll r, ll L, ll R){
+	if(r < L || l > R)return 0;
+	if(l >= L && r <= R)return seg[o];
+	ll ret = 0;
+	ll mid = (l + r) / 2;
+	ret += query(o << 1, l, mid, L, R);
+	ret += query(o << 1 | 1, mid + 1, r, L, R);
+	return ret;
 }
 
 void sol(){
-	// init;
-	rep(i,60000){
-		rep(j,4){
-			fa[i * base + j] = i * base + j;
-		}
+	// input 
+	cin>>n;
+	for(int i = 1;i < n;i++){
+		cin>>a[i];
 	}
 
-	// process
-	cin>>n>>k;
-	ll fal = 0;
-	rep(i,k){
-		
-		// ctest;
-		// csp(i + 1);csp(fal);cendl;
-		op.clear();
-		cin>>z>>x>>y;
-		if(x > n || y > n)fal++;
-		else{
-			if(z == 1){
-				merge(x * base + 0, y * base + 0);
-				merge(x * base + 1, y * base + 1);
-				merge(x * base + 2, y * base + 2);
-				if(getfa(x * base + 0) == getfa(x * base + 1)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(x * base + 2) == getfa(x * base + 1)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(x * base + 0) == getfa(x * base + 2)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(y * base + 0) == getfa(y * base + 1)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(y * base + 2) == getfa(y * base + 1)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(y * base + 0) == getfa(y * base + 2)){
-					fal++;
-					recover();continue;
-				}
+	rep1n(i,n){
+		add(1, 0, n, i, 1);
+	}
+	repr(i,n){
+		ll l = 0, r = n;
+		while(l != r){
+			ll mid = (l + r) / 2;
+			if(query(1, 0, n, 0, mid) <= a[i]){
+				l = mid + 1;
 			}
 			else{
-				merge(x * base + 0, y * base + 1);
-				merge(x * base + 1, y * base + 2);
-				merge(x * base + 2, y * base + 0);
-				if(getfa(x * base + 0) == getfa(x * base + 1)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(x * base + 2) == getfa(x * base + 1)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(x * base + 0) == getfa(x * base + 2)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(y * base + 0) == getfa(y * base + 1)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(y * base + 2) == getfa(y * base + 1)){
-					fal++;
-					recover();continue;
-				}
-				if(getfa(y * base + 0) == getfa(y * base + 2)){
-					fal++;
-					recover();continue;
-				}
+				r = mid;
 			}
 		}
+		add(1, 0, n, l, -1);
+		b[i] = l;
 	}
-	cend(fal);
+	rep(i,n){
+		cend(b[i]);
+	}
+
 }
 
 int main(){
-	// ios_base::sync_with_stdio(false);
-	// cin.tie(nullptr);
-	// cout.tie(nullptr);
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
 
 	tt = 1;
 	// cin>>tt;
