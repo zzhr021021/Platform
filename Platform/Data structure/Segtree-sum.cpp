@@ -2,110 +2,132 @@
 #define rep(i, n) for (int i = 0; i < (n); ++i)
 #define rep1(i, n) for (int i = 1; i < (n); ++i)
 #define rep1n(i, n) for (int i = 1; i <= (n); ++i)
+#define rep1nr(i, n) for (int i = (n); i >= 1; --i)
 #define rep01n(i, n) for (int i = 0; i <= (n); ++i)
 #define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
+
+#define ll long long
+#define ull unsigned long long
+#define pll pair<long long, long long>
+#define vi vector<int>
+#define vll vector<long long>
+#define vb vector<bool>
+#define vpl vector<pair<long long, long long>>
+#define vstr vector<string>
+#define smpq priority_queue<long long, vector<long long>, greater<long long>>
+#define bgpq priority_queue<long long> 
+
 #define yes cout<<"YES\n"
 #define no cout<<"NO\n"
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
-#define ctest cout << "test\n"
+#define ctest cout << "test   "
+#define pb push_back
+#define all(a) a.begin(), a.end()
+#define rall(a) a.rbegin(), a.rend()
  
 #define alice cout<<"Alice\n"
 #define bob cout<<"Bob\n"
 #define draw cout<<"Draw\n"
- 
-typedef long long ll;
-const ll MOD = 999999893;
+
+
+const ll MOD = 1e9 + 7;
+const ll MODD = 1e9 + 9;
+const ll MOOD = 666623333;
 ll p = MOD;
-const ll inf = 2e9+5;
+const ll inf = 1e18;
+const ll INF = 1e18; 
+// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
+// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
- 
-ll tt;
-ll n,k,m,d,q,f,h,w,t;
-const int N = 300005;
+// mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
-ll a[N];
-ll stree[4*N];
-ll lazy[4*N];
+ll tt, ttt;
+ll n,k,m,t,x,y,z,h,q;
 
-void maintain(ll o){
-	stree[o] = stree[o<<1] + stree[o<<1|1];
+ll a[200005];
+ll b[200005];
+ll seg[800050];
+ll lazy[800050];
+void init(){
+
 }
-
+ll get(ll o, ll l, ll r){
+	return seg[o] + lazy[o] * (r - l + 1);
+}
+void maintain(ll o, ll l, ll r){
+	ll tp = 0;
+	ll mid = (l + r) / 2;
+	tp += get(o << 1, l, mid);
+	tp += get(o << 1 | 1, mid + 1, r);
+	seg[o] = tp;
+}
 void propagate(ll o, ll l, ll r){
-	if(l >= r)return;
-	ll mid = (l+r)>>1;
-	ll dif = lazy[o];
+	seg[o] += lazy[o] * (r - l + 1);
+	if(l != r){
+		ll mid = (l + r) / 2;
+		lazy[o << 1] += lazy[o];
+		lazy[o << 1 | 1] += lazy[o];
+	}
 	lazy[o] = 0;
-	
-	stree[o<<1] += dif * (mid - l + 1);
-	lazy[o<<1] += dif;
-	if(l == mid)lazy[o<<1] = 0;
-	
-	stree[o<<1|1] += dif * (r - mid);
-	lazy[o<<1|1] += dif;
-	if(mid + 1 == r)lazy[o<<1|1] = 0;
 }
-
-void buildtree(ll o, ll l, ll r){
-	lazy[o] = 0;
-	if(l == r){
-		stree[o] = a[l];
+void add(ll o, ll l, ll r, ll L, ll R, ll val){
+	if(R < l || L > r)return;
+	if(l >= L && r <= R){
+		lazy[o] += val;
 		return;
 	}
-	ll mid = (l+r)>>1;
-	buildtree(o<<1, l, mid);
-	buildtree(o<<1|1, mid + 1, r);
-	maintain(o);
-	return;
+	ll mid = (l + r) / 2;
+	propagate(o, l, r);
+	add(o << 1, l, mid, L, R, val);
+	add(o << 1 | 1, mid + 1, r, L, R, val);
+	maintain(o, l, r);
 }
-
-void change(ll o, ll l, ll r, ll cl, ll cr, ll dif){
-	if(l > cr || r < cl)return;
-	if(l == r){
-		stree[o] += dif;
-		return;
-	}
-	if(cl <= l && r <= cr){
-		stree[o] += dif * (r - l + 1);
-		lazy[o] += dif;
-		return;
-	}
-	if(lazy[o] != 0){
-		propagate(o, l, r);
-	}
-	ll mid = (l+r)>>1;
-	change(o<<1, l, mid, cl, cr, dif);
-	change(o<<1|1, mid + 1, r, cl, cr, dif);
-	maintain(o);
-	return;
-}
-
 ll query(ll o, ll l, ll r, ll L, ll R){
 	if(r < L || l > R)return 0;
-	if(L <= l && R >= r)return stree[o];
-	
-	if(lazy[o] != 0){
-		propagate(o, l, r);
+	if(l >= L && r <= R)return seg[o] + lazy[o] * (r - l + 1);
+	propagate(o, l, r);
+	ll ret = 0;
+	ll mid = (l + r) / 2;
+	ret += query(o << 1, l, mid, L, R);
+	ret += query(o << 1 | 1, mid + 1, r, L, R);
+	return ret;
+}
+
+void sol(){
+	// input 
+	cin>>n>>m;
+	rep(i,n){
+		cin>>a[i];
+		add(1, 0, n - 1, i, i, a[i]);
 	}
-	
-	ll mid = (l+r)>>1;
-	ll ql = query(o<<1, l, mid, L, R);
-	ll qr = query(o<<1|1, mid + 1, r, L, R);
-	return ql + qr;
+	rep(iop,m){
+		ll op;cin>>op;
+		if(op == 1){
+			cin>>x>>y>>k;
+			add(1, 0, n - 1, x - 1, y - 1, k);
+		}
+		else{
+			cin>>x>>y;
+			ll tp = query(1, 0, n - 1, x - 1, y - 1);
+			cend(tp);
+		}
+	}
+
+
 }
 
 int main(){
-	rep(i,15){
-		a[i] = i;
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
+
+	tt = 1;
+	// cin>>tt;
+	for(ttt = 1;ttt <= tt;ttt++){
+		sol();
 	}
-	buildtree(1, 0, 14);
-	ctest;rep(i,15)csp(query(1, 0, 14, i, i));
-	change(1, 0, 14, 0, 4, 2);
-	ctest;rep(i,15)csp(query(1, 0, 14, i, i));
-	change(1, 0, 14, 2, 5, 7);
-	ctest;rep(i,15)csp(query(1, 0, 14, i, i));
-	cout << query(1, 0, 14, 3, 5) << endl;
+	system("pause");
 	return 0;
 }

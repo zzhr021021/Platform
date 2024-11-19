@@ -46,33 +46,48 @@ using namespace std;
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q;
 
-ll a[10000];
-ll seg[40050];
-ll b[10050];
+ll a[200005];
+ll b[200005];
+ll seg[800050];
+ll lazy[800050];
 void init(){
 
 }
-void maintain(ll o){
-	seg[o] = seg[o << 1] + seg[o << 1 | 1];
+ll get(ll o, ll l, ll r){
+	return seg[o] + lazy[o] * (r - l + 1);
+}
+void maintain(ll o, ll l, ll r){
+	ll tp = 0;
+	ll mid = (l + r) / 2;
+	tp += get(o << 1, l, mid);
+	tp += get(o << 1 | 1, mid + 1, r);
+	seg[o] = tp;
+}
+void propagate(ll o, ll l, ll r){
+	seg[o] += lazy[o] * (r - l + 1);
+	if(l != r){
+		ll mid = (l + r) / 2;
+		lazy[o << 1] += lazy[o];
+		lazy[o << 1 | 1] += lazy[o];
+	}
+	lazy[o] = 0;
 }
 void add(ll o, ll l, ll r, ll L, ll R, ll val){
-}
-void add(ll o, ll l, ll r, ll pos, ll val){
-	if(pos < l || pos > r)return;
-	if(l == r){
-		seg[o] += val;
+	if(R < l || L > r)return;
+	if(l >= L && r <= R){
+		lazy[o] += val;
 		return;
 	}
-	else{
-		ll mid = (l + r) / 2;
-		add(o << 1, l, mid, pos, val);
-		add(o << 1 | 1, mid + 1, r, pos, val);
-		maintain(o);
-	} 
+	ll mid = (l + r) / 2;
+	propagate(o, l, r);
+	add(o << 1, l, mid, L, R, val);
+	add(o << 1 | 1, mid + 1, r, L, R, val);
+	maintain(o, l, r);
 }
 ll query(ll o, ll l, ll r, ll L, ll R){
 	if(r < L || l > R)return 0;
-	if(l >= L && r <= R)return seg[o];
+	if(l >= L && r <= R)return seg[o] + lazy[o] * (r - l + 1);
+	propagate(o, l, r);
 	ll ret = 0;
 	ll mid = (l + r) / 2;
 	ret += query(o << 1, l, mid, L, R);
@@ -80,33 +95,33 @@ ll query(ll o, ll l, ll r, ll L, ll R){
 	return ret;
 }
 
+struct rectangle{
+	ll x1, y1, x2, y2;
+}recs[100005];
+
 void sol(){
 	// input 
 	cin>>n;
-	for(int i = 1;i < n;i++){
-		cin>>a[i];
+	set<ll> xs;
+	rep(i,n){
+		rectangle o;
+		cin>>o.x1>>o.y1>>o.x2>>o.y2;
+		xs.insert(o.x1);
+		xs.insert(o.x2);
+		recs[i] = o;
 	}
-
-	rep1n(i,n){
-		add(1, 0, n, i, 1);
-	}
-	repr(i,n){
-		ll l = 0, r = n;
-		while(l != r){
-			ll mid = (l + r) / 2;
-			if(query(1, 0, n, 0, mid) <= a[i]){
-				l = mid + 1;
-			}
-			else{
-				r = mid;
-			}
-		}
-		add(1, 0, n, l, -1);
-		b[i] = l;
+	map<ll, ll> inj;
+	ll cnt = 0;
+	for(auto o : xs){
+		inj[o] = cnt;
+		cnt++;
 	}
 	rep(i,n){
-		cend(b[i]);
+		add(1, 0, cnt - 2, inj[], inj[], );
 	}
+	cend(query(1, 0, cnt - 2, 0, cnt - 2));
+
+
 
 }
 

@@ -6,6 +6,17 @@
 #define rep01n(i, n) for (int i = 0; i <= (n); ++i)
 #define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
 
+#define ll long long
+#define ull unsigned long long
+#define pll pair<long long, long long>
+#define vi vector<int>
+#define vll vector<long long>
+#define vb vector<bool>
+#define vpl vector<pair<long long, long long>>
+#define vstr vector<string>
+#define smpq priority_queue<long long, vector<long long>, greater<long long>>
+#define bgpq priority_queue<long long> 
+
 #define yes cout<<"YES\n"
 #define no cout<<"NO\n"
 #define csp(n) cout << n << " "
@@ -15,81 +26,158 @@
 #define pb push_back
 #define all(a) a.begin(), a.end()
 #define rall(a) a.rbegin(), a.rend()
+ 
+#define alice cout<<"Alice\n"
+#define bob cout<<"Bob\n"
+#define draw cout<<"Draw\n"
 
-#define ll long long
 
-using namespace std;
-
+const ll MOD = 1e9 + 7;
+const ll MODD = 1e9 + 9;
+const ll MOOD = 666623333;
+ll p = MOD;
 const ll inf = 1e18;
+const ll INF = 1e18; 
+// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
+// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
+using namespace std;
+// mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
-ll n,q,x,y;
-ll a[50050];
+ll tt, ttt;
+ll n,k,m,t,x,y,z,h,q;
 
-struct quadple{
-    ll sm, m, l, r;
-}segs[200050];
-
-quadple get(quadple l, quadple r){
-    quadple ret;
-    ret.sm = l.sm + r.sm;
-    ret.m = max(l.m, r.m);
-    ret.m = max(ret.m, l.r + r.l);
-    ret.l = max(l.l, l.sm + r.l);
-    ret.r = max(r.r, r.sm + l.r);
+#define NODE array<array<ll, 4>, 4>
+ll convint(NODE & o){
+    ll ret = 0;
+    rep(i,4){
+        rep(j,4){
+            ret *= 2;
+            ret += o[i][j];
+        }
+    }
     return ret;
 }
-
-void maintain(ll o){
-    segs[o] = get(segs[o << 1], segs[o << 1 | 1]);
-}
-void add(ll o, ll l, ll r, ll pos, ll val){
-    if(pos < l || pos > r)return;
-    if(l == r){
-        segs[o].sm += val;
-        segs[o].l = segs[o].r = segs[o].m = segs[o].sm;
+NODE convnode(ll x){
+    NODE ret;
+    repr(i,4){
+        repr(j,4){
+            ret[i][j] = x % 2;
+            x /= 2;
+        }
     }
-    else{
-        ll mid = (l + r) / 2;
-        add(o << 1, l, mid, pos, val);
-        add(o << 1 | 1, mid + 1, r, pos, val);
-        maintain(o);
-    }
-}
-quadple query(ll o, ll l, ll r, ll L, ll R){
-    if(R < l || L > r)return {0, -inf, -inf, -inf};
-    if(l >= L && r <= R){
-        return segs[o];
-    }
-    ll mid = (l + r) / 2;
-    quadple lseg = query(o << 1, l, mid, L, R);
-    quadple rseg = query(o << 1 | 1, mid + 1, r, L, R);
-    quadple ret = get(lseg, rseg);
     return ret;
 }
+void clearnode(NODE & o){
+    rep(i,4){
+        rep(j,4)o[i][j] = 1;
+    }
+}
+bool isgood(NODE & o){
+    rep(i,4){
+        if(o[i][0] == 1)return false;
+    }
+    return true;
+}
+void printnode(NODE & o){
+    rep(i,4){
+        rep(j,4){
+            csp(o[i][j]);
+        }
+        cendl;
+    }
+}
 
+ll a[10];
+ll mat[4][1100];
+ll dp[1100][70000];
+vector<NODE> ops;
+vector<ll> css;
 
-int main(int argc, char const *argv[])
-{
+void sol(){
+    // prep
     cin>>n;
-    rep(i,n){
-        cin>>a[i];
-        add(1, 0, n - 1, i, a[i]);
-    }
-    cin>>q;
-    rep(iq, q){
-        ll op;cin>>op;
-        cin>>x>>y;
-        if(op == 0){
-            x--;
-            quadple tp = query(1, 0, n - 1, x, x);
-            add(1, 0, n - 1, x, y - tp.sm);
+    rep1n(i,4)cin>>a[i];
+
+    map<ll, ll> inj;
+    rep(i,5){
+        rep(j,4){
+            rep(ii,3){
+                rep(jj,2){
+                    NODE o;
+                    ll cost = 0;
+                    clearnode(o);
+                    rep(ki, i){
+                        rep(kj, i){
+                            o[kj + 0][3 - ki] = 0;
+                        }
+                    }
+                    cost += a[i];
+                    rep(ki, j){
+                        rep(kj, j){
+                            o[kj + 1][3 - ki] = 0;
+                        }
+                    }
+                    cost += a[j];
+                    rep(ki, ii){
+                        rep(kj, ii){
+                            o[kj + 2][3 - ki] = 0;
+                        }
+                    }
+                    cost += a[ii];
+                    rep(ki, jj){
+                        rep(kj, jj){
+                            o[kj + 3][3 - ki] = 0;
+                        }
+                    }
+                    cost += a[jj];
+                    ll hs = convint(o);
+                    if(inj[hs] == 0){
+                        inj[hs] = cost;
+                    }
+                    else if(cost < inj[hs]){
+                        inj[hs] = cost;
+                    }
+                }
+            }
         }
-        else{
-            x--;y--;
-            quadple ans = query(1, 0, n - 1, x, y);
-            cend(ans.m);
+    }
+    for(auto o : inj){
+        NODE u = convnode(o.first);
+        ops.push_back(u);
+        css.push_back(o.second);
+    }
+
+    // input
+    
+    rep(i,4){
+        string s;cin>>s;
+        rep(j,n){
+            if(s[j] == '*'){
+                mat[i][j + 4] = 1;
+            }
         }
     }
-    system("pause");
-    return 0;
+    n += 4;
+
+    // process
+    memset(dp, 0x3f, sizeof(dp));
+    dp[3][0] = 0;
+    
+
+
+
+}
+
+int main(){
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
+
+	tt = 1;
+	// cin>>tt;
+	for(ttt = 1;ttt <= tt;ttt++){
+		sol();
+	}
+	system("pause");
+	return 0;
 }
