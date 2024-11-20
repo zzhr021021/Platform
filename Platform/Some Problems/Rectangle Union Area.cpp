@@ -41,100 +41,96 @@ const ll INF = 1e18;
 // ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
 // ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
- mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+// mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 ll tt, ttt;
-ll n,k,m,t,x,y,z,h,q;
+ll n,k,m,t,x,y,z,w,h,q;
 
-ll a[200005];
-ll b[200005];
+struct line{
+	ll l, r, y, sn;
+}lines[200005];
+bool cmp(const line & u, const line & v){
+	return u.y > v.y;
+}
+set<ll> xs;
+ll cntx;
+map<ll, ll> inj;
+vll xar;
+
+ll olen[800050];
 ll seg[800050];
-ll segmx[800050];
 ll lazy[800050];
 
+void build(ll o, ll l, ll r){
+	if(l == r)olen[o] = xar[l];
+	else{
+		ll mid = (l + r) / 2;
+		build(o << 1, l, mid);
+		build(o << 1 | 1, mid + 1, r);
+		olen[o] = olen[o << 1] + olen[o << 1 | 1];
+	}
+}
 ll get(ll o, ll l, ll r){
 	return seg[o] + lazy[o] * (r - l + 1);
 }
 void maintain(ll o, ll l, ll r){
-	seg[o] = seg[o << 1] + seg[o << 1 | 1];
-	segmx[o] = max(segmx[o << 1], segmx[o << 1 | 1]);
-	lazy[o] = 0;
-}
-void propagate(ll o, ll l, ll r){
-	if(l != r){
-		ll mid = (l + r) / 2;
-		lazy[o << 1] += lazy[o];
-		seg[o << 1] += lazy[o] * (mid - l + 1);
-		segmx[o << 1] += lazy[o];
-		
-		lazy[o << 1 | 1] += lazy[o];
-		seg[o << 1 | 1] += lazy[o] * (r - mid);
-		segmx[o << 1 | 1] += lazy[o];
-		lazy[o] = 0;
+	if(lazy[o]){
+		seg[o] = olen[o];
 	}
+	else if(l == r){
+		seg[o] = 0;
+	}
+	else{
+		seg[o] = seg[o << 1] + seg[o << 1 | 1];
+	}
+	
 }
 void add(ll o, ll l, ll r, ll L, ll R, ll val){
 	if(R < l || L > r)return;
-	if(l >= L && r <= R){
-		seg[o] += val * (r - l + 1);
-		segmx[o] += val;
+	else if(l >= L && r <= R){
 		lazy[o] += val;
+		maintain(o, l, r);
 	}
 	else{
 		ll mid = (l + r) / 2;
-		propagate(o, l, r);
 		add(o << 1, l, mid, L, R, val);
 		add(o << 1 | 1, mid + 1, r, L, R, val);
 		maintain(o, l, r);
 	}
 }
-ll query(ll o, ll l, ll r, ll L, ll R){
-	if(r < L || l > R)return 0;
-	if(l >= L && r <= R){
-		return seg[o];
-	}
-	else{
-		propagate(o, l, r);
-		ll mid = (l + r) / 2;
-		ll ret = query(o << 1, l, mid, L, R);
-		ret += query(o << 1 | 1, mid + 1, r, L, R);
-		return ret;
-	}
-}
-ll querymx(ll o, ll l, ll r, ll L, ll R){
-	if(r < L || l > R)return -inf;
-	if(l >= L && r <= R){
-		return segmx[o];
-	}
-	else{
-		propagate(o, l, r);
-		ll mid = (l + r) / 2;
-		ll ret = max(querymx(o << 1, l, mid, L, R), querymx(o << 1 | 1, mid + 1, r, L, R));
-		return ret;
-	}
-}
 
 void sol(){
-	// input 
-	cin>>n>>m;
+	// input and preprocess
+	cin>>n;
+	ll nl = n * 2;
 	rep(i,n){
-		cin>>a[i];
-		add(1, 0, n - 1, i, i, a[i]);
+		cin>>x>>y>>z>>w;
+		xs.insert(x);
+		xs.insert(z);
+		lines[i * 2] = {x, z, w, 1};
+		lines[i * 2 + 1] = {x, z, y, -1};
 	}
-	rep(iop,m){
-		ll op;cin>>op;
-		if(op == 1){
-			cin>>x>>y>>k;
-			add(1, 0, n - 1, x - 1, y - 1, k);
-		}
-		else{
-			cin>>x>>y;
-			ll tp = querymx(1, 0, n - 1, x - 1, y - 1);
-			cend(tp);
-		}
+	sort(lines, lines + 2 * n, cmp);
+	ll last = 0;
+	for(auto o : xs){
+		if(cntx != 0)xar.push_back(o - last);
+		inj[o] = cntx;
+		cntx++;
+		last = o;
 	}
-
-
+	ll nn = xar.size();
+	build(1, 0, nn - 1);
+	
+	// get answer
+	ll ans = 0;
+	rep(iline, nl - 1){
+		ll gap = lines[iline].y - lines[iline + 1].y; 
+		ll L = inj[lines[iline].l];
+		ll R = inj[lines[iline].r] - 1;
+		add(1, 0, nn - 1, L, R, lines[iline].sn);
+		ans += seg[1] * gap;
+	}
+	cend(ans);
 }
 
 int main(){

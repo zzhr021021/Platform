@@ -44,13 +44,21 @@ using namespace std;
  mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 ll tt, ttt;
-ll n,k,m,t,x,y,z,h,q;
+ll n,k,m,t,x,y,z,w,h,q;
 
-ll a[200005];
-ll b[200005];
-ll seg[800050];
-ll segmx[800050];
-ll lazy[800050];
+struct line{
+	ll l, r, y, v;
+};
+vector<line> lines;
+bool cmp(const line & u, const line & v){
+	return u.y > v.y;
+}
+
+ll a[20005];
+ll b[20005];
+ll seg[80050];
+ll segmx[80050];
+ll lazy[80050];
 
 ll get(ll o, ll l, ll r){
 	return seg[o] + lazy[o] * (r - l + 1);
@@ -114,25 +122,46 @@ ll querymx(ll o, ll l, ll r, ll L, ll R){
 	}
 }
 
+// Luogu P1502 
+// given some valued fixed points and a rectangle sizing (w, h)
+// place anywhere the rectangle, answer the maximum sum of value of the points that in the rectangle
 void sol(){
+	memset(seg, 0, sizeof(seg));
+	memset(segmx, 0, sizeof(segmx));
+	memset(lazy, 0, sizeof(lazy));
+	lines.clear();
 	// input 
-	cin>>n>>m;
-	rep(i,n){
-		cin>>a[i];
-		add(1, 0, n - 1, i, i, a[i]);
+	cin>>n>>w>>h;
+	set<ll> xs;
+	map<ll, ll> inj;
+	rep(iline, n){
+		cin>>x>>y>>z;
+		lines.push_back({x, x + w, y + h, z});
+		lines.push_back({x, x + w, y, -z});
+		xs.insert(x);
+		xs.insert(x + w);
 	}
-	rep(iop,m){
-		ll op;cin>>op;
-		if(op == 1){
-			cin>>x>>y>>k;
-			add(1, 0, n - 1, x - 1, y - 1, k);
-		}
-		else{
-			cin>>x>>y;
-			ll tp = querymx(1, 0, n - 1, x - 1, y - 1);
-			cend(tp);
-		}
+	ll cntx = 0;
+	for(auto o : xs){
+		inj[o] = cntx;
+		cntx++;
 	}
+	sort(all(lines), cmp);
+	ll nn = cntx - 1; 
+	
+	// get answer;
+	ll ans = 0;
+	for(line o : lines){
+//		ctest;csp(o.l);csp(o.r);csp(o.y);csp(o.v);cendl;
+		
+		add(1, 0, nn - 1, inj[o.l], inj[o.r] - 1, o.v);
+		
+//		ctest;csp(querymx(1, 0, nn - 1, 0, nn - 1));cendl;
+		
+		ans = max(ans, querymx(1, 0, nn - 1, 0, nn - 1));
+	}
+	cend(ans);
+	
 
 
 }
@@ -143,7 +172,7 @@ int main(){
 	cout.tie(nullptr);
 
 	tt = 1;
-	// cin>>tt;
+	 cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}

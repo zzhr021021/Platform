@@ -68,6 +68,7 @@ void push(ll ind){
 	block[ind] = 0;
 }
 
+// Luogu P3372 
 void sol(){
 	cin>>n>>m;
 	rep(i,n)cin>>a[i];
