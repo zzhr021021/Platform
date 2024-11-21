@@ -44,85 +44,61 @@ using namespace std;
 // mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 ll tt, ttt;
-ll n,k,m,t,x,y,z,h,q;
+ll n,k,m,t,x,y,z,h,q,r;
 
-ll a[200005];
-ll b[200005];
-ll seg[800050];
-ll lazy[800050];
-void init(){
-
+ll sqa_dis(ll x, ll y){
+	return x * x + y * y;
 }
-ll get(ll o, ll l, ll r){
-	return seg[o] + lazy[o] * (r - l + 1);
+struct stone{
+	ll d,m,p,r;
+}stones[250050];
+bool cmp(const stone & u, const stone & v){
+	return u.d < v.d;
 }
-void maintain(ll o, ll l, ll r){
-	ll tp = 0;
-	ll mid = (l + r) / 2;
-	tp += get(o << 1, l, mid);
-	tp += get(o << 1 | 1, mid + 1, r);
-	seg[o] = tp;
-}
-void propagate(ll o, ll l, ll r){
-	seg[o] += lazy[o] * (r - l + 1);
-	if(l != r){
-		ll mid = (l + r) / 2;
-		lazy[o << 1] += lazy[o];
-		lazy[o << 1 | 1] += lazy[o];
-	}
-	lazy[o] = 0;
-}
-void add(ll o, ll l, ll r, ll L, ll R, ll val){
-	if(R < l || L > r)return;
-	if(l >= L && r <= R){
-		lazy[o] += val;
-		return;
-	}
-	ll mid = (l + r) / 2;
-	propagate(o, l, r);
-	add(o << 1, l, mid, L, R, val);
-	add(o << 1 | 1, mid + 1, r, L, R, val);
-	maintain(o, l, r);
-}
-ll query(ll o, ll l, ll r, ll L, ll R){
-	if(r < L || l > R)return 0;
-	if(l >= L && r <= R)return seg[o] + lazy[o] * (r - l + 1);
-	propagate(o, l, r);
-	ll ret = 0;
-	ll mid = (l + r) / 2;
-	ret += query(o << 1, l, mid, L, R);
-	ret += query(o << 1 | 1, mid + 1, r, L, R);
-	return ret;
-}
-
-struct rectangle{
-	ll x1, y1, x2, y2;
-}recs[100005];
+ll segmn[1000050];
+queue<stone> llist[250005];
 
 void sol(){
 	// input 
-	cin>>n;
-	set<ll> xs;
+	cin>>x>>y>>p>>r>>n;
+	set<ll> stx, sty;
+	map<ll, ll> ijx, ijy;
+	stx.insert(0);sty.insert(0);
+	stx.insert(r);sty.insert(p);
+	ll cx = 0, cy = 0;
 	rep(i,n){
-		rectangle o;
-		cin>>o.x1>>o.y1>>o.x2>>o.y2;
-		xs.insert(o.x1);
-		xs.insert(o.x2);
-		recs[i] = o;
+		ll xx,yy;
+		cin>>xx>>yy>>stones[i].m>>stones[i].p>>stones[i].r;
+		stones[i].d = ceil(sqrt(sqa_dis(xx - x, yy - y)));
+		stx.insert(stones[i].d);
+		stx.insert(stones[i].r);
+		sty.insert(stones[i].m);
+		sty.insert(stones[i].p);
 	}
-	map<ll, ll> inj;
-	ll cnt = 0;
-	for(auto o : xs){
-		inj[o] = cnt;
-		cnt++;
-	}
+	// sort
+	sort(stones, stones + n, cmp);
+	// discretization 
+	for(auto o : stx){ijx[o] = cx;cx++;}
+	for(auto o : sty){ijy[o] = cy;cy++;}
 	rep(i,n){
-		add(1, 0, cnt - 2, inj[], inj[], );
+		stones[i].d = ijx[stones[i].d];
+		stones[i].r = ijx[stones[i].r];
+		stones[i].m = ijy[stones[i].m];
+		stones[i].p = ijy[stones[i].p];
 	}
-	cend(query(1, 0, cnt - 2, 0, cnt - 2));
-
-
-
+	// set linklist
+	rep(i,n){
+		llist[stones[i].m].push(stones[i]);
+	}
+	rep(i,250005)llist[i].push({inf, inf, inf, inf});
+	// bfs-like
+	ll ans = 0;
+	queue<stone> q;
+	q.push({r, p, 0, 0});
+	while(q.size()){
+		break;;
+	}
+	cend(ans);
 }
 
 int main(){
