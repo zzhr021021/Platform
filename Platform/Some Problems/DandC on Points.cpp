@@ -122,6 +122,9 @@ void set_le(ll o, ll fa, ll wh, ll dist){
 	}
 }
 
+// Luogu P4178 tree
+// given an undirected tree with positive-valued-edges, and an integer k
+// answer how many path whose length is not greater than k
 void sol(){
 	// input
 	cin>>n;
