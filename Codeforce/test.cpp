@@ -43,86 +43,145 @@ const ll INF = 1e18;
 using namespace std;
 // mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
-ll tt, ttt;
-ll n,k,m,t,x,y,z,h,q,r;
+void printvec(vll & v){
+	for(auto o : v){
+		csp(o);
+	}
+	cendl;
+}
 
-ll sq(ll x){return x * x;}
-ll a[50050];
-ll bl = 0;
-ll ind(ll x){
-	return x / bl;
+ll tt, ttt;
+ll n,k,m,t,x,y,z,h,r;
+
+struct node{
+	ll wh, le;
+};
+bool cmp(const node & u, const node & v){
+	return u.le < v.le;
 }
-ll ghs(ll l, ll r){
-	return l * 1e9 + r;
+queue<ll> q;
+vpl g[50000];
+unordered_set<ll> vis;
+ll sz[50000];
+ll le[50000];
+ll wh[50000];
+ll cntwh[50050];
+vector<node> ost;
+ll gsz = 0;
+ll gmx = 1e9;
+ll grt = 0;
+ll ans = 0;
+
+ll get_hash(ll x, ll y){
+	return x * 1e9 + y;
 }
-struct que{
-	ll l, r;
-}ques[50050];
-bool cmp(const que & u, const que & v){
-	return u.r < v.r;
+ll set_sz(ll o, ll fa){
+	ll ret = 1;
+	for(auto ad : g[o]){
+		if(ad.first != fa && vis.count(get_hash(o, ad.first)) == 0){
+			ret += set_sz(ad.first, o);
+		}
+	}
+	if(fa == -1){
+		gsz = ret;
+	}
+	return ret;
 }
-vector<que> llist[250];
-unordered_map<ll, ll> inj;
+ll get_rt(ll o, ll fa){
+	ll ret = 1;
+	ll mx = 0;
+	for(auto ad : g[o]){
+		if(ad.first != fa && vis.count(get_hash(o, ad.first)) == 0){
+			ll tp = get_rt(ad.first, o);
+			ret += tp;
+			mx = max(mx, tp);
+		}
+	}
+	if(fa != -1){
+		mx = max(m, gsz - ret);
+	}
+	ctest;csp("get rt  ");csp(o);csp(ret);csp(mx);cendl;
+	if(mx < gmx){
+		gmx = mx;
+		grt = o;
+	}
+	sz[o] = ret;
+	return ret;
+}
+void set_le(ll o, ll fa, ll wh, ll dist){
+	for(auto ad : g[o]){
+		if(ad.first != fa && vis.count(get_hash(o, ad.first)) == 0){
+			if(fa == -1){
+				set_le(ad.first, o, o, dist + ad.second);
+			}
+			else{
+				set_le(ad.first, o, wh, dist + ad.second);
+			}
+		}
+	}
+	if(fa != -1){
+		ost.push_back({wh, dist});
+		if(dist <= k)ans++;
+	}
+	le[o] = dist;
+}
+
+
 
 void sol(){
-	cin>>n>>m;
-	bl = sqrt(n);
-	rep(i,n)cin>>a[i];
-	rep(i,m){
-		cin>>x>>y;
-		x--;y--;
-		ques[i].l = x;
-		ques[i].r = y;
-		llist[ind(x)].push_back({x, y});
+	// input
+	cin>>n;
+	rep(i,n - 1){
+		cin>>x>>y>>z;
+		g[x].push_back({y,z});
+		g[y].push_back({x,z});
 	}
-	rep(i,250){
-		sort(all(llist[i]), cmp);
-	}
-	rep(i,250){
-		if(llist[i].size() == 0)continue;
-		ll l = 0, r = 0, sm = 1;
-		unordered_map<ll, ll> rec;
-		rec[a[0]] = 1;
-		for(auto o : llist[i]){
-			while(r != o.r){
-				r++;
-				rec[a[r]]++;
-				ll tp = rec[a[r]];
-				sm -= sq(tp - 1);
-				sm += sq(tp);
+	cin>>k;
+
+	// push
+	q.push(1);	
+	while(q.size()){
+		ctest;csp(q.front());cendl;
+		ll x = q.front();
+		q.pop();
+		set_sz(x, -1);
+		gmx = 1e9;
+		get_rt(x, -1);
+
+		ctest;csp(gsz);csp(gmx);cendl;
+
+		ost.clear();
+		set_le(grt, -1, -1, 0);
+		ctest;csp("ans1  ");csp(grt);cend(ans);
+
+		sort(all(ost), cmp);
+
+		memset(cntwh, 0, sizeof(cntwh));
+		for(auto o : ost){
+			wh[o.wh]++;
+		}
+		ll r = ost.size() - 1;
+		ll tans = 0;
+		for(auto o : ost){
+			while(r >= 0 && o.le + ost[r].le > k){
+				wh[ost[r].wh]--;
+				r--;
 			}
-			while(l < o.l){
-				rec[a[l]]--;
-				ll tp = rec[a[l]];
-				sm -= sq(tp + 1);
-				sm += sq(tp);
-				l++;
+			tans += r + 1 - cntwh[o.wh];
+		}
+		ans += tans / 2;
+		ctest;csp("ans2  ");csp(grt);cend(ans);
+
+		for(auto ad : g[grt]){
+			if(vis.count(get_hash(grt, ad.first)) == 0){
+				q.push(ad.first);
+				vis.insert(get_hash(grt, ad.first));
+				vis.insert(get_hash(ad.first, grt));
 			}
-			while(l != o.l){
-				l--;
-				rec[a[l]]++;
-				ll tp = rec[a[l]];
-				sm -= sq(tp - 1);
-				sm += sq(tp);
-			}
-			inj[ghs(o.l, o.r)] = sm;
 		}
 	}
-	rep(i,m){
-		ll tp = inj[ghs(ques[i].l, ques[i].r)];
-		ll gap = ques[i].r - ques[i].l + 1;
-		if(tp == gap){
-			cend("0/1");
-		}
-		else{
-			ll u = tp - gap;
-			ll d = gap * (gap - 1);
-			ll g = __gcd(u, d);
-			u /= g;
-			d /= g;
-			cout << u << "/" << d << endl;
-		}
-	}
+
+	cend(ans);
 }
 
 int main(){
