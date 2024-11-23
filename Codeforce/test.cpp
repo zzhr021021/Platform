@@ -46,59 +46,83 @@ using namespace std;
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q,r;
 
-ll sqa_dis(ll x, ll y){
-	return x * x + y * y;
+ll sq(ll x){return x * x;}
+ll a[50050];
+ll bl = 0;
+ll ind(ll x){
+	return x / bl;
 }
-struct stone{
-	ll d,m,p,r;
-}stones[250050];
-bool cmp(const stone & u, const stone & v){
-	return u.d < v.d;
+ll ghs(ll l, ll r){
+	return l * 1e9 + r;
 }
-ll segmn[1000050];
-queue<stone> llist[250005];
+struct que{
+	ll l, r;
+}ques[50050];
+bool cmp(const que & u, const que & v){
+	return u.r < v.r;
+}
+vector<que> llist[250];
+unordered_map<ll, ll> inj;
 
 void sol(){
-	// input 
-	cin>>x>>y>>p>>r>>n;
-	set<ll> stx, sty;
-	map<ll, ll> ijx, ijy;
-	stx.insert(0);sty.insert(0);
-	stx.insert(r);sty.insert(p);
-	ll cx = 0, cy = 0;
-	rep(i,n){
-		ll xx,yy;
-		cin>>xx>>yy>>stones[i].m>>stones[i].p>>stones[i].r;
-		stones[i].d = ceil(sqrt(sqa_dis(xx - x, yy - y)));
-		stx.insert(stones[i].d);
-		stx.insert(stones[i].r);
-		sty.insert(stones[i].m);
-		sty.insert(stones[i].p);
+	cin>>n>>m;
+	bl = sqrt(n);
+	rep(i,n)cin>>a[i];
+	rep(i,m){
+		cin>>x>>y;
+		x--;y--;
+		ques[i].l = x;
+		ques[i].r = y;
+		llist[ind(x)].push_back({x, y});
 	}
-	// sort
-	sort(stones, stones + n, cmp);
-	// discretization 
-	for(auto o : stx){ijx[o] = cx;cx++;}
-	for(auto o : sty){ijy[o] = cy;cy++;}
-	rep(i,n){
-		stones[i].d = ijx[stones[i].d];
-		stones[i].r = ijx[stones[i].r];
-		stones[i].m = ijy[stones[i].m];
-		stones[i].p = ijy[stones[i].p];
+	rep(i,250){
+		sort(all(llist[i]), cmp);
 	}
-	// set linklist
-	rep(i,n){
-		llist[stones[i].m].push(stones[i]);
+	rep(i,250){
+		if(llist[i].size() == 0)continue;
+		ll l = 0, r = 0, sm = 1;
+		unordered_map<ll, ll> rec;
+		rec[a[0]] = 1;
+		for(auto o : llist[i]){
+			while(r != o.r){
+				r++;
+				rec[a[r]]++;
+				ll tp = rec[a[r]];
+				sm -= sq(tp - 1);
+				sm += sq(tp);
+			}
+			while(l < o.l){
+				rec[a[l]]--;
+				ll tp = rec[a[l]];
+				sm -= sq(tp + 1);
+				sm += sq(tp);
+				l++;
+			}
+			while(l != o.l){
+				l--;
+				rec[a[l]]++;
+				ll tp = rec[a[l]];
+				sm -= sq(tp - 1);
+				sm += sq(tp);
+			}
+			inj[ghs(o.l, o.r)] = sm;
+		}
 	}
-	rep(i,250005)llist[i].push({inf, inf, inf, inf});
-	// bfs-like
-	ll ans = 0;
-	queue<stone> q;
-	q.push({r, p, 0, 0});
-	while(q.size()){
-		break;;
+	rep(i,m){
+		ll tp = inj[ghs(ques[i].l, ques[i].r)];
+		ll gap = ques[i].r - ques[i].l + 1;
+		if(tp == gap){
+			cend("0/1");
+		}
+		else{
+			ll u = tp - gap;
+			ll d = gap * (gap - 1);
+			ll g = __gcd(u, d);
+			u /= g;
+			d /= g;
+			cout << u << "/" << d << endl;
+		}
 	}
-	cend(ans);
 }
 
 int main(){

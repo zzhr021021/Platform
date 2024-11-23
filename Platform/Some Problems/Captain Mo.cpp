@@ -36,6 +36,8 @@ vector<que> llist[250];
 ll ans[50050];
 ll rec[50050];
 
+// Luogu P1494
+// blocking the queries
 void sol(){
 	scanf("%d%d", &n, &m);
 	bl = n / sqrt(m * 2 / 3);
