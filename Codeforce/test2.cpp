@@ -26,166 +26,160 @@
 #define pb push_back
 #define all(a) a.begin(), a.end()
 #define rall(a) a.rbegin(), a.rend()
- 
-#define alice cout<<"Alice\n"
-#define bob cout<<"Bob\n"
-#define draw cout<<"Draw\n"
-
 
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
-const ll MOOD = 666623333;
 ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18; 
-// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
-// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
- mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+
+ll ask(vll & v){
+    ll ret = -1;
+    rep(i,v.size()){
+        rep(j,i){
+            if((v[i] & v[j]) > ret){
+                ret = v[i] & v[j];
+            }
+        }
+    }
+    return ret;
+}
+void printvec(vll & v){
+	for(auto o : v){
+		csp(o);
+	}
+	cendl;
+}
 
 ll tt, ttt;
-ll n,k,m,t,x,y,z,w,h,q;
+ll n,k,m,t,x,y,z,h,q;
 
-ll a[50000];
-ll md[1000][1000];
-ll mdcnt[1000][1000];
-ll ct[50000];
-ll bl, bc;
-ll cuni = 0;
-set<ll> st;
-map<ll, ll> inj;
-map<ll, ll> ivj;
-vll seq[50000];
-ll ind(ll x){
-	return x / bl;
+ll a[100005];
+ll lazy[400050];
+vll frontline[400050];
+ll MX = 35;
+
+void build(ll o, ll l, ll r){
+    if(l == r){
+        frontline[o].push_back(0);
+    }
+    else{
+        ll mid = (l + r) / 2;
+        build(o << 1, l, mid);
+        build(o << 1 | 1, mid + 1, r);
+        merge(all(frontline[o << 1]), all(frontline[o << 1 | 1]), back_inserter(frontline[o]));
+        while(frontline[o].size() > MX){
+            frontline[o].pop_back();
+        }
+    }
 }
-ll rloc(ll x){
-	return (x / bl + 1) * bl - 1;
+void maintain(ll o){
+    frontline[o].clear();
+    merge(all(frontline[o << 1]), all(frontline[o << 1 | 1]), back_inserter(frontline[o]));
+    while(frontline[o].size() > MX){
+        frontline[o].pop_back();
+    }
+    rep(i,frontline[o].size()){
+        frontline[o][i] += lazy[o];
+    }
 }
-ll lloc(ll x){
-	return (x / bl) * bl;
+void propagate(ll o){
+    lazy[o << 1] += lazy[o];
+    lazy[o << 1 | 1] += lazy[o];
+    rep(i,frontline[o << 1].size()){
+        frontline[o << 1][i] += lazy[o];
+    }
+    rep(i,frontline[o << 1 | 1].size()){
+        frontline[o << 1 | 1][i] += lazy[o];
+    }
+    lazy[o] = 0;
 }
-// return : the time appeared between [l, r]
-ll get(ll x, ll itvl, ll itvr){
-	ll lloc, rloc;
-	ll l,r;
-	
-	l = 0;r = seq[x].size() - 1;
-	while(l != r){
-		ll mid = (l + r) / 2;
-		if(seq[x][mid] < itvl)l = mid + 1;
-		else r = mid;
+void add(ll o, ll l, ll r, ll L, ll R, ll val){
+    if(R < l || L > r)return;
+	if(l >= L && r <= R){
+        rep(i,frontline[o].size()){
+            frontline[o][i] += val;
+        }
+		lazy[o] += val;
+		return;
 	}
-	lloc = l - 1;
+	ll mid = (l + r) / 2;
+	add(o << 1, l, mid, L, R, val);
+	add(o << 1 | 1, mid + 1, r, L, R, val);
+	maintain(o);
+}
+vll query(ll o, ll l, ll r, ll L, ll R){
+    vll ret;
+    if(r < L || l > R)return ret;
+	if(l >= L && r <= R)return frontline[o];
+	propagate(o);
+	ll mid = (l + r) / 2;
+    vll rl = query(o << 1, l, mid, L, R);
+	vll rr = query(o << 1 | 1, mid + 1, r, L, R);
+	merge(all(rl), all(rr), back_inserter(ret));
+    while(ret.size() > MX){
+        ret.pop_back();
+    }
+	return ret;
+}
 
-	l = 0;r = seq[x].size() - 1;
-	while(l != r){
-		ll mid = (l + r + 1) / 2;
-		if(seq[x][mid] > itvr)r = mid - 1;
-		else l = mid;
+ll q2(ll l, ll r){
+	ll ret = -1;
+	for(int i = l;i <= r;i++){
+		for(int j = l;j < i;j++){
+			if((a[i] & a[j]) > ret){
+				ret = a[i] & a[j];
+			}
+		}
 	}
-	rloc = r + 1;
-
-	return rloc - lloc - 1;
+	return ret;
 }
 
 void sol(){
-	// pre
+	// input 
 	cin>>n>>m;
-	bl = pow((double)n / log(n), 0.5);
-	if(bl == 0)bl++;
-	bc = (n / bl);
-	if(bc * bl != n)bc++;
-
+    build(1, 0, n - 1);
 	rep(i,n){
 		cin>>a[i];
-		st.insert(a[i]);
+		add(1, 0, n - 1, i, i, a[i]);
 	}
-	for(auto o : st){
-		cuni++;
-		inj[o] = cuni;
-		ivj[cuni] = o;
-	}
-	rep(i,n){
-		a[i] = inj[a[i]];
-	}
-
-	// get cnt
-	rep(i,bc){
-		memset(ct, 0, sizeof(ct));
-		ll mx = 0;
-		ll mxis = 0;
-		ll st = bl * i;
-		for(int j = st;j < bl * bc;j++){
-			if(a[j]){
-				ct[a[j]]++;
-				if(ct[a[j]] > mx || (ct[a[j]] == mx && a[j] < mxis)){
-					mx = ct[a[j]];
-					mxis = a[j];
-				}
-			}
-			if((j + 1) % bl == 0){
-				md[i][ind(j)] = mxis;
-				mdcnt[i][ind(j)] = mx;
-			}
-		}
-	}
-
-	// get seq
-	rep(i,45000)seq[i].push_back(-1e9);
-	rep(i,n)seq[a[i]].push_back(i);
-	rep(i,45000)seq[i].push_back(1e9);
-
-	// query
-	ll last = 0;
+    // ctest;
+    // rep(i,40){
+    //     ctest;cend(i);
+    //     cout << "vec is  ";printvec(frontline[i]);
+    // }
 	rep(iop,m){
-		cin>>x>>y;
-		x = (x + last - 1) % n + 1;
-		y = (y + last - 1) % n + 1;
-		if(x > y)swap(x, y);
-		x--;y--;
-		ll ans = 0;
-		ll acnt = 0;
-		if(ind(y) - ind(x) <= 1){
-			map<ll, ll> cn;
-			for(int i = x;i <= y;i++){
-				if(a[i] == 0)break;
-				cn[a[i]]++;
+        ll op;;
+		op = rnd() % 2 + 1;
+        ll l, r, x;
+        if(op == 1){
+            // cin>>l>>r>>x;
+			l = rnd() % n;
+			r = rnd() % n;
+			x = rnd() % 10;
+			csp(l);csp(r);cendl;
+			if(l > r)swap(l, r);
+            add(1, 0, n - 1, l, r, x);
+			for(int i = l;i <= r;i++){
+				a[i] += x;
 			}
-			for(auto o : cn){
-				if(o.second > acnt){
-					ans = o.first;
-					acnt = o.second;
-				}
-			}
-			ans = ivj[ans];
-		}
-		else{
-			ll indl = ind(x) + 1;
-			ll indr = ind(y) - 1;
-			ans = md[indl][indr];
-			acnt = mdcnt[indl][indr];
-			for(int i = x;i <= rloc(x);i++){
-				if(a[i] == 0)break;
-				ll tp = get(a[i], x, y);
-				if(tp > acnt || (tp == acnt && a[i] < ans)){
-					acnt = tp;
-					ans = a[i];
-				}
-			}
-			for(int i = lloc(y);i <= y;i++){
-				if(a[i] == 0)break;
-				ll tp = get(a[i], x, y);
-				if(tp > acnt || (tp == acnt && a[i] < ans)){
-					acnt = tp;
-					ans = a[i];
-				}
-			}
-			ans = ivj[ans];
-		}
+        }
+        else{
+            l = rnd() % n;
+			r = rnd() % n;
+			x = rnd() % 1000000;
+			x = llabs(x);
+			csp(l);csp(r);csp(x);cendl;
+			if(l > r)swap(l, r);
+            vll thevec = query(1, 0, n - 1, l, r);
+            
+            cend(ask(thevec));
 
-		cend(ans);
-		last = ans;
+			ll ans = q2(l, r);
+			cend(ans);
+        }
 	}
 
 
@@ -197,7 +191,7 @@ int main(){
 	cout.tie(nullptr);
 
 	tt = 1;
-//	cin>>tt;
+	// cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
