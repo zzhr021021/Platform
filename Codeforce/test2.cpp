@@ -35,154 +35,129 @@ const ll INF = 1e18;
 using namespace std;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
-ll ask(vll & v){
-    ll ret = -1;
-    rep(i,v.size()){
-        rep(j,i){
-            if((v[i] & v[j]) > ret){
-                ret = v[i] & v[j];
-            }
-        }
-    }
-    return ret;
-}
-void printvec(vll & v){
-	for(auto o : v){
-		csp(o);
-	}
-	cendl;
-}
-
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q;
 
-ll a[100005];
-ll lazy[400050];
-vll frontline[400050];
-ll MX = 35;
-
-void build(ll o, ll l, ll r){
-    if(l == r){
-        frontline[o].push_back(0);
-    }
-    else{
-        ll mid = (l + r) / 2;
-        build(o << 1, l, mid);
-        build(o << 1 | 1, mid + 1, r);
-        merge(all(frontline[o << 1]), all(frontline[o << 1 | 1]), back_inserter(frontline[o]));
-        while(frontline[o].size() > MX){
-            frontline[o].pop_back();
-        }
-    }
+const int N = 100010;
+struct Treap{
+	ll l, r;
+	ll val, dat;
+	ll cnt, size;
+} a[N];
+ll tot = 0;
+ll root = 1;
+ll newnode(ll x){
+	tot++;
+	a[tot].val = x;
+	a[tot].dat = rnd();
+	a[tot].cnt = a[tot].size = 1;
+	return tot;
 }
-void maintain(ll o){
-    frontline[o].clear();
-    merge(all(frontline[o << 1]), all(frontline[o << 1 | 1]), back_inserter(frontline[o]));
-    while(frontline[o].size() > MX){
-        frontline[o].pop_back();
-    }
-    rep(i,frontline[o].size()){
-        frontline[o][i] += lazy[o];
-    }
+ll update(ll o){
+	a[o].size = a[a[o].l].size + a[a[o].r].size + a[o].cnt;
 }
-void propagate(ll o){
-    lazy[o << 1] += lazy[o];
-    lazy[o << 1 | 1] += lazy[o];
-    rep(i,frontline[o << 1].size()){
-        frontline[o << 1][i] += lazy[o];
-    }
-    rep(i,frontline[o << 1 | 1].size()){
-        frontline[o << 1 | 1][i] += lazy[o];
-    }
-    lazy[o] = 0;
+void build(){
+	newnode(-inf);
+	newnode(inf);
+	a[1].r = 2;
+	root = 1;
+	update(root);
 }
-void add(ll o, ll l, ll r, ll L, ll R, ll val){
-    if(R < l || L > r)return;
-	if(l >= L && r <= R){
-        rep(i,frontline[o].size()){
-            frontline[o][i] += val;
-        }
-		lazy[o] += val;
+// size of nullptr is 0
+ll getrankbyval(ll o, ll x){
+	if(o == 0)return 0;
+	if(a[o].val > x)return getrankbyval(a[o].l, x);
+	else if(a[o].val == x)return a[a[o].l].size;
+	else return a[a[o].l].size + getrankbyval(a[o].r, x) + a[o].cnt;
+}
+ll getvalbyrank(ll o, ll x){
+	if(a[a[o].l].size >= x)return getvalbyrank(a[o].l, x);
+	else if(a[a[o].l].size + a[o].cnt >= x)return a[o].val;
+	else return getvalbyrank(a[o].r, x - (a[a[o].l].size + a[o].cnt));
+}
+void zig(ll & o){
+	ll u = a[o].l;
+	a[o].l = a[u].r;
+	a[u].r = o;
+	o = u;
+	update(a[o].r);update(o);
+}
+void zag(ll & o){
+	ll u = a[o].r;
+	a[o].r = a[u].l;
+	a[u].l = o;
+	o = u;
+	update(a[o].l);update(o);
+}
+void insert(ll & o, ll x){
+	if(p == 0){
+		p = newnode(x);
+		return;	
+	}
+	if(x == a[o].val){
+		a[o].cnt++;
+		update(p);
 		return;
 	}
-	ll mid = (l + r) / 2;
-	add(o << 1, l, mid, L, R, val);
-	add(o << 1 | 1, mid + 1, r, L, R, val);
-	maintain(o);
-}
-vll query(ll o, ll l, ll r, ll L, ll R){
-    vll ret;
-    if(r < L || l > R)return ret;
-	if(l >= L && r <= R)return frontline[o];
-	propagate(o);
-	ll mid = (l + r) / 2;
-    vll rl = query(o << 1, l, mid, L, R);
-	vll rr = query(o << 1 | 1, mid + 1, r, L, R);
-	merge(all(rl), all(rr), back_inserter(ret));
-    while(ret.size() > MX){
-        ret.pop_back();
-    }
-	return ret;
-}
-
-ll q2(ll l, ll r){
-	ll ret = -1;
-	for(int i = l;i <= r;i++){
-		for(int j = l;j < i;j++){
-			if((a[i] & a[j]) > ret){
-				ret = a[i] & a[j];
-			}
-		}
+	if(x < a[o].val){
+		insert(a[o].l, x);
+		if(a[a[o].l].dat > a[o].dat)zig(o);
 	}
-	return ret;
+	else{
+		insert(a[o].r, x);
+		if(a[a[o].r].dat > a[o].dat)zag(o);
+	}
+	update(o);
+}
+ll getpre(ll x){
+	ll rank = getrankbyval(1, x);
+	return getvalbyrank(1, rank - 1);
+}
+ll getsuf(ll x){
+	
+}
+void remove(ll & o, ll x){
+	if(o == 0)return;
+	if(x == a[o].val){
+		a[o].cnt--;
+	}
+	update(o);
 }
 
+// you need to maintain a data structure M dynamicly, which providing 6 diffenrent kinds of operations:
+// M is a multiple set
+// 1. insert a number x in M
+// 2. delete a copy of x in M
+// 3. query: the rank of x (rank of x is the number of numbers less than x, plus 1) 
+// 4. if sort M, M[x]
+// 5. pre of x
+// 6. suf of x 
+// so this is treap
 void sol(){
 	// input 
-	cin>>n>>m;
-    build(1, 0, n - 1);
-	rep(i,n){
-		cin>>a[i];
-		add(1, 0, n - 1, i, i, a[i]);
+	cin>>n;
+	build();
+	rep(iop,n){
+		ll op;cin>>op>>x;
+		if(op == 1){
+			
+		}
+		else if(op == 2){
+			
+		}
+		else if(op == 3){
+			
+		}
+		else if(op == 4){
+			
+		}
+		else if(op == 5){
+			
+		}
+		else{
+			
+		}
 	}
-    // ctest;
-    // rep(i,40){
-    //     ctest;cend(i);
-    //     cout << "vec is  ";printvec(frontline[i]);
-    // }
-	rep(iop,m){
-        ll op;;
-		op = rnd() % 2 + 1;
-        ll l, r, x;
-        if(op == 1){
-            // cin>>l>>r>>x;
-			l = rnd() % n;
-			r = rnd() % n;
-			x = rnd() % 10;
-			csp(l);csp(r);cendl;
-			if(l > r)swap(l, r);
-            add(1, 0, n - 1, l, r, x);
-			for(int i = l;i <= r;i++){
-				a[i] += x;
-			}
-        }
-        else{
-            l = rnd() % n;
-			r = rnd() % n;
-			x = rnd() % 1000000;
-			x = llabs(x);
-			csp(l);csp(r);csp(x);cendl;
-			if(l > r)swap(l, r);
-            vll thevec = query(1, 0, n - 1, l, r);
-            
-            cend(ask(thevec));
-
-			ll ans = q2(l, r);
-			cend(ans);
-        }
-	}
-
-
 }
 
 int main(){
