@@ -1,117 +1,138 @@
-#include<bits/stdc++.h>
-#define rep(i, n) for (int i = 0; i < (n); ++i)
-
-#define ll long
-#define ull unsigned long long
-#define vi vector<int>
-#define vll vector<long long>
-
-#define csp(n) cout << n << " "
-#define cend(n) cout << n << endl
-#define cendl cout << endl
-#define ctest cout << "test   "
-#define pb push_back
-#define all(a) a.begin(), a.end()
-
+#include<iostream>
+#include<cstdio>
+#include<cstdlib>
 using namespace std;
-ll tt, ttt;
-int n,k,m,t,x,y;
 
-inline ll sq(ll x){return x * x;}
-ll a[50050];
-ll bl = 0;
-inline ll ind(ll x){
-	return x / bl;
-}
-inline ll ghs(ll l, ll r){
-	return l * 1e9 + r;
-}
-struct que{
-	ll l, r, id;
-}ques[50050];
-inline bool cmp(const que & u, const que & v){
-	return u.r < v.r;
-}
-vector<que> llist[250];
-ll ans[50050];
-ll rec[50050];
+struct TREAP{
+    int l,r,val,sz,recy,rd;
+    //sz表示树的节点数，recy记录自己被重复了几次
+    //rd表示该节点的优先级 
+}t[1000000];
 
-void sol(){
-	scanf("%d%d", &n, &m);
-	bl = n / sqrt(m * 2 / 3);
-	// bl = sqrt(n);
-	rep(i,n){
-		scanf("%d", &a[i]);
-	}
-	rep(i,m){
-		scanf("%d%d", &x, &y);
-		x--;y--;
-		ques[i].l = x;
-		ques[i].r = y;
-		ques[i].id = i;
-		llist[ind(x)].push_back({x, y, i});
-	}
-	rep(i,250){
-		if(llist[i].size() <= 1)continue;
-		sort(all(llist[i]), cmp);
-	}
-	rep(i,250){
-		if(llist[i].size() == 0)continue;
-		ll l = 0, r = 0, sm = 1;
-		memset(rec, 0, sizeof(rec));
-		rec[a[0]] = 1;
-		for(que o : llist[i]){
-			while(r != o.r){
-				r++;
-				rec[a[r]]++;
-				ll tp = rec[a[r]];
-				sm -= sq(tp - 1);
-				sm += sq(tp);
-			}
-			while(l < o.l){
-				rec[a[l]]--;
-				ll tp = rec[a[l]];
-				sm -= sq(tp + 1);
-				sm += sq(tp);
-				l++;
-			}
-			while(l != o.l){
-				l--;
-				rec[a[l]]++;
-				ll tp = rec[a[l]];
-				sm -= sq(tp - 1);
-				sm += sq(tp);
-			}
-			ans[o.id] = sm;
-		}
-	}
-	rep(i,m){
-		ll tp = ans[i];
-		ll gap = ques[i].r - ques[i].l + 1;
-		if(gap == 1){
-			printf("0/1\n");
-		}
-		else{
-			ll u = tp - gap;
-			ll d = gap * (gap - 1);
-			ll g = __gcd(u, d);
-			u /= g;
-			d /= g;
-			printf("%lld/%lld\n", u, d);
-		}
-	}
+int m,size,root,ans;
+
+
+void update(int k){
+    t[k].sz=t[t[k].l].sz+t[t[k].r].sz+t[k].recy;
+    //更新维护 
 }
+
+void left_rotate(int &k){
+    int y=t[k].r;t[k].r=t[y].l;t[y].l=k;
+    t[y].sz=t[k].sz;update(k);k=y;
+    //左旋，至于这里的k=y，由于下面的递归调用，
+    //它会一直迭代，所以无需担心会有什么错误 
+}
+void right_rotate(int &k){
+    int y=t[k].l;t[k].l=t[y].r;t[y].r=k;
+    t[y].sz=t[k].sz;update(k);k=y;
+    //右旋 
+}
+
+
+//以下函数的调用中(int k)表示在根为k的子树中
+
+void insert(int &k,int x){//插入操作 
+    if (k==0){//无节点时特判，
+              //或是递归的边界，即插入叶节点 
+        ++size;k=size;t[k].sz=t[k].recy=1;
+        t[k].val=x;t[k].rd=rand();return ;
+        //rand()生成随机的优先级，保证了期望复杂度 
+    }
+    ++t[k].sz;//每次向下找同时增加该节点1个节点数
+    if (t[k].val==x) ++t[k].recy;
+              //如果是相同数字，只需++recy即可 
+    else if (x>t[k].val){
+        insert(t[k].r,x);
+        if (t[t[k].r].rd<t[k].rd) left_rotate(k);
+              //插入后如果违反堆性质，就进行上浮 
+    }else{
+        insert(t[k].l,x);
+        if (t[t[k].l].rd<t[k].rd) right_rotate(k);
+    }
+}
+
+
+void del(int &k,int x){
+    if (k==0) return ;//无节点就跳出 
+    if (t[k].val==x){
+        if (t[k].recy>1){
+            --t[k].recy;--t[k].sz;return ;
+            //如果重复了，只需--recy即可 
+        }
+        if (t[k].l*t[k].r==0) k=t[k].l+t[k].r;
+            //如果左右儿子有为空的情况
+            //或将其变为其儿子节点，或将其删除 
+        else if (t[t[k].l].rd<t[t[k].r].rd) 
+                    right_rotate(k),del(k,x);
+            //如果其左右儿子都有，选择优先级较大的，
+            //保持以后的堆性质，同时将k节点下沉 
+               else left_rotate(k),del(k,x);
+    }
+    else if (x>t[k].val)
+                --t[k].sz,del(t[k].r,x);
+            //如果关键值不同，继续向下找 
+           else --t[k].sz,del(t[k].l,x);
+}
+
+
+int atrank(int k,int x){//寻找值为x的数的排名 
+    if (k==0) return 0;
+    if (t[k].val==x) return t[t[k].l].sz+1;
+        //如果找的关键字，根据BST的性质，
+        //则其排名为左子树的大小+1 
+    else if (x>t[k].val)
+            return t[t[k].l].sz+t[k].recy+atrank(t[k].r,x);
+        //加上前面所有比它小的数，在右子树中找 
+       else return atrank(t[k].l,x);
+       //如果在左子树中找的话就不用加了 
+}
+
+
+int rerank(int k,int x){//寻找排名为x的数值 
+    if (k==0) return 0;
+    if (x<=t[t[k].l].sz) return rerank(t[k].l,x);
+        //如果x小于了左子树的大小，那解一定在左子树中 
+    else if (x>t[t[k].l].sz+t[k].recy)
+            return rerank(t[k].r,x-t[k].recy-t[t[k].l].sz);
+        //如果x大于的左子树的大小+k的重复次数，
+        //那就在右子树中找 
+       else return t[k].val;
+        //否则就是找到解了(包含了重复数字中) 
+}
+
+
+void pred(int k,int x){//找前缀 
+    if (k==0) return ;
+    if (t[k].val<x){
+        ans=k;pred(t[k].r,x);
+        //找到了更优的解，就替换之
+        //而且在其右子树中不可能再有更优的了
+        //故向其左子树中找
+    }else pred(t[k].l,x);
+        //否则就往右子树中找 
+}
+
+
+void succ(int k,int x){//找后缀 
+    if (k==0) return ;
+    if (t[k].val>x){
+        ans=k;succ(t[k].l,x);
+    }else succ(t[k].r,x);
+}
+
 
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-
-	tt = 1;
-	// cin>>tt;
-	for(ttt = 1;ttt <= tt;ttt++){
-		sol();
-	}
-	system("pause");
-	return 0;
+    int f,x;
+    scanf("%d",&m);
+    for (int i=1;i<=m;++i){
+        scanf("%d%d",&f,&x);ans=0;
+        if (f==1) insert(root,x);
+        if (f==2) del(root,x);
+        if (f==3) printf("%d\n",atrank(root,x));
+        if (f==4) printf("%d\n",rerank(root,x));
+        if (f==5) {pred(root,x);printf("%d\n",t[ans].val);}
+        if (f==6) {succ(root,x);printf("%d\n",t[ans].val);}
+    }
+    return 0;
 }
