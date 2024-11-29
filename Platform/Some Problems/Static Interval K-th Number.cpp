@@ -1,70 +1,44 @@
 #include<bits/stdc++.h>
 #define rep(i, n) for (int i = 0; i < (n); ++i)
-#define rep1(i, n) for (int i = 1; i < (n); ++i)
 #define rep1n(i, n) for (int i = 1; i <= (n); ++i)
 
-#define ll long long
-#define pll pair<long long, long long>
-#define vi vector<int>
-#define vll vector<long long>
+using i32 = int;
+using u32 = unsigned;
+using i64 = long long;
+using u64 = unsigned long long;
 
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
 #define ctest cout << "test   "
-#define pb push_back
-#define all(a) a.begin(), a.end()
 
-const ll inf = 1e18;
-const ll INF = 1e18;
-const ll N = 300005;
+const i64 inf = 1e18;
+const i64 N = 200005;
 using namespace std;
 
-ll tt, ttt;
-ll n,k,m,t,x,y,z,h,r;
-ll a[N];
+i64 tt, ttt;
+i64 n,k,m,t,x,y,z;
+i64 a[N];
 struct qu{
-	ll op, x, y, z;
+	i64 op, x, y, z;
 }qus[N << 1], qul[N << 1], qur[N << 1];
-ll cntop = 0;
-stack<pll> seq;
-ll fenw[N << 1];
-ll ans[N << 1];
+i64 ans[N << 1];
 
-void recover(){
-	while(seq.size()){
-		auto o = seq.top();
-		seq.pop();
-		fenw[o.first] = o.second;
-	}
-}
-ll pa(ll x){
-	ll tp = x & (-x);
-	return x - tp;
-}
-void add(ll pos, ll val){
-    while (pos < (N << 1)){
-		seq.push({pos, fenw[pos]});
-        fenw[pos] += val;
-        pos |= (pos + 1);
+struct BIT {
+    int tr[N];
+    #define lowbit(x) (x&-x)
+    void add(int x , int y) { for (; x <= n; x += lowbit(x)) tr[x] += y; }
+    int _query(int x) {
+        int res = 0;
+        for (; x; x -= lowbit(x)) res += tr[x];
+        return res;
     }
-}
-ll get(ll pos){
-    ll res = 0;
-    while (pos >= 0){
-        res += fenw[pos];
-        pos &= (pos + 1);
-        pos--;
+    int query(int l , int r) {
+        return _query(r) - _query(l - 1);
     }
-    return res;
-}
-ll get(ll l, ll r){
-    ll vr = get(r);
-    ll vl = get(l - 1);
-    return vr - vl;
-}
+} bit;
 
-void solve(ll l, ll r, ll whl, ll whr){
+void solve(i64 l, i64 r, i64 whl, i64 whr){
 	if(whl > whr)return;
 	if(l == r){
 		for(int i = whl;i <= whr;i++){
@@ -73,12 +47,12 @@ void solve(ll l, ll r, ll whl, ll whr){
 		}
 		return;
 	}
-	ll cntl = 0, cntr = 0;
-	ll mid = (l + r) >> 1;
+	i64 cntl = 0, cntr = 0;
+	i64 mid = (l + r) / 2;
 	for(int i = whl;i <= whr;i++){
 		if(qus[i].op == 0){
 			if(qus[i].y <= mid){
-				add(qus[i].x, 1);
+				bit.add(qus[i].x + 1, 1);
 				qul[cntl] = qus[i];
 				cntl++;
 			}
@@ -88,7 +62,7 @@ void solve(ll l, ll r, ll whl, ll whr){
 			}
 		}
 		else{
-			ll cnt = get(qus[i].x, qus[i].y);
+			i64 cnt = bit.query(qus[i].x + 1, qus[i].y + 1);
 			if(cnt >= qus[i].z){
 				qul[cntl] = qus[i];
 				cntl++;
@@ -100,7 +74,9 @@ void solve(ll l, ll r, ll whl, ll whr){
 			}
 		}
 	}
-	recover();
+	for(int i = 0;i < cntl;i++){
+		if(qul[i].op == 0)bit.add(qul[i].x + 1, -1);
+	}
 	for(int i = 0;i < cntl;i++){
 		qus[whl + i] = qul[i];
 	}
@@ -116,22 +92,20 @@ void sol(){
 
 	rep(i,n){
 		cin>>a[i];
-		qus[cntop].op = 0;
-		qus[cntop].x = i;
-		qus[cntop].y = a[i];
-		cntop++;		
+		qus[i].op = 0;
+		qus[i].x = i;
+		qus[i].y = a[i];
 	}
 	rep(j,m){
-		ll i = cntop;
+		i64 i = j + n;
 		cin>>qus[i].x>>qus[i].y>>qus[i].z;
 		qus[i].op = j;qus[i].x--;qus[i].y--;
 		qus[i].op++;
-		cntop++;
 	}
-	ll u = 1e10;
-	ll d = -1;
+	i64 u = 2e9;
+	i64 d = -1;
 
-	solve(d, u, 0, cntop - 1);
+	solve(d, u, 0, n + m - 1);
 
 	rep1n(i,m)cend(ans[i]);
 }

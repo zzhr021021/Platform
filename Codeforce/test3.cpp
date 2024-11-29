@@ -1,138 +1,155 @@
-#include<iostream>
-#include<cstdio>
-#include<cstdlib>
+#include<bits/stdc++.h>
+#define rep(i, n) for (int i = 0; i < (n); ++i)
+#define rep1(i, n) for (int i = 1; i < (n); ++i)
+#define rep1n(i, n) for (int i = 1; i <= (n); ++i)
+
+#define ll long long
+#define pll pair<long long, long long>
+#define vi vector<int>
+#define vll vector<long long>
+
+#define csp(n) cout << n << " "
+#define cend(n) cout << n << endl
+#define cendl cout << endl
+#define ctest cout << "test   "
+#define pb push_back
+#define all(a) a.begin(), a.end()
+
+const ll inf = 1e18;
+const ll INF = 1e18;
+const ll N = 200005;
 using namespace std;
 
-struct TREAP{
-    int l,r,val,sz,recy,rd;
-    //sz表示树的节点数，recy记录自己被重复了几次
-    //rd表示该节点的优先级 
-}t[1000000];
+ll tt, ttt;
+ll n,k,m,t,x,y,z,h,r;
+ll a[N];
+struct qu{
+	ll op, x, y, z;
+}qus[N << 1], qul[N << 1], qur[N << 1];
+ll cntop = 0;
+stack<pll> seq;
+ll fenw[N << 1];
+ll ans[N << 1];
+ll cntq;
 
-int m,size,root,ans;
-
-
-void update(int k){
-    t[k].sz=t[t[k].l].sz+t[t[k].r].sz+t[k].recy;
-    //更新维护 
+void recover(){
+	while(seq.size()){
+		auto o = seq.top();
+		seq.pop();
+		fenw[o.first] = o.second;
+	}
 }
-
-void left_rotate(int &k){
-    int y=t[k].r;t[k].r=t[y].l;t[y].l=k;
-    t[y].sz=t[k].sz;update(k);k=y;
-    //左旋，至于这里的k=y，由于下面的递归调用，
-    //它会一直迭代，所以无需担心会有什么错误 
+ll pa(ll x){
+	ll tp = x & (-x);
+	return x - tp;
 }
-void right_rotate(int &k){
-    int y=t[k].l;t[k].l=t[y].r;t[y].r=k;
-    t[y].sz=t[k].sz;update(k);k=y;
-    //右旋 
-}
-
-
-//以下函数的调用中(int k)表示在根为k的子树中
-
-void insert(int &k,int x){//插入操作 
-    if (k==0){//无节点时特判，
-              //或是递归的边界，即插入叶节点 
-        ++size;k=size;t[k].sz=t[k].recy=1;
-        t[k].val=x;t[k].rd=rand();return ;
-        //rand()生成随机的优先级，保证了期望复杂度 
-    }
-    ++t[k].sz;//每次向下找同时增加该节点1个节点数
-    if (t[k].val==x) ++t[k].recy;
-              //如果是相同数字，只需++recy即可 
-    else if (x>t[k].val){
-        insert(t[k].r,x);
-        if (t[t[k].r].rd<t[k].rd) left_rotate(k);
-              //插入后如果违反堆性质，就进行上浮 
-    }else{
-        insert(t[k].l,x);
-        if (t[t[k].l].rd<t[k].rd) right_rotate(k);
+void add(ll pos, ll val){
+    while (pos < (N << 1)){
+		seq.push({pos, fenw[pos]});
+        fenw[pos] += val;
+        pos |= (pos + 1);
     }
 }
-
-
-void del(int &k,int x){
-    if (k==0) return ;//无节点就跳出 
-    if (t[k].val==x){
-        if (t[k].recy>1){
-            --t[k].recy;--t[k].sz;return ;
-            //如果重复了，只需--recy即可 
-        }
-        if (t[k].l*t[k].r==0) k=t[k].l+t[k].r;
-            //如果左右儿子有为空的情况
-            //或将其变为其儿子节点，或将其删除 
-        else if (t[t[k].l].rd<t[t[k].r].rd) 
-                    right_rotate(k),del(k,x);
-            //如果其左右儿子都有，选择优先级较大的，
-            //保持以后的堆性质，同时将k节点下沉 
-               else left_rotate(k),del(k,x);
+ll get(ll pos){
+    ll res = 0;
+    while (pos >= 0){
+        res += fenw[pos];
+        pos &= (pos + 1);
+        pos--;
     }
-    else if (x>t[k].val)
-                --t[k].sz,del(t[k].r,x);
-            //如果关键值不同，继续向下找 
-           else --t[k].sz,del(t[k].l,x);
+    return res;
+}
+ll get(ll l, ll r){
+    ll vr = get(r);
+    ll vl = get(l - 1);
+    return vr - vl;
 }
 
-
-int atrank(int k,int x){//寻找值为x的数的排名 
-    if (k==0) return 0;
-    if (t[k].val==x) return t[t[k].l].sz+1;
-        //如果找的关键字，根据BST的性质，
-        //则其排名为左子树的大小+1 
-    else if (x>t[k].val)
-            return t[t[k].l].sz+t[k].recy+atrank(t[k].r,x);
-        //加上前面所有比它小的数，在右子树中找 
-       else return atrank(t[k].l,x);
-       //如果在左子树中找的话就不用加了 
+void solve(ll l, ll r, ll whl, ll whr){
+	if(whl > whr)return;
+	if(l == r){
+		for(int i = whl;i <= whr;i++){
+			auto o = qus[i];
+			ans[o.op] = l;
+		}
+		return;
+	}
+	ll cntl = 0, cntr = 0;
+	ll mid = (l + r) >> 1;
+	for(int i = whl;i <= whr;i++){
+		if(qus[i].op == 0){
+			if(qus[i].y <= mid){
+				ll tp = get(qus[i].x, qus[i].x);
+				add(tp, -1);
+				add(qus[i].x, 1);
+				qul[cntl] = qus[i];
+				cntl++;
+			}
+			else{
+				qur[cntr] = qus[i];
+				cntr++;
+			}
+		}
+		else{
+			ll cnt = get(qus[i].x, qus[i].y);
+			if(cnt >= qus[i].z){
+				qul[cntl] = qus[i];
+				cntl++;
+			}
+			else{
+				qus[i].z -= cnt;
+				qur[cntr] = qus[i];
+				cntr++;
+			}
+		}
+	}
+	recover();
+	for(int i = 0;i < cntl;i++){
+		qus[whl + i] = qul[i];
+	}
+	for(int i = 0;i < cntr;i++){
+		qus[whl + i + cntl] = qur[i];
+	}
+	solve(l, mid, whl, whl + cntl - 1);
+	solve(mid + 1, r, whl + cntl, whr);
 }
 
+void sol(){
+	cin>>n>>m;
 
-int rerank(int k,int x){//寻找排名为x的数值 
-    if (k==0) return 0;
-    if (x<=t[t[k].l].sz) return rerank(t[k].l,x);
-        //如果x小于了左子树的大小，那解一定在左子树中 
-    else if (x>t[t[k].l].sz+t[k].recy)
-            return rerank(t[k].r,x-t[k].recy-t[t[k].l].sz);
-        //如果x大于的左子树的大小+k的重复次数，
-        //那就在右子树中找 
-       else return t[k].val;
-        //否则就是找到解了(包含了重复数字中) 
+	rep(i,n){
+		cin>>a[i];
+		qus[cntop].op = 0;
+		qus[cntop].x = i;
+		qus[cntop].y = a[i];
+		cntop++;		
+	}
+	rep(j,m){
+		ll i = cntop;
+		char op;cin>>op;
+		if(op == 'Q'){
+			cntq++;
+			cin>>qus[i].x>>qus[i].y>>qus[i].z;
+		    qus[i].op = cntq;qus[i].x--;qus[i].y--;
+		    cntop++;
+		}
+		else{
+			cin>>qus[i].x>>qus[i].y;
+		    qus[i].op = 0;qus[i].x--;qus[i].y--;
+		    cntop++;
+		}
+	}
+	ll u = 1e10;
+	ll d = -1;
+
+	solve(d, u, 0, cntop - 1);
+
+	rep1n(i,cntq)cend(ans[i]);
 }
-
-
-void pred(int k,int x){//找前缀 
-    if (k==0) return ;
-    if (t[k].val<x){
-        ans=k;pred(t[k].r,x);
-        //找到了更优的解，就替换之
-        //而且在其右子树中不可能再有更优的了
-        //故向其左子树中找
-    }else pred(t[k].l,x);
-        //否则就往右子树中找 
-}
-
-
-void succ(int k,int x){//找后缀 
-    if (k==0) return ;
-    if (t[k].val>x){
-        ans=k;succ(t[k].l,x);
-    }else succ(t[k].r,x);
-}
-
 
 int main(){
-    int f,x;
-    scanf("%d",&m);
-    for (int i=1;i<=m;++i){
-        scanf("%d%d",&f,&x);ans=0;
-        if (f==1) insert(root,x);
-        if (f==2) del(root,x);
-        if (f==3) printf("%d\n",atrank(root,x));
-        if (f==4) printf("%d\n",rerank(root,x));
-        if (f==5) {pred(root,x);printf("%d\n",t[ans].val);}
-        if (f==6) {succ(root,x);printf("%d\n",t[ans].val);}
-    }
-    return 0;
+	ios::sync_with_stdio(0) , cin.tie(0) , cout.tie(0);
+	sol();
+	system("pause");
+	return 0;
 }
