@@ -34,8 +34,8 @@
 
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
-const ll MOOD = 666623333;
-ll p = MOD;
+const ll MOOD = 998244353;
+ll p = MOOD;
 const ll inf = 1e18;
 const ll INF = 1e18;
 const ll N = 1e6;
@@ -50,18 +50,55 @@ void printvec(vll & v){
 	}
 	cendl;
 }
+const ll MMint = 1e6+5;
+bool isp[MMint];
+int primes[MMint];
+int pp = 0;
+int minprime[MMint];
+
 
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,r;
 
+ll a[200500];
+
 void sol(){
-	
+	cin>>n;
+	rep(i,n)cin>>a[i];
+
 }
 
 int main(){
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
+
+	// Sieve of Eratosthenes
+	for(int i = 0;i < MMint;i++){
+		isp[i] = true;
+		minprime[i] = i;
+	}
+	isp[0] = isp[1] = false;
+	for(int i = 2;i < MMint;i++){
+		if(isp[i]){
+			primes[pp] = i;
+			pp++;
+		}
+		for(int j = 0;j < pp;j++){
+			int p = primes[j];
+			int mul = i * p;
+			if(mul < MMint){
+				isp[mul] = false;
+				minprime[mul] = p;
+			}
+			else{
+				break;
+			}
+			if(i % p == 0){
+				break;
+			}
+		}
+	}
 
 	tt = 1;
 	// cin>>tt;
