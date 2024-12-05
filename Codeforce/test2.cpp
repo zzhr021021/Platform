@@ -50,21 +50,30 @@ void printvec(vll & v){
 	}
 	cendl;
 }
-const ll MMint = 1e6+5;
-bool isp[MMint];
-int primes[MMint];
-int pp = 0;
-int minprime[MMint];
-
 
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,r;
 
 ll a[200500];
-
+ll b[200050];
+ll c1[200050];
+ll c2[200050];
 void sol(){
 	cin>>n;
-	rep(i,n)cin>>a[i];
+	ll ans = -inf;
+	rep1n(i,n)cin>>a[i];
+	rep1n(i,n)cin>>b[i];
+	c1[0] = c2[n + 1] = 0;
+	rep1n(i,n){
+		c1[i] = c1[i - 1] + max(a[i], b[i]);
+	}
+	for(int i = n;i >= 1;i--){
+		c2[i] = c2[i + 1] + max(a[i], b[i]);
+	}
+	rep1n(i,n){
+		ans = max(ans, a[i] + b[i] + c1[i - 1] + c2[i + 1]);
+	}
+	cend(ans);
 
 }
 
@@ -73,35 +82,8 @@ int main(){
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
-	// Sieve of Eratosthenes
-	for(int i = 0;i < MMint;i++){
-		isp[i] = true;
-		minprime[i] = i;
-	}
-	isp[0] = isp[1] = false;
-	for(int i = 2;i < MMint;i++){
-		if(isp[i]){
-			primes[pp] = i;
-			pp++;
-		}
-		for(int j = 0;j < pp;j++){
-			int p = primes[j];
-			int mul = i * p;
-			if(mul < MMint){
-				isp[mul] = false;
-				minprime[mul] = p;
-			}
-			else{
-				break;
-			}
-			if(i % p == 0){
-				break;
-			}
-		}
-	}
-
 	tt = 1;
-	// cin>>tt;
+	cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
