@@ -54,67 +54,49 @@ void printvec(vll & v){
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,r;
 
-ll fenw[200050];
-vpl seq;
-
-void recover(){
-	while(seq.size()){
-		auto o = seq.back();seq.pop_back();
-		fenw[o.first] = o.second;
+string s;
+bool check(ll x){
+	if(x < 0 || x >= n - 3)return false;
+	if(s[x] == '1' && s[x + 1] == '1' && s[x + 2] == '0' && s[x + 3] == '0'){
+		return true;
 	}
+	return false;
 }
-inline ll pa(ll x){
-	ll tp = x & (-x);
-	return x - tp;
-}
-void add(ll pos, ll val){
-    while (pos < 200050){
-    	seq.push_back(pos, fenw[pos]);
-        fenw[pos] += val; 
-        pos |= (pos + 1);
-    }
-}
-void change(ll pos, ll val){
-	
-}
-ll get(ll pos){
-    ll res = 0;
-    while (pos >= 0){
-        res += fenw[pos];
-        pos &= (pos + 1);
-        pos--;
-    }
-    return res;
-}
-ll get(ll l, ll r){
-    ll vr = get(r);
-    ll vl = get(l - 1);
-    return vr - vl;
-}
-
-struct qu{
-	ll type, l, r, val, id;
-}qus[200050], qu1[200050], qu2[200050];
-ll cntq, cnt1, cnt2;
-
-ll ans[200050];
 
 void sol(){
-	cin>>n>>m;
-	rep(i,n){
-		cin>>x;
-		
+	cin>>s;
+	n = s.size();
+	cin>>m;
+	set<ll> st;
+	rep(i,n - 3){
+		if(check(i)){
+			st.insert(i);
+		}
 	}
+	rep(i,m){
+		cin>>x>>y;x--;
+		s[x] = '0' + y;
+		for(int j = x - 3;j <= x;j++){
+			st.erase(j);
+			if(check(j)){
+				st.insert(j);
+			}
+		}
+		
+		if(st.size())yes;
+		else no;
+	}
+	 
 	
 }
 
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+//	ios_base::sync_with_stdio(false);
+//	cin.tie(nullptr);
+//	cout.tie(nullptr);
 
 	tt = 1;
-	// cin>>tt;
+	cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
