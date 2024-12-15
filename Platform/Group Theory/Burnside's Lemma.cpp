@@ -12,13 +12,6 @@
 #define vi vector<int>
 #define vll vector<long long>
 #define vb vector<bool>
-#define vpl vector<pair<long long, long long>>
-#define vstr vector<string>
-#define smpq priority_queue<long long, vector<long long>, greater<long long>>
-#define bgpq priority_queue<long long> 
-
-#define yes cout<<"YES\n"
-#define no cout<<"NO\n"
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
@@ -26,24 +19,13 @@
 #define pb push_back
 #define all(a) a.begin(), a.end()
 #define rall(a) a.rbegin(), a.rend()
- 
-#define alice cout<<"Alice\n"
-#define bob cout<<"Bob\n"
-#define draw cout<<"Draw\n"
-
 
 const ll MOD = 1e9 + 7;
-const ll MODD = 1e9 + 9;
-const ll MOOD = 998244353;
-ll p = MOOD;
+ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18;
 const ll N = 1e6;
-// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
-// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
-// mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-
 void printvec(vll & v){
 	for(auto o : v){
 		csp(o);
@@ -72,8 +54,6 @@ int main(){
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
-
-	initinv();
 
 	tt = 1;
 	cin>>tt;

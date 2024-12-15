@@ -30,7 +30,6 @@ ll qpow(ll x,ll y){
     }
     return ans;
 }
-
 ll C(ll x,ll y){
     if(x < y) return 0;
     return fac[x] * qpow(fac[y] * fac[x - y] % p, p - 2) % p;

@@ -50,8 +50,8 @@ bool isp[10000005];
 ll minprime[10000005];
 ll primes[10000005];
 ll pp = 0;
-ll euler_value[10000005];
-ll euler_value_presum[10000005];
+ll phi[10000005];
+ll phi_presum[10000005];
 
 void pre_mobius(){
 	rep(i,10000005){
@@ -69,14 +69,14 @@ void pre_mobius(){
 			}
 		}
 	}
-	euler_value[1] = 1;
+	phi[1] = 1;
 	for(int i = 2;i <= 10000000;i++){
 		ll tp = minprime[i];
-		if(i % (tp * tp) == 0)euler_value[i] = euler_value[i / tp] * tp;
-		else euler_value[i] = euler_value[i / tp] * (tp - 1);
+		if(i % (tp * tp) == 0)phi[i] = phi[i / tp] * tp;
+		else phi[i] = phi[i / tp] * (tp - 1);
 	}
 	rep1n(i,10000000){
-		euler_value_presum[i] = euler_value_presum[i - 1] + euler_value[i];
+		phi_presum[i] = phi_presum[i - 1] + phi[i];
 	}
 }
 
@@ -85,8 +85,7 @@ void sol(){
 	ll ans = 0;
 	rep(i,pp){
 		if(primes[i] > n)break;
-		// ctest;cend(primes[i]);
-		ans += 2 * euler_value_presum[n / primes[i]] - 1;
+		ans += 2 * phi_presum[n / primes[i]] - 1;
 	}
 	cend(ans);
 }
