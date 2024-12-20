@@ -54,26 +54,96 @@ void printvec(vll & v){
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,r;
 
+ll a[500005];
+
 void sol(){
-	/*
-	Recall Burnside's lemma
-	the number of elements up to an action group is:
-
-		(1/|G|) * ∑g∈G ∑x∈X[gx = x] ,
-
-	where [x] = 1 if x = true
-	and [x] = 0 if x = false.
-	(x is a state in state set X;
-	g is a action in action set G, on state x)
-	*/
+	cin>>n>>x>>y;
+	if(y - x == 1 || y - x == n - 1){
+		if(n & 1){
+			rep1n(i,n){
+				a[i] = i % 2;
+				a[1] = 2;
+			}
+		}
+		else{
+			rep1n(i,n){
+				a[i] = (i) % 2;
+			}
+		}
+	}
+	else if(n == 4){
+		a[x] = 0;
+		a[y] = 2;
+		a[x % n + 1] = 1;
+		a[y % n + 1] = 1;
+	}
+	else{
+		ll tp = min(y - x, x + n - y);
+		ll l = y - x - 1;;
+		ll r = x + n - y - 1;
+		if(l % 2 == 0 && r % 2 == 0){
+			a[x] = 1;
+			a[y] = 2;
+			ll tp;
+			tp = 0;
+			for(int i = x % n + 1;i != y;i = i % n + 1){
+				if(i > n)i -= n;
+				a[i] = tp % 2;
+				tp++;
+			}
+			tp = 1;
+			for(int i = y % n + 1;i != x;i = i % n + 1){
+				if(i > n)i -= n;
+				a[i] = tp % 2;
+				tp++;
+			}
+		}
+		else if(l % 2 == 1 && r % 2 == 1){
+			a[x] = 1;
+			a[y] = 2;
+			ll tp;
+			tp = 0;
+			for(int i = x % n + 1;i != y;i = i % n + 1){
+				if(i > n)i -= n;
+				a[i] = tp % 2;
+				tp++;
+			}
+			tp = 0;
+			for(int i = y % n + 1;i != x;i = i % n + 1){
+				if(i > n)i -= n;
+				a[i] = tp % 2;
+				tp++;
+			}
+		}
+		else{
+			if((y - x - 1) % 2 == 0)swap(x, y);
+			a[x] = 1;
+			a[y] = 2;
+			ll tp;
+			tp = 0;
+			for(int i = x % n + 1;i != y;i = i % n + 1){
+				if(i > n)i -= n;
+				a[i] = tp % 2;
+				tp++;
+			}
+			tp = 1;
+			for(int i = y % n + 1;i != x;i = i % n + 1){
+				if(i > n)i -= n;
+				a[i] = tp % 2;
+				tp++;
+			}
+		}
+	}
+	rep1n(i,n){
+		csp(a[i]);
+	}
+	cendl;
 }
 
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-
-	initinv();
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
 
 	tt = 1;
 	cin>>tt;
