@@ -5,6 +5,7 @@
 #define rep1nr(i, n) for (int i = (n); i >= 1; --i)
 #define rep01n(i, n) for (int i = 0; i <= (n); ++i)
 #define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
+#define replr(i, l, r) for (int i = l;i <= r;i++)
 
 #define ll long long
 #define ull unsigned long long
@@ -54,8 +55,42 @@ void printvec(vll & v){
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,r;
 
+ll a[200050];
+vll g[200500];
+ll dp[400][400];
+void dfs(ll o, ll fa){
+	for(auto ad : g[o]){
+		dfs(ad, o);
+	}
+	if(g[o].size() == 0 && o != 1){
+		dp[o][1] = a[o];
+	}
+	else{
+		ll sub[305];
+		ll dpsub[305][305];
+		ll po = 0;
+		for(auto ad : g[o]){
+			po++;
+			sub[po] = ad;
+		}
+		memset(dpsub, 0, sizeof(dpsub));
+		rep1n(i, g[o].size()){
+			rep1n(j,m){
+				
+			}
+		}
+	}
+}
 void sol(){
-	
+	cin>>n>>m;
+	a[1] = 0;
+	for(int i = 2;i <= 2 + n - 1;i++){
+		cin>>x>>y;x++;
+		a[i] = y;
+		g[x].push_back(i);
+	}
+	n++;
+	cend(dp[1][m]);
 }
 
 int main(){
@@ -64,7 +99,7 @@ int main(){
 	// cout.tie(nullptr);
 
 	tt = 1;
-	cin>>tt;
+	// cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
