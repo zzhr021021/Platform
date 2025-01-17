@@ -43,7 +43,7 @@ const ll N = 1e6;
 // ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
 // ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
-// mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 void printvec(vll & v){
 	for(auto o : v){
@@ -55,42 +55,33 @@ void printvec(vll & v){
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,r;
 
-ll a[200050];
-vll g[200500];
-ll dp[400][400];
-void dfs(ll o, ll fa){
-	for(auto ad : g[o]){
-		dfs(ad, o);
+ll dist[30][30];
+ll op[200500];
+char opt[200500];
+void sol(){
+	ll q;
+	cin>>n>>q;
+	rep(i,q){
+		cin>>op[i]>>opt[i];
 	}
-	if(g[o].size() == 0 && o != 1){
-		dp[o][1] = a[o];
-	}
-	else{
-		ll sub[305];
-		ll dpsub[305][305];
-		ll po = 0;
-		for(auto ad : g[o]){
-			po++;
-			sub[po] = ad;
-		}
-		memset(dpsub, 0, sizeof(dpsub));
-		rep1n(i, g[o].size()){
-			rep1n(j,m){
-				
+	rep1n(u,n){
+		rep1n(v,n){
+			if(u == v)continue;
+			ll posu = 0, posv = 0;
+			ll d = 1;
+			dist[u][v] = 1;
+			rep(i,q){
+				if(op[i] == u && opt[i] == '-'){
+					d--;
+				}
+				else if(op[i] == v && opt[i] == '+'){
+					d++;
+				}
+				dist[u][v] = max(dist[u][v], d);
 			}
 		}
 	}
-}
-void sol(){
-	cin>>n>>m;
-	a[1] = 0;
-	for(int i = 2;i <= 2 + n - 1;i++){
-		cin>>x>>y;x++;
-		a[i] = y;
-		g[x].push_back(i);
-	}
-	n++;
-	cend(dp[1][m]);
+	
 }
 
 int main(){
