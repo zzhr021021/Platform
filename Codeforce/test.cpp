@@ -32,14 +32,13 @@
 #define bob cout<<"Bob\n"
 #define draw cout<<"Draw\n"
 
-
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
 const ll MOOD = 998244353;
 ll p = MOOD;
 const ll inf = 1e18;
 const ll INF = 1e18;
-const ll N = 1e6;
+const ll N = 200500;
 // ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
 // ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
@@ -55,6 +54,7 @@ void printvec(vll & v){
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,r;
 
+<<<<<<< Updated upstream
 ll dist[30][30];
 ll op[200500];
 char opt[200500];
@@ -82,15 +82,135 @@ void sol(){
 		}
 	}
 	
+=======
+ll pow2[200500];
+ll a[200500];
+ll segtree0p[800500];
+ll segtree1p[800500];
+ll segtree0q[800500];
+ll segtree1q[800500];
+
+void md(ll & x){
+	x = (x + p) % p;
+}
+void maintain(ll o, ll seg[]){
+	seg[o] = seg[o << 1] + seg[o << 1 | 1];
+}
+void add(ll o, ll l, ll r, ll pos, ll val, ll seg[]){
+	ll mid = (l + r) >> 1;
+	if(l == r){
+		seg[o] += val;
+		md(seg[o]);
+		return;
+	}
+	if(o <= mid){
+		add(o << 1, l, mid, pos, val, seg);
+	}
+	else{
+		add(o << 1 + 1, mid + 1, r, pos, val, seg);
+	}
+}
+ll query(ll o, ll L, ll R, ll l, ll r, ll seg[]){
+	if(R < l || L > r)return 0;
+	if(l >= L && r <= R)return a[o];
+	ll mid = (l + r) >> 1;
+	ll ret = 0;
+	ret += query(o << 1    , L, R, l, mid, seg);
+	md(ret);
+	ret += query(o << 1 | 1, L, R, mid + 1, r, seg);
+	md(ret);
+	return ret;
 }
 
-int main(){
-	// ios_base::sync_with_stdio(false);
-	// cin.tie(nullptr);
-	// cout.tie(nullptr);
+// 0 - n-1
+void sol(){
+	string s;cin>>s;
+	n = s.size();
+	rep(i,4*(n+4)){
+		segtree0p[i] = segtree1p[i] = segtree0q[i] = segtree1q[i] = 0;
+	}
+	rep(i,n){
+		if(s[i] == '1'){
+			add(1, 0, n - 1, i, 1, segtree1q);
+			add(1, 0, n - 1, i, 1, segtree1p);
+		}
+		else{
+			add(1, 0, n - 1, i, 1, segtree0q);
+			add(1, 0, n - 1, i, 1, segtree0p);
+		}
+	}
+	ll ans = 0;
+	ll c0 = 0, c1 = 0, cc = 0;
+	rep(i,n){
+		ll oans = ans;
+		ans += oans;
+		md(ans);
+		if(s[i] == '0'){
+			ans += c1;
+			md(ans);
+		}
+		else{
+			ans += c0;
+			md(ans);
+		}
+		ans++;
+		md(ans);
+		
+		
+		if(s[i] == '0'){
+			c0 += cc;
+			md(c0);
+			c0++;
+		}
+		else{
+			c1 += cc;
+			md(cc);
+			c1++;
+		}
+		cc = cc * 2 + 1;
+		ctest;cend(ans);
+	}
+	cend(ans);
+	
+	ll q;cin>>q;
+	rep(iq,q){
+		cin>>x;
+		// insert
+		ans += ans;
+		md(ans);
+		ll cnt = 0;
+		if(a[i] == '0'){
+			
+		}
+		// delete
+		
+		// maintain segtree
+		
+		
+		if(s[x] == '0'){
+			s[x] = '1';
+		}
+		else{
+			s[x] = '0';
+		}
+	}
+>>>>>>> Stashed changes
+}
+	
 
+int main(){
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
+	
+	pow2[0] = 1;
+	rep1n(i, 200100){
+		pow2[i] = pow2[i] * 2;
+		md(pow2[i]);
+	}
+	
 	tt = 1;
-	// cin>>tt;
+	cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}

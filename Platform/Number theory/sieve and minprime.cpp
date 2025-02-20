@@ -44,9 +44,9 @@ int main() {
 			}
 		}
 	}
-	for(int i = 0;i < 10000;i++){
-		cout << primes[i] << "  ";
-	}
+//	for(int i = 0;i < 10000;i++){
+//		cout << primes[i] << "  ";
+//	}
 //	cout << endl;
 //	for(int i = 0;i < 200;i++){
 //		cout << i << "  " << minprime[i];

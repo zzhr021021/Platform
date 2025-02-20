@@ -1,12 +1,13 @@
-#include<bits/stdc++.h>
-#define rep(i, n) for (int i = 0; i < (n); ++i)
-#define rep1(i, n) for (int i = 1; i < (n); ++i)
-#define rep1n(i, n) for (ll i = 1; i <= (n); ++i)
-#define rep1nr(i, n) for (int i = (n); i >= 1; --i)
-#define rep01n(i, n) for (int i = 0; i <= (n); ++i)
-#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
-#define replr(i, l, r) for (int i = l;i <= r;i++)
+#include <cstdio>
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+#define maxn 1010
+using namespace std;
 
+#define ll int
+
+<<<<<<< Updated upstream
 #define ll long long
 #define ull unsigned long long
 #define pll pair<long long, long long>
@@ -42,6 +43,11 @@ const ll INF = 1e18;
 const ll N = 1e6;
 // ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
 // ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
+=======
+const ll MOD = 1e9 + 7;
+ll p = MOD;
+const ll N = 1005;
+>>>>>>> Stashed changes
 using namespace std;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
@@ -53,6 +59,7 @@ void printvec(vll & v){
 }
 
 ll tt, ttt;
+<<<<<<< Updated upstream
 ll n,k,m,t,x,y,z,h,r;
 ll b;
 ll a[4000];
@@ -125,5 +132,67 @@ int main(){
 		sol();
 	}
 	system("pause");
+=======
+ll n,k,m,t,x,y;
+
+ll a[2005];
+ll b[2005];
+
+ll pa(ll x){
+	ll tp = x & (-x);
+	return x - tp;
+}
+ll fenw[1005][1005];
+void add(ll pos, ll val, ll ind){
+    while (pos < 1005){
+        fenw[ind][pos] += val;
+        fenw[ind][pos] = (fenw[ind][pos] % MOD + MOD) % MOD;
+        pos |= (pos + 1);
+    }
+}
+ll get(ll pos, ll ind){
+    ll res = 0;
+    while (pos >= 0){
+        res += fenw[ind][pos];
+        res %= MOD;
+        pos &= (pos + 1);
+        pos--;
+    }
+    return res;
+}
+
+ll ve[2000];
+
+int main(){
+	tt = 1;
+	scanf("%d", &tt);
+	for(ttt = 1;ttt <= tt;ttt++){
+		ll ans = 0;
+		scanf("%d", &n);
+		scanf("%d", &m);
+		for(int i = 1;i <= n;i++){
+			scanf("%d", &a[i]);
+			b[i] = a[i];
+		}
+		sort(b+1, b+n+1);
+		int nn=unique(b+1, b+n+1)-(b+1);
+		for (int i=1; i<=n; i++) a[i]=lower_bound(b+1, b+n+1, a[i])-b; // ??? 
+		
+		memset(fenw, 0, sizeof(fenw));
+			
+		add(0, 1, 0);
+		for(int i = 1;i <= n;i++){
+			for(int j = 1;j <= m;j++){
+				ve[j] = get(a[i] - 1, j - 1);
+			}
+			for(int j = 1;j <= m;j++){
+				add(a[i], ve[j], j);
+			}
+		}
+		ans = get(n, m);
+		
+		printf("Case #%d: %d\n", ttt, ans);
+	}
+>>>>>>> Stashed changes
 	return 0;
 }
