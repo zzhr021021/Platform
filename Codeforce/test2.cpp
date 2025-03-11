@@ -1,13 +1,12 @@
-#include <cstdio>
-#include <iostream>
-#include <cstring>
-#include <algorithm>
-#define maxn 1010
-using namespace std;
+#include<bits/stdc++.h>
+#define rep(i, n) for (int i = 0; i < (n); ++i)
+#define rep1(i, n) for (int i = 1; i < (n); ++i)
+#define rep1n(i, n) for (ll i = 1; i <= (n); ++i)
+#define rep1nr(i, n) for (int i = (n); i >= 1; --i)
+#define rep01n(i, n) for (int i = 0; i <= (n); ++i)
+#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
+#define replr(i, l, r) for (int i = l;i <= r;i++)
 
-#define ll int
-
-<<<<<<< Updated upstream
 #define ll long long
 #define ull unsigned long long
 #define pll pair<long long, long long>
@@ -33,21 +32,15 @@ using namespace std;
 #define bob cout<<"Bob\n"
 #define draw cout<<"Draw\n"
 
-
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
 const ll MOOD = 998244353;
 ll p = MOOD;
 const ll inf = 1e18;
 const ll INF = 1e18;
-const ll N = 1e6;
+const ll N = 200500;
 // ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
 // ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
-=======
-const ll MOD = 1e9 + 7;
-ll p = MOD;
-const ll N = 1005;
->>>>>>> Stashed changes
 using namespace std;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
@@ -59,140 +52,160 @@ void printvec(vll & v){
 }
 
 ll tt, ttt;
-<<<<<<< Updated upstream
 ll n,k,m,t,x,y,z,h,r;
-ll b;
-ll a[4000];
-ll ans = 0;
-void sol(){
-	cin>>n>>b;
-	rep1n(i,n)cin>>a[i];
-	// not choose seg n
-	vll dp1a(n + 5, 0);
-	vll dp1b(n + 5, 0);
-	vll dp2a(n + 5, 0);
-	vll dp2b(n + 5, 0);
-	for(int i = 2;i <= n - 1;i++){
-		for(int j = 1;j <= b;j++){
-			if(j == 1){
-				dp1b[j] = dp2b[j] = 0;
-			}
-			else{
-				dp1b[j] = max(dp1a[j - 1] + a[i], dp2a[j - 1]);
-				dp2b[j] = max(dp1a[j], dp2a[j]);
-			}
-			// ctest;csp(i);csp(j);csp(dp1[i][j]);csp(dp2[i][j]);cendl;
-		}
-		swap(dp1a, dp1b);
-		swap(dp2a, dp2b);
-	}
-	ans = max(ans, dp1a[b]);
-	ans = max(ans, dp2a[b]);
 
-	// choose seg n
-	rep(i,n + 5){
-		dp1a[i] = dp1b[i] = dp2a[i] = dp2b[i] = 0;
-	}
-	dp1a[0] = -inf;
-	dp1a[1] = a[1];
-	dp2a[0] = 0;
-	dp2a[1] = -inf;
-	for(int i = 2;i <= n;i++){
-		for(int j = 1;j <= b;j++){
-			if(j == 1){
-				dp1b[j] = 0;
-				dp2b[j] = a[1];
-			}
-			else{
-				dp1b[j] = max(dp1a[j - 1] + a[i], dp2a[j - 1]);
-				dp2b[j] = max(dp1a[j], dp2a[j]);
-			}
-			// ctest;csp(i);csp(j);csp(dp1[i][j]);csp(dp2[i][j]);cendl;
-		}
-		swap(dp1a, dp1b);
-		swap(dp2a, dp2b);
-	}
-	ans = max(ans, dp1a[b]);
-	// ans = max(ans, dp1[n - 1][b]);
-	// ans = max(ans, dp2[n - 1][b]);
+ll pow2[200500];
+ll a[200500];
+ll segtree0p[800500];
+ll segtree1p[800500];
+ll segtree0q[800500];
+ll segtree1q[800500];
 
-
-	cend(ans);
-	
+void md(ll & x){
+	x = (x + p) % p;
 }
+ll nmd(ll x){
+	return (x + p) % p;
+}
+void maintain(ll o, ll seg[]){
+	seg[o] = seg[o << 1] + seg[o << 1 | 1];
+}
+void add(ll o, ll l, ll r, ll pos, ll val, ll seg[]){
+	ll mid = (l + r) >> 1;
+	if(l == r){
+		seg[o] += val;
+		md(seg[o]);
+		return;
+	}
+	if(pos <= mid){
+		add(o << 1, l, mid, pos, val, seg);
+	}
+	else{
+		add(o << 1 | 1, mid + 1, r, pos, val, seg);
+	}
+	maintain(o, seg);
+}
+ll query(ll o, ll L, ll R, ll l, ll r, ll seg[]){
+	if(R < l || L > r)return 0;
+	if(l >= L && r <= R)return seg[o];
+	ll mid = (l + r) >> 1;
+	ll ret = 0;
+	ret += query(o << 1    , L, R, l, mid, seg);
+	md(ret);
+	ret += query(o << 1 | 1, L, R, mid + 1, r, seg);
+	md(ret);
+	return ret;
+}
+
+// 0 - n-1
+void sol(){
+	string s;cin>>s;
+	n = s.size();
+	rep(i,4*(n+4)){
+		segtree0p[i] = segtree1p[i] = segtree0q[i] = segtree1q[i] = 0;
+	}
+	rep(i,n){
+		if(s[i] == '1'){
+			add(1, 0, n - 1, i, pow2[n - i - 1], segtree1q);
+			add(1, 0, n - 1, i, pow2[i], segtree1p);
+		}
+		else{
+			add(1, 0, n - 1, i, pow2[n - i - 1], segtree0q);
+			add(1, 0, n - 1, i, pow2[i], segtree0p);
+		}
+	}
+	ll ans = 0;
+	ll c0 = 0, c1 = 0, cc = 0;
+	rep(i,n){
+		ll oans = ans;
+		ans += oans;
+		md(ans);
+		if(s[i] == '0'){
+			ans += c1;md(ans);
+		}
+		else{
+			ans += c0;md(ans);
+		}
+		ans++;
+		md(ans);
+		if(s[i] == '0'){
+			c0 += cc;md(c0);
+			c0++;
+		}
+		else{
+			c1 += cc;md(cc);
+			c1++;
+		}
+		cc = cc * 2 + 1;md(cc);
+	}
+
+	ll q;cin>>q;
+	rep(iq,q){
+		cin>>x;x--;
+		// change
+		ll lcx = 1, lc1 = 0, lc2 = 0;
+		ll rcx = 1, rc1 = 0, rc2 = 0;
+		if(s[x] == '0'){
+			lc1 = query(1, 0, x - 1, 0, n - 1, segtree0p);
+			lc2 = query(1, 0, x - 1, 0, n - 1, segtree1p);
+			rc1 = query(1, x + 1, n - 1, 0, n - 1, segtree0q);
+			rc2 = query(1, x + 1, n - 1, 0, n - 1, segtree1q);
+		}
+		else{
+			lc1 = query(1, 0, x - 1, 0, n - 1, segtree1p);
+			lc2 = query(1, 0, x - 1, 0, n - 1, segtree0p);
+			rc1 = query(1, x + 1, n - 1, 0, n - 1, segtree1q);
+			rc2 = query(1, x + 1, n - 1, 0, n - 1, segtree0q);
+		}
+		ans += lc1;md(ans);
+		ans += rc1;md(ans);
+		ans -= lc2;md(ans);
+		ans -= rc2;md(ans);
+		ans += 2 * lc1 * rc1;md(ans);
+		ans -= nmd(2 * lc2 * rc2);md(ans);
+
+		csp(ans);
+		// maintain segtree
+		if(s[x] == '0'){
+			add(1, 0, n - 1, x, -pow2[x], segtree0p);
+			add(1, 0, n - 1, x, -pow2[n - x - 1], segtree0q);
+			add(1, 0, n - 1, x,  pow2[x], segtree1p);
+			add(1, 0, n - 1, x,  pow2[n - x - 1], segtree1q);
+		}
+		else{
+			add(1, 0, n - 1, x, -pow2[x], segtree1p);
+			add(1, 0, n - 1, x, -pow2[n - x - 1], segtree1q);
+			add(1, 0, n - 1, x,  pow2[x], segtree0p);
+			add(1, 0, n - 1, x,  pow2[n - x - 1], segtree0q);
+		}
+		// maintain string
+		if(s[x] == '0'){
+			s[x] = '1';
+		}
+		else{
+			s[x] = '0';
+		}
+	}
+	cendl;
+}
+	
 
 int main(){
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
-
+	
+	pow2[0] = 1;
+	rep1n(i, 200100){
+		pow2[i] = pow2[i - 1] * 2;
+		md(pow2[i]);
+	}
+	
 	tt = 1;
 	cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
 	system("pause");
-=======
-ll n,k,m,t,x,y;
-
-ll a[2005];
-ll b[2005];
-
-ll pa(ll x){
-	ll tp = x & (-x);
-	return x - tp;
-}
-ll fenw[1005][1005];
-void add(ll pos, ll val, ll ind){
-    while (pos < 1005){
-        fenw[ind][pos] += val;
-        fenw[ind][pos] = (fenw[ind][pos] % MOD + MOD) % MOD;
-        pos |= (pos + 1);
-    }
-}
-ll get(ll pos, ll ind){
-    ll res = 0;
-    while (pos >= 0){
-        res += fenw[ind][pos];
-        res %= MOD;
-        pos &= (pos + 1);
-        pos--;
-    }
-    return res;
-}
-
-ll ve[2000];
-
-int main(){
-	tt = 1;
-	scanf("%d", &tt);
-	for(ttt = 1;ttt <= tt;ttt++){
-		ll ans = 0;
-		scanf("%d", &n);
-		scanf("%d", &m);
-		for(int i = 1;i <= n;i++){
-			scanf("%d", &a[i]);
-			b[i] = a[i];
-		}
-		sort(b+1, b+n+1);
-		int nn=unique(b+1, b+n+1)-(b+1);
-		for (int i=1; i<=n; i++) a[i]=lower_bound(b+1, b+n+1, a[i])-b; // ??? 
-		
-		memset(fenw, 0, sizeof(fenw));
-			
-		add(0, 1, 0);
-		for(int i = 1;i <= n;i++){
-			for(int j = 1;j <= m;j++){
-				ve[j] = get(a[i] - 1, j - 1);
-			}
-			for(int j = 1;j <= m;j++){
-				add(a[i], ve[j], j);
-			}
-		}
-		ans = get(n, m);
-		
-		printf("Case #%d: %d\n", ttt, ans);
-	}
->>>>>>> Stashed changes
 	return 0;
 }

@@ -35,7 +35,7 @@
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
 const ll MOOD = 998244353;
-ll p = MOOD;
+ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18;
 const ll N = 200500;
@@ -52,165 +52,77 @@ void printvec(vll & v){
 }
 
 ll tt, ttt;
-ll n,k,m,t,x,y,z,h,r;
+ll n,k,m,t,x,y,z,h,s;
 
-<<<<<<< Updated upstream
-ll dist[30][30];
-ll op[200500];
-char opt[200500];
+ll D[200500];
+ll DD[200500];
+ll H[300500];
+ll T[300500];
+ll CAT[200500];
+ll S[200500];
+ll dp[105][100500];
+
+pll qu[200500];
+ll l, r;
+double getk(ll x1, ll y1, ll x2, ll y2){
+    return double(y2 - y1) / (x2 - x1);
+}
+
 void sol(){
-	ll q;
-	cin>>n>>q;
-	rep(i,q){
-		cin>>op[i]>>opt[i];
-	}
-	rep1n(u,n){
-		rep1n(v,n){
-			if(u == v)continue;
-			ll posu = 0, posv = 0;
-			ll d = 1;
-			dist[u][v] = 1;
-			rep(i,q){
-				if(op[i] == u && opt[i] == '-'){
-					d--;
-				}
-				else if(op[i] == v && opt[i] == '+'){
-					d++;
-				}
-				dist[u][v] = max(dist[u][v], d);
-			}
-		}
-	}
-	
-=======
-ll pow2[200500];
-ll a[200500];
-ll segtree0p[800500];
-ll segtree1p[800500];
-ll segtree0q[800500];
-ll segtree1q[800500];
+    cin>>n>>m>>p;
+    for(int i = 2;i <= n;i++){
+        cin>>D[i];
+        DD[i] = DD[i - 1] + D[i];
+    }
+    rep1n(i,m){
+        cin>>H[i]>>T[i];
+    }
+    rep1n(i,m){
+        CAT[i] = T[i] - DD[H[i]];
+    }
+    sort(CAT + 1, CAT + 1 + m);
+    rep1n(i,m){
+        S[i] = S[i - 1] + CAT[i];
+    }
+    // init dp
+    rep1n(i,m){
+        dp[0][i] = inf;
+    }
 
-void md(ll & x){
-	x = (x + p) % p;
-}
-void maintain(ll o, ll seg[]){
-	seg[o] = seg[o << 1] + seg[o << 1 | 1];
-}
-void add(ll o, ll l, ll r, ll pos, ll val, ll seg[]){
-	ll mid = (l + r) >> 1;
-	if(l == r){
-		seg[o] += val;
-		md(seg[o]);
-		return;
-	}
-	if(o <= mid){
-		add(o << 1, l, mid, pos, val, seg);
-	}
-	else{
-		add(o << 1 + 1, mid + 1, r, pos, val, seg);
-	}
-}
-ll query(ll o, ll L, ll R, ll l, ll r, ll seg[]){
-	if(R < l || L > r)return 0;
-	if(l >= L && r <= R)return a[o];
-	ll mid = (l + r) >> 1;
-	ll ret = 0;
-	ret += query(o << 1    , L, R, l, mid, seg);
-	md(ret);
-	ret += query(o << 1 | 1, L, R, mid + 1, r, seg);
-	md(ret);
-	return ret;
-}
+    rep1n(i,p){
+        l = r = 1;
+        qu[1] = {0, 0};
+        rep1n(j,m){
+            ll yuzu = CAT[j];
+            // maintain
+            while(r - l + 1 >= 2 && getk(qu[l].first, qu[l].second, qu[l + 1].first, qu[l + 1].second) <= yuzu){
+                l++;
+            }
+            // update
+            // ctest;csp("update");csp(l);csp(qu[l].first);csp(qu[l].second);cendl;
+            // ctest;csp("update");csp(qu[l].second);csp(yuzu * qu[l].first);csp(yuzu * j);csp(S[j]);cendl;
+            dp[i][j] = qu[l].second - yuzu * qu[l].first + yuzu * j - S[j];
+            // maintain
+            x = j;
+            y = dp[i - 1][j] + S[j];
+            while(r - l + 1 >= 2 && getk(qu[r].first, qu[r].second, qu[r - 1].first, qu[r - 1].second) >= getk(qu[r].first, qu[r].second, x, y)){
+                r--;
+            }
+            qu[++r] = {x, y};
 
-// 0 - n-1
-void sol(){
-	string s;cin>>s;
-	n = s.size();
-	rep(i,4*(n+4)){
-		segtree0p[i] = segtree1p[i] = segtree0q[i] = segtree1q[i] = 0;
-	}
-	rep(i,n){
-		if(s[i] == '1'){
-			add(1, 0, n - 1, i, 1, segtree1q);
-			add(1, 0, n - 1, i, 1, segtree1p);
-		}
-		else{
-			add(1, 0, n - 1, i, 1, segtree0q);
-			add(1, 0, n - 1, i, 1, segtree0p);
-		}
-	}
-	ll ans = 0;
-	ll c0 = 0, c1 = 0, cc = 0;
-	rep(i,n){
-		ll oans = ans;
-		ans += oans;
-		md(ans);
-		if(s[i] == '0'){
-			ans += c1;
-			md(ans);
-		}
-		else{
-			ans += c0;
-			md(ans);
-		}
-		ans++;
-		md(ans);
-		
-		
-		if(s[i] == '0'){
-			c0 += cc;
-			md(c0);
-			c0++;
-		}
-		else{
-			c1 += cc;
-			md(cc);
-			c1++;
-		}
-		cc = cc * 2 + 1;
-		ctest;cend(ans);
-	}
-	cend(ans);
-	
-	ll q;cin>>q;
-	rep(iq,q){
-		cin>>x;
-		// insert
-		ans += ans;
-		md(ans);
-		ll cnt = 0;
-		if(a[i] == '0'){
-			
-		}
-		// delete
-		
-		// maintain segtree
-		
-		
-		if(s[x] == '0'){
-			s[x] = '1';
-		}
-		else{
-			s[x] = '0';
-		}
-	}
->>>>>>> Stashed changes
+            // ctest;csp(i);csp(j);cend(dp[i][j]);
+        }
+    }
+    cend(dp[p][m]);
 }
-	
 
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-	
-	pow2[0] = 1;
-	rep1n(i, 200100){
-		pow2[i] = pow2[i] * 2;
-		md(pow2[i]);
-	}
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
 	
 	tt = 1;
-	cin>>tt;
+	// cin>>tt;
 	for(ttt = 1;ttt <= tt;ttt++){
 		sol();
 	}
