@@ -14,12 +14,7 @@
 #define vll vector<long long>
 #define vb vector<bool>
 #define vpl vector<pair<long long, long long>>
-#define vstr vector<string>
-#define smpq priority_queue<long long, vector<long long>, greater<long long>>
-#define bgpq priority_queue<long long> 
 
-#define yes cout<<"YES\n"
-#define no cout<<"NO\n"
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
@@ -27,36 +22,65 @@
 #define cgap cout << "--------------------" << endl
 #define pb push_back
 #define all(a) a.begin(), a.end()
-#define rall(a) a.rbegin(), a.rend()
- 
-#define alice cout<<"Alice\n"
-#define bob cout<<"Bob\n"
-#define draw cout<<"Draw\n"
 
 const ll MOD = 1e9 + 7;
-const ll MODD = 1e9 + 9;
-const ll MOOD = 998244353;
 ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18;
 const ll N = 200500;
-// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
-// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
-mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-
-void printvec(vll & v){
-	for(auto o : v){
-		csp(o);
-	}
-	cendl;
-}
 
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,s;
+// garsia wachs, Luogu P5569
+// using linked table, with O(n*max(ai)) complexity
+
+ll l[200500];
+ll r[200500];
 ll a[200500];
 void sol(){
-    
+    cin>>n;
+    a[0] = a[n + 1] = inf;
+    rep1n(i,n){
+        cin>>a[i];
+    }
+    ll ans = 0;
+    for(int i = 0;i <= n;i++){
+        l[i + 1] = i;
+        r[i] = i + 1;        
+    }
+    while(n != 1){
+        n--;
+        ll pos = r[0];
+        while(a[l[pos]] > a[r[pos]]){
+            pos = r[pos];
+        }
+        a[pos] += a[l[pos]];
+        ans += a[pos];
+        ll lpos = l[pos];
+        l[pos] = l[l[pos]];
+        r[l[pos]] = pos;
+
+        if(a[l[pos]] >= a[pos]){
+            continue;
+        }
+        ll hpos = l[pos];
+        while(a[hpos] < a[pos]){
+            hpos = l[hpos];
+        }        
+        ll pos1 = r[hpos];
+        ll pos2 = l[pos];
+        ll pos3 = r[pos];
+        r[hpos] = pos;
+        l[pos1] = pos;
+        r[pos2] = pos3;
+        l[pos3] = pos2;
+        l[pos] = hpos;
+        r[pos] = pos1;
+
+    }
+
+    cend(ans);
 }
 
 int main(){
