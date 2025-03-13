@@ -8,77 +8,46 @@
 #define replr(i, l, r) for (int i = l;i <= r;i++)
 
 #define ll long long
+#define ld long double
 #define ull unsigned long long
 #define pll pair<long long, long long>
 #define vi vector<int>
 #define vll vector<long long>
 #define vb vector<bool>
 #define vpl vector<pair<long long, long long>>
-#define vstr vector<string>
-#define smpq priority_queue<long long, vector<long long>, greater<long long>>
-#define bgpq priority_queue<long long> 
 
-#define yes cout<<"YES\n"
-#define no cout<<"NO\n"
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
 #define ctest cout << "test   "
 #define cgap cout << "--------------------" << endl
-#define pb push_back
-#define all(a) a.begin(), a.end()
-#define rall(a) a.rbegin(), a.rend()
- 
-#define alice cout<<"Alice\n"
-#define bob cout<<"Bob\n"
-#define draw cout<<"Draw\n"
 
-const ll MOD = 1e9 + 7;
-const ll MODD = 1e9 + 9;
-const ll MOOD = 998244353;
-ll p = MOD;
-const ll inf = 1e18;
-const ll INF = 1e18;
-const ll N = 200500;
-// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
-// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
+const ll N = 100500;
 using namespace std;
-mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-
-void printvec(vll & v){
-	for(auto o : v){
-		csp(o);
-	}
-	cendl;
-}
 
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,s;
 ll L,P;
 string poem[100500];
-ll a[200500];
-long double sum[200500];
-long double dp[200500];
-ll dpwh[200500];
-long double qpow(long double x, ll y){
+ll a[100500];
+ld sum[100500];
+ld dp[100500];
+ll dpwh[100500];
+ld qpow(ld x, ll y){
     if(y == 0)return 1;
-    ll ret = 1;
+    ld ret = 1;
     if(y & 1)ret = x;
-    ll hlf = qpow(x, y / 2);
+    ld hlf = qpow(x, y / 2);
     return ret * hlf * hlf;
 }
-long double getv(ll i, ll j){
+ld getv(ll i, ll j){
     return qpow(fabs(sum[i] - sum[j] + (i - j - 1) - L), P);
 }
 struct node{
     ll wh, l, r;
 };
-void printdq(const deque<node> & d){
-    csp("front ");csp(d.front().wh);csp(d.front().l);csp(d.front().r);
-    csp("back ");csp(d.back().wh);csp(d.back().l);csp(d.back().r);
-    cendl;
-}
 // quadrangle inequality
+// Luogu P1912
 void sol(){
     cin>>n>>L>>P;
     rep1n(i,n){
@@ -87,65 +56,47 @@ void sol(){
         sum[i] = sum[i - 1] + a[i];
         dp[i] = 0;
     }
-    // ctest;
-    // rep1n(i,n){
-    //     csp(sum[i]);
-    // }
-    // cendl;
-    
     vpl ans;
     deque<node> dq;
     dq.push_back({0, 1, n});
     rep1n(i,n){
+		// get rid of front item
+        while(dq.size() >= 2 && dq.front().r < i){
+            dq.pop_front();
+        }
         // set dp
         ll wh = dq.front().wh;
         dpwh[i] = wh;
         dp[i] = dp[wh] + getv(i, wh);
         // renew back item
-        ll tpos = 0;
+        ll tpos = n + 1;
         while(dq.size() && dp[i] + getv(dq.back().l, i) <= dp[dq.back().wh] + getv(dq.back().l, dq.back().wh)){
             tpos = dq.back().l;
             dq.pop_back();
         }
-        csp(dq.size());printdq(dq);
         if(dq.size() == 0){
-
-        }
-        else if(dq.size() && dp[i] + getv(dq.back().r, i) >= dp[dq.back().wh] + getv(dq.back().r, dq.back().wh)){
-
+			dq.push_back({i, i + 1, n});
         }
         else{
             ll l = dq.back().l;
             ll r = dq.back().r;
-            while(l != r){
+			ll res = r + 1;
+            while(l <= r){
                 ll mid = (l + r) / 2;
-                if(dp[i] + getv(mid, i) >= dp[dq.back().wh] + getv(mid, dq.back().wh)){
+                if(dp[i] + getv(mid, i) > dp[dq.back().wh] + getv(mid, dq.back().wh)){
                     l = mid + 1;
                 }
                 else{
-                    r = mid;
+					res = mid;
+                    r = mid - 1;
                 }
             }
-            auto o = dq.back();
-            dq.pop_back();
-            dq.push_back({o.wh, o.l, l - 1});
-            tpos = l;
-        }
-        if(tpos <= n)dq.push_back({i, tpos, n});
-        // get rid of front item
-        while(dq.size() && dq.front().r < i + 1){
-            dq.pop_front();
+			dq.back().r = res - 1;
+			if(res <= n){
+				dq.push_back({i, res, n});
+			}
         }
     }
-    // ctest;cendl;
-    // rep1n(i,n){
-    //     csp(dp[i]);;
-    // }
-    // cendl;
-    // rep1n(i,n){
-    //     csp(dpwh[i]);;
-    // }
-    // cendl;
 
     if(dp[n] > 1e18){
         cend("Too hard to arrange");;
@@ -161,25 +112,20 @@ void sol(){
         ll la = 1;
         while(tp.size()){
             for(int i = la;i <= tp.front();i++){
-                if(i != tp.front()){
-                    csp(poem[i]);
-                }
-                else{
-                    cend(poem[i]);
-                }
+                if(i != tp.front())csp(poem[i]);
+                else cend(poem[i]);
             }
             la = tp.front() + 1;
             tp.pop_front();
         }
     }
     cgap;
-
 }
 
 int main(){
-	// ios_base::sync_with_stdio(false);
-	// cin.tie(nullptr);
-	// cout.tie(nullptr);
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
 	
 	tt = 1;
 	cin>>tt;

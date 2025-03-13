@@ -1,39 +1,150 @@
-// Luogu P5785
-// convex hull optimization
-#include <cstdio>
-#include <iostream>
-typedef long long ll;
-const int N = 3e5 + 5 ;
-int l = 1 , r = 0 ;
-ll sc[N], st[N], f[N], n, s, q[N];
-ll Y(int p) {return f[p];}
-ll X(int p) {return sc[p];}
-ll K(int p) {return s + st[p];}
-int Search(int L, int R, long long S) {
-	int M = 0 , Res = r ;
-	while(L <= R) {
-		M = ( L + R ) >> 1; 
-		if(Y(q[M + 1]) - Y(q[M]) > S * (X(q[M + 1]) - X(q[M]))) // 由所得性质二分
-			R = M - 1, Res = M;
-		else L = M + 1; // 二分+-1防止死循环
+#include<bits/stdc++.h>
+#define rep(i, n) for (int i = 0; i < (n); ++i)
+#define rep1(i, n) for (int i = 1; i < (n); ++i)
+#define rep1n(i, n) for (ll i = 1; i <= (n); ++i)
+#define rep1nr(i, n) for (int i = (n); i >= 1; --i)
+#define rep01n(i, n) for (int i = 0; i <= (n); ++i)
+#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
+#define replr(i, l, r) for (int i = l;i <= r;i++)
+
+#define ll long long
+#define ull unsigned long long
+#define pll pair<long long, long long>
+#define vi vector<int>
+#define vll vector<long long>
+#define vb vector<bool>
+#define vpl vector<pair<long long, long long>>
+
+#define csp(n) cout << n << " "
+#define cend(n) cout << n << endl
+#define cendl cout << endl
+#define ctest cout << "test   "
+#define cgap cout << "--------------------" << endl
+#define pb push_back
+#define all(a) a.begin(), a.end()
+
+const ll MOD = 1e9 + 7;
+ll p = MOD;
+const ll inf = 1e18;
+const ll N = 200500;
+using namespace std;
+
+ll tt, ttt;
+ll n,k,m,t,x,y,z,h,s;
+ll L,P;
+string poem[100500];
+ll a[200500];
+long double sum[200500];
+long double dp[200500];
+ll dpwh[200500];
+long double qpow(long double x, ll y){
+    if(y == 0)return 1;
+    double long ret = 1;
+    if(y & 1)ret = x;
+    double long hlf = qpow(x, y / 2);
+    return ret * hlf * hlf;
+}
+long double getv(ll i, ll j){
+    return qpow(fabs(sum[i] - sum[j] + (i - j - 1) - L), P);
+}
+struct node{
+    ll wh, l, r;
+};
+void printdq(const deque<node> & d){
+    csp("front ");csp(d.front().wh);csp(d.front().l);csp(d.front().r);
+    csp("back ");csp(d.back().wh);csp(d.back().l);csp(d.back().r);
+    cendl;
+}
+// quadrangle inequality
+void sol(){
+    cin>>n>>L>>P;
+    rep1n(i,n){
+        cin>>poem[i];
+        a[i] = poem[i].length();
+        sum[i] = sum[i - 1] + a[i];
+        dp[i] = 0;
+    }
+    vpl ans;
+    deque<node> dq;
+    dq.push_back({0, 1, n});
+    rep1n(i,n){
+		// get rid of front item
+        while(dq.size() >= 2 && dq.front().r < i){
+            dq.pop_front();
+        }
+        // set dp
+        ll wh = dq.front().wh;
+        dpwh[i] = wh;
+        dp[i] = dp[wh] + getv(i, wh);
+        // renew back item
+        ll tpos = n + 1;
+        while(dq.size() && dp[i] + getv(dq.back().l, i) <= dp[dq.back().wh] + getv(dq.back().l, dq.back().wh)){
+            tpos = dq.back().l;
+            dq.pop_back();
+        }
+        if(dq.size() == 0){
+			dq.push_back({i, i + 1, n});
+        }
+        else{
+            ll l = dq.back().l;
+            ll r = dq.back().r;
+			ll res = r + 1;
+            while(l <= r){
+                ll mid = (l + r) / 2;
+                if(dp[i] + getv(mid, i) > dp[dq.back().wh] + getv(mid, dq.back().wh)){
+                    l = mid + 1;
+                }
+                else{
+					res = mid;
+                    r = mid - 1;
+                }
+            }
+			dq.back().r = res - 1;
+			if(res <= n){
+				dq.push_back({i, res, n});
+			}
+        }
+    }
+
+    if(dp[n] > 1e18){
+        cend("Too hard to arrange");;
+    }
+    else{
+        cend((ll)dp[n]);
+        deque<ll> tp;
+        ll cur = n;
+        while(cur != 0){
+            tp.push_front(cur);
+            cur = dpwh[cur];
+        }
+        ll la = 1;
+        while(tp.size()){
+            for(int i = la;i <= tp.front();i++){
+                if(i != tp.front()){
+                    csp(poem[i]);
+                }
+                else{
+                    cend(poem[i]);
+                }
+            }
+            la = tp.front() + 1;
+            tp.pop_front();
+        }
+    }
+    cgap;
+
+}
+
+int main(){
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
+	
+	tt = 1;
+	cin>>tt;
+	for(ttt = 1;ttt <= tt;ttt++){
+		sol();
 	}
-	return q[Res];
-} // 二分查找决策点
-int main() {
-	scanf("%lld %lld", &n, &s);
-	for(int i = 1; i <= n; ++i) {
-		scanf("%lld %lld", st + i, sc + i);
-		st[i] += st[i - 1];
-		sc[i] += sc[i - 1];
-	} // 前缀和
-	q[++ r] = 0 ;// 0 为第一个决策点
-	for(int i = 1; i <= n; ++i) {
-		int p = Search(l, r, K(i));
-		f[i] = f[p] + s * (sc[n] - sc[p]) + st[i] * (sc[i] - sc[p]); // 按照dp方程式更新答案
-		while(l < r && (Y(q[r]) - Y(q[r - 1])) * (X(i) - X(q[r])) 
-			>= (Y(i) - Y(q[r])) * (X(q[r]) - X(q[r - 1]))) -- r; // 除去上凸点 ， 这里把算斜率的除法转换为乘法以防误差
-		q[++ r] = i; // 入队列
-	}
-	printf("%lld\n", f[n]); // 完美输出
-	return 0; // 好习惯
+	system("pause");
+	return 0;
 }
