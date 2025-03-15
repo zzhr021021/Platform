@@ -30,9 +30,9 @@ ll qpow(ll x,ll y){
     }
     return ans;
 }
-ll C(ll x,ll y){
-    if(x < y) return 0;
-    return fac[x] * qpow(fac[y] * fac[x - y] % p, p - 2) % p;
+ll C(ll d,ll u){
+    if(d < u) return 0;
+    return fac[d] * qpow(fac[u] * fac[d - u] % p, p - 2) % p;
 }
 
 ll dfss(ll o, ll fa){
