@@ -12,16 +12,12 @@
 #define vi vector<int>
 #define vll vector<long long>
 #define vb vector<bool>
-#define vpl vector<pair<long long, long long>>
-#define vstr vector<string>
 
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
 #define ctest cout << "test   "
 #define pb push_back
-#define all(a) a.begin(), a.end()
-#define rall(a) a.rbegin(), a.rend()
  
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
@@ -38,21 +34,21 @@ ll a[200005];
 ll b[200005];
 ll seg[800050];
 ll lazy[800050];
-void init(){
-
+void ckmax(ll & x, ll y){
+	if(y > x)x = y;
 }
 ll get(ll o, ll l, ll r){
-	return seg[o] + lazy[o] * (r - l + 1);
+	return seg[o] + lazy[o];
 }
 void maintain(ll o, ll l, ll r){
-	ll tp = 0;
+	ll tp = -inf;
 	ll mid = (l + r) / 2;
-	tp += get(o << 1, l, mid);
-	tp += get(o << 1 | 1, mid + 1, r);
+	ckmax(tp, get(o << 1, l, mid));
+	ckmax(tp, get(o << 1 | 1, mid + 1, r));
 	seg[o] = tp;
 }
 void propagate(ll o, ll l, ll r){
-	seg[o] += lazy[o] * (r - l + 1);
+	seg[o] += lazy[o];
 	if(l != r){
 		ll mid = (l + r) / 2;
 		lazy[o << 1] += lazy[o];
@@ -73,43 +69,30 @@ void add(ll o, ll l, ll r, ll L, ll R, ll val){
 	maintain(o, l, r);
 }
 ll query(ll o, ll l, ll r, ll L, ll R){
-	if(r < L || l > R)return 0;
-	if(l >= L && r <= R)return seg[o] + lazy[o] * (r - l + 1);
+	if(r < L || l > R)return -inf;
+	if(l >= L && r <= R)return seg[o] + lazy[o];
 	propagate(o, l, r);
-	ll ret = 0;
+	ll ret = -inf;
 	ll mid = (l + r) / 2;
-	ret += query(o << 1, l, mid, L, R);
-	ret += query(o << 1 | 1, mid + 1, r, L, R);
+	ckmax(ret, query(o << 1, l, mid, L, R));
+	ckmax(ret, query(o << 1 | 1, mid + 1, r, L, R));
 	return ret;
 }
 
 void sol(){
 	// input 
-	cin>>n>>m;
-	rep(i,n){
+	cin>>n;
+	rep1n(i,n){
 		cin>>a[i];
-		add(1, 0, n - 1, i, i, a[i]);
+		add(1, 1, n, i, i, a[i]);
 	}
-	rep(iop,m){
-		ll op;cin>>op;
-		if(op == 1){
-			cin>>x>>y>>k;
-			add(1, 0, n - 1, x - 1, y - 1, k);
-		}
-		else{
-			cin>>x>>y;
-			ll tp = query(1, 0, n - 1, x - 1, y - 1);
-			cend(tp);
-		}
-	}
-
 
 }
 
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
 
 	tt = 1;
 	// cin>>tt;
