@@ -10,45 +10,61 @@
 
 #define ll long long
 
+#define vll vector<ll>
+
 const ll MOD = 1e9+7;
 const ll p = MOD;
 using namespace std;
 
 ll n,m,t,k;
-//use 14 elements
-ll a[15] = {0,1,2,3,4,5,6,7,8,9,10,32,11,33,11};
 
-inline ll pa(ll x){
-	ll tp = x & (-x);
-	return x - tp;
-}
-void add(ll pos, ll val, vector<ll>& fenw){
-    while (pos < fenw.size()){
-        fenw[pos] += val;
-        fenw[pos] = (fenw[pos] % MOD + MOD) % MOD;
-        pos |= (pos + 1);
+// maintain n listed elements
+// can add a value to a element in logn
+// can query the summation of a segment in logn
+struct BIT_sum{
+    int n;
+    vll fenw;
+    // initialize 
+    void init(ll pa_n){
+        n = pa_n;
+        fenw.resize(pa_n);
+        for(auto & o : fenw){
+            o = 0;
+        }
     }
-}
-ll get(ll pos, vector<ll>& fenw){
-    ll res = 0;
-    while (pos >= 0){
-        res += fenw[pos];
-        res %= MOD;
-        pos &= (pos + 1);
-        pos--;
+    void init(vll & pa_ve){
+        n = pa_ve.size();
+        fenw.resize(n);
+        rep(i,n){
+            add(i, pa_ve[i]);
+        }
     }
-    return res;
-}
-ll get(ll l, ll r, vector<ll>& fenw){
-    ll vr = get(r, fenw);
-    ll vl = get(l - 1, fenw);
-    return ((vr - vl) % MOD + MOD) % MOD;
-}
+    void add(ll pos, ll val){
+        while (pos < fenw.size()){
+            fenw[pos] += val;
+            fenw[pos] = (fenw[pos] % MOD + MOD) % MOD;
+            pos |= (pos + 1);
+        }
+    }
+    ll get(ll pos){
+        ll res = 0;
+        while (pos >= 0){
+            res += fenw[pos];
+            res %= MOD;
+            pos &= (pos + 1);
+            pos--;
+        }
+        return res;
+    }
+    ll get(ll l, ll r){
+        ll vr = get(r);
+        ll vl = get(l - 1);
+        return ((vr - vl) % MOD + MOD) % MOD;
+    }
+};
 
 int main(){
-	vector<ll> fenw1(14);
-	rep(i,14)add(i, a[i], fenw1);
-	cend(get(0, 4, fenw1));
-	cend(get(5, 9, fenw1));
+    BIT_sum t_bit;
+    
 	return 0;
 }
