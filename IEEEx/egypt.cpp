@@ -45,8 +45,8 @@
 
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
-const ll MOOD = 676767677;
-ll p = MOOD;
+const ll MOOD = 998244353;
+ll p = MOD;
 const ll inf = 1e18;
 const ll INF = 1e18;
 const ll N = 200500;
@@ -92,29 +92,88 @@ ll n, k, m, t, x, y, z, h, q, d, s;
 
 ll a[200500];
 ll b[200500];
-ll md(ll x, ll p)
+
+ll md(ll x)
 {
 	return (x % p + p) % p;
 }
-ll ask(ll l, ll r){
-	return b[r] - b[l-1];
+ll qpow(ll x,ll y){
+    ll ans = 1;
+    while(y){
+        if(y&1) ans = ans * x % p;
+        x = x * x % p,y>>=1;
+    }
+    return ans;
 }
+ll ladder(ll l, ll r){
+	return (l + r) * (r - l + 1) / 2;
+}
+
+bool rec[2000];
+double dp[2000];
+double dpn[2000];
+
+double spow(double x, ll po){
+	double ret = 1;
+	rep(ip,po){
+		ret *= x;
+	}
+	return ret;
+}
+
+// 1, 2, 4, 20, 40, 80, 200, 400, 800
+ll dp1[300500];
+ll dp2[300500];
+ll dp3[300500];
+ll dp4[300500];
+ll dp5[300500];
+ll dp6[300500];
+ll dp7[300500];
+ll dp8[300500];
+ll dp9[300500];
 
 
 void sol(){
-	
+    cin>>n;
+    cin>>x>>y>>z;
+    ll ans = 0;
+    x *= 5300;
+    md(x);
+    
 
+
+    if(ans == y && ans == z){
+        cend("TIE");
+    }
+    else if(llabs(ans - y) < llabs(ans - z)){
+        cend("Mikel");
+    }
+    else if(llabs(ans - z) < llabs(ans - y)){
+        cend("Andrew");
+    }
+    else{
+        cend("NONE");
+    }
 }
 
-
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
+
+    dp[1] = dp[2] = 1;
+    for(int i = 2;i <= 250000;i += 2){
+        dp2[i] += 1;
+    }
+
+
+
 
 	tt = 1;
-//	cin>>tt;
-	for(ttt = 1;ttt <= tt;ttt++){
+	cin >> tt;
+	for (ttt = 1; ttt <= tt; ttt++)
+	{
 		sol();
 	}
 	system("pause");

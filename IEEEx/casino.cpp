@@ -11,21 +11,14 @@
 #define rep1n(i, n) for (ll i = 1; i <= (n); ++i)
 #define rep1nr(i, n) for (int i = (n); i >= 1; --i)
 #define rep01n(i, n) for (int i = 0; i <= (n); ++i)
-#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
-#define replr(i, l, r) for (int i = l; i <= r; i++)
-#define repij(i, j, n, m)         \
-	for (int i = 0; i < (n); ++i) \
-		for (int j = 0; j < (m); ++j)
 
-#define ll long long
+#define ll int
 #define ull unsigned long long
 #define pll pair<long long, long long>
 #define vi vector<int>
 #define vll vector<long long>
 #define vb vector<bool>
 #define vpl vector<pair<long long, long long>>
-#define vstr vector<string>
-
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
@@ -34,58 +27,73 @@
 #define pb push_back
 #define all(a) a.begin(), a.end()
 #define rall(a) a.rbegin(), a.rend()
-
-const ll inf = 1e18;
-const ll INF = 1e18;
+#define yes cout << "Yes\n"
+#define no cout << "No\n"
 const ll N = 200500;
 using namespace std;
+
 ll tt, ttt;
 ll n, k, m, t, x, y, z, h, q, d, s;
 
-ll a[200500];
-vll misra_gries(vll & a, ll k){
-	ll n = a.size();
-	map<ll, ll> cnt;
-	for(auto o : a){
-		if(cnt.count(o)){
-			cnt[o]++;
-		}
-		else if(cnt.size() < k - 1){
-			cnt[o] = 1;
-		}
-		else{
-			vll toerase;
-			for(auto pa : cnt){
-				cnt[pa.first] -= 1;
-				if(cnt[pa.first] == 0){
-					toerase.push_back(pa.first);
-				}
-			}
-			for(auto o : toerase){
-				cnt.erase(o);
-			}
-		}
-	}
-	vll ret;
-	for(auto o : cnt){
-		ret.push_back(o.first);
-	}
-	return ret;
-}
-void sol()
-{
-	
+ll a[1000500];
+ll b[31][1000500];
+
+ll tp[32];
+ 
+void sol(){
+    cin>>n>>q;
+    rep1n(i,n){
+        cin>>a[i];
+        rep(j,31){
+            b[j][i] = b[j][i - 1];
+        }
+        b[a[i]][i]++;
+    }
+    rep(iq,q){
+        cin>>x>>y;
+        rep(i,31){
+            tp[i] = b[i][y] - b[i][x - 1];
+        }
+        tp[31] = 0;
+
+        bool odd = false;
+        bool flag = true;
+        for(int i = 0;i <= 30;i++){
+            if(odd && tp[i] % 2 == 1){
+                no;
+                flag = false;
+                break;
+            }
+            tp[i + 1] += tp[i] >> 1;
+            tp[i] &= 1;
+            if(tp[i]){
+                odd = true;
+            }
+        }
+        if(flag == false){
+            continue;
+        }
+        if(odd && tp[31] != 0){
+            no;
+        }
+        else if(tp[31] != 0 && __builtin_popcount(tp[31]) != 1){
+            no;
+        }
+        else{
+            yes;
+        }
+    }
+
 }
 
-int main()
-{
+int main(){
 
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
 	tt = 1;
-	cin >> tt;
+	// cin >> tt;
 	for (ttt = 1; ttt <= tt; ttt++)
 	{
 		sol();

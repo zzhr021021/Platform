@@ -92,89 +92,71 @@ ll n, k, m, t, x, y, z, h, q, d, s;
 
 ll a[200500];
 ll b[200500];
+
 ll md(ll x, ll p)
 {
 	return (x % p + p) % p;
 }
-
-const ll NN = 800;
-
-bool inv(ll x, vll & v){
-	for(auto o : v){
-		if(o == x)return true;
-	}
-	return false;
+ll qpow(ll x,ll y){
+    ll ans = 1;
+    while(y){
+        if(y&1) ans = ans * x % p;
+        x = x * x % p,y>>=1;
+    }
+    return ans;
+}
+ll ladder(ll l, ll r){
+	return (l + r) * (r - l + 1) / 2;
 }
 
-void sol()
-{
-	cin>>n>>q;
-	set<ll> st;
-	rep1n(i,n){
-		cin>>a[i];
-		st.insert(a[i]);
+bool rec[2000];
+double dp[2000];
+double dpn[2000];
+
+double spow(double x, ll po){
+	double ret = 1;
+	rep(ip,po){
+		ret *= x;
 	}
-	map<ll, ll> gcnt;
-	vll more;
-	unordered_map<ll, vi> pre;
-	rep1n(i,n){
-		gcnt[a[i]]++;
-	}
-	for(auto o : gcnt){
-		if(o.second >= NN / 3){
-			more.push_back(o.first);
-			pre[o.first] = vector<int>(N + 5, 0);
-			rep1n(i,n){
-				pre[o.first][i] = pre[o.first][i - 1];
-				if(a[i] == o.first){
-					pre[o.first][i]++;
-				}
-			}
-		}
-	}
-	rep(i,q){
-		vll outv;
-		cin>>x>>y;
-		if(y - x + 1 <= NN){
-			unordered_map<ll, ll> cnt;
-			for(int i = x;i <= y;i++){
-				cnt[a[i]]++;
-				if(cnt[a[i]] > (y - x + 1) / 3){
-					if(!inv(a[i], outv)){
-						outv.push_back(a[i]);
-					}
-				}
-			}
-		}
-		else{
-			for(auto o : more){
-				if(pre[o][y] - pre[o][x - 1] > (y - x + 1) / 3){
-					outv.push_back(o);
-				}
-			}
-		}
-		if(outv.size() == 0){
-				cend(-1);
-		}
-		else if(outv.size() == 1){
-			cend(outv[0]);
-		}
-		else{
-			csp(min(outv[0], outv[1]));
-			cend(max(outv[0], outv[1]));
-		}
-	}
+	return ret;
 }
 
-int main()
-{
+void sol(){
+	cin>>n>>k;
+	rep(i,n){
+		cin>>x;
+		rec[x] = !rec[x];
+	}
+	dp[0] = 1;
+	rep(i,1024){
+		if(rec[i]){
+			rep(j,1024){
+				dpn[j] = dp[j] / 2;
+			}
+			rep(j,1024){
+				dpn[(j ^ i)] += dp[j] / 2;
+			}
+			rep(j,1024){
+				dp[j] = dpn[j];
+			}
+		}
+	}
+	double ans = 0;
+	rep(i,1024){
+		ans += spow(i, k) * dp[i];		
+	}
+	cout << fixed << setprecision(2) <<ans;
 
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+}
+
+int main(){
+
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
 
 	tt = 1;
-	cin >> tt;
+	// cin >> tt;
 	for (ttt = 1; ttt <= tt; ttt++)
 	{
 		sol();

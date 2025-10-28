@@ -17,7 +17,7 @@
 	for (int i = 0; i < (n); ++i) \
 		for (int j = 0; j < (m); ++j)
 
-#define ll int
+#define ll long long
 #define ull unsigned long long
 #define pll pair<long long, long long>
 #define vi vector<int>
@@ -36,11 +36,24 @@
 #define ctest cout << "test   "
 #define cgap cout << "--------------------" << endl
 #define pb push_back
+#define all(a) a.begin(), a.end()
+#define rall(a) a.rbegin(), a.rend()
 
+#define alice cout << "Alice\n"
+#define bob cout << "Bob\n"
+#define draw cout << "Draw\n"
+
+const ll MOD = 1e9 + 7;
+const ll MODD = 1e9 + 9;
+const ll MOOD = 998244353;
+ll p = MOOD;
+const ll inf = 1e18;
+const ll INF = 1e18;
 const ll N = 200500;
+// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
+// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-
 struct custom_hash {
     static uint64_t splitmix64(uint64_t x) {
         x += 0x9e3779b97f4a7c15;
@@ -55,6 +68,7 @@ struct custom_hash {
         return splitmix64(x + FIXED_RANDOM);
     }
 };
+
 void ckmax(ll &x, ll y)
 {
 	if (y > x)
@@ -78,109 +92,73 @@ ll n, k, m, t, x, y, z, h, q, d, s;
 
 ll a[200500];
 ll b[200500];
+
 ll md(ll x, ll p)
 {
 	return (x % p + p) % p;
 }
-
-const ll NN = 1110;
-
-bool inv(ll x, vll & v){
-	for(auto o : v){
-		if(o == x)return true;
-	}
-	return false;
+ll qpow(ll x,ll y){
+    ll ans = 1;
+    while(y){
+        if(y&1) ans = ans * x % p;
+        x = x * x % p,y>>=1;
+    }
+    return ans;
+}
+ll ladder(ll l, ll r){
+	return (l + r) * (r - l + 1) / 2;
 }
 
-ll get_cnt(vi & v, ll x, ll y){
-	if(v.size() == 0)return 0;
-	if(v.back() < x)return 0;
-	if(v.front() > y)return 0;
-	ll l, r;
-	ll retl, retr;
-	l = 0, r = v.size() - 1;
-	while(l != r){
-		ll mid = (l + r) / 2;
-		if(v[mid] >= x){
-			r = mid;
-		}
-		else{
-			l = mid + 1;
-		}
+bool rec[2000];
+double dp[2000];
+double dpn[2000];
+
+double spow(double x, ll po){
+	double ret = 1;
+	rep(ip,po){
+		ret *= x;
 	}
-	retl = l;
-	l = 0, r = v.size() - 1;
-	while(l != r){
-		ll mid = (l + r + 1) / 2;
-		if(v[mid] <= y){
-			l = mid;
-		}
-		else{
-			r = mid - 1;
-		}
-	}
-	retr = l;
-	return retr - retl + 1;
+	return ret;
 }
 
-map<ll, ll> gcnt;
-unordered_map<ll, vi, custom_hash> sls;
-
-void sol()
-{
-	gcnt.clear();
-	sls.clear();
-	cin>>n>>q;
-	rep1n(i,n){
-		cin>>a[i];
+void sol(){
+	cin>>n>>k;
+	rep(i,n){
+		cin>>x;
+		rec[x] = !rec[x];
 	}
-	vll more;
-	rep1n(i,n){
-		gcnt[a[i]]++;
-	}
-	for(auto o : gcnt){
-		sls[o.first] = vi();
-	}
-	rep1n(i,n){
-		sls[a[i]].push_back(i);
-	}
-
-	set<ll> outv;
-	rep(i,q){
-		outv.clear();
-		cin>>x>>y;
-		rep(ii,45){
-			ll pos = rnd() % (y - x + 1) + x;
-			if(outv.size() == 2)break;
-			if(get_cnt(sls[a[pos]], x, y) > (y - x + 1) / 3){
-				outv.insert(a[pos]);
+	dp[0] = 1;
+	rep(i,1024){
+		if(rec[i]){
+			rep(j,1024){
+				dpn[j] = dp[j] / 2;
+			}
+			rep(j,1024){
+				dpn[(j ^ i)] += dp[j] / 2;
+			}
+			rep(j,1024){
+				dp[j] = dpn[j];
 			}
 		}
-
-		if(outv.size() == 0){
-				cend(-1);
-		}
-		else{
-			for(auto o : outv){
-				csp(o);
-			}
-			cendl;
-		}
 	}
+	double ans = 0;
+	rep(i,1024){
+		ans += spow(i, k) * dp[i];		
+	}
+	cout << fixed << setprecision(2) <<ans;
+
 }
 
-int main()
-{
+int main(){
 
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
 
 	tt = 1;
-	cin >> tt;
-	for (ttt = 1; ttt <= tt; ttt++)
-	{
-		sol();
+	// cin >> tt;
+	while(1){
+		
 	}
 	system("pause");
 	return 0;

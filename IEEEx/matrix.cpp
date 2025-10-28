@@ -17,15 +17,16 @@
 	for (int i = 0; i < (n); ++i) \
 		for (int j = 0; j < (m); ++j)
 
-#define ll long long
+#define ll int
 #define ull unsigned long long
 #define pll pair<long long, long long>
 #define vi vector<int>
 #define vll vector<long long>
 #define vb vector<bool>
 #define vpl vector<pair<long long, long long>>
-#define vstr vector<string>
 
+#define yes cout << "YES\n"
+#define no cout << "NO\n"
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
@@ -33,59 +34,71 @@
 #define cgap cout << "--------------------" << endl
 #define pb push_back
 #define all(a) a.begin(), a.end()
-#define rall(a) a.rbegin(), a.rend()
 
-const ll inf = 1e18;
-const ll INF = 1e18;
+const ll inf = 1e9;
+const ll INF = 1e9;
 const ll N = 200500;
 using namespace std;
+
+
 ll tt, ttt;
 ll n, k, m, t, x, y, z, h, q, d, s;
 
-ll a[200500];
-vll misra_gries(vll & a, ll k){
-	ll n = a.size();
-	map<ll, ll> cnt;
-	for(auto o : a){
-		if(cnt.count(o)){
-			cnt[o]++;
-		}
-		else if(cnt.size() < k - 1){
-			cnt[o] = 1;
-		}
-		else{
-			vll toerase;
-			for(auto pa : cnt){
-				cnt[pa.first] -= 1;
-				if(cnt[pa.first] == 0){
-					toerase.push_back(pa.first);
-				}
-			}
-			for(auto o : toerase){
-				cnt.erase(o);
-			}
-		}
-	}
-	vll ret;
-	for(auto o : cnt){
-		ret.push_back(o.first);
-	}
-	return ret;
-}
-void sol()
-{
-	
+ll mat[1000][1000];
+ll dp[1050][1050];
+
+void sol(){ 
+    cin>>n>>m;
+    rep(i,n + 5){
+        rep(j,m + 5){
+            mat[i][j] = inf;
+        }
+    }
+    rep1n(i,n){
+        rep1n(j,m){
+            cin>>mat[i][j];
+        }
+    }
+
+    ll ans = 0;
+    vector<pair<ll, pll>> ve;
+    rep1n(i,n){
+        rep1n(j,m){
+            ve.push_back({mat[i][j], {i, j}});
+        }
+    }
+    sort(all(ve));
+    rep(i,ve.size()){
+        ll j = ve[i].first;
+        x = ve[i].second.first;
+        y = ve[i].second.second;
+        dp[x][y] = 1;
+        if(mat[x][y] > mat[x - 1][y]){
+            dp[x][y] = max(dp[x][y], dp[x - 1][y] + 1);
+        }
+        if(mat[x][y] > mat[x][y - 1]){
+            dp[x][y] = max(dp[x][y], dp[x][y - 1] + 1);
+        }
+        if(mat[x][y] > mat[x + 1][y]){
+            dp[x][y] = max(dp[x][y], dp[x + 1][y] + 1);
+        }
+        if(mat[x][y] > mat[x][y + 1]){
+            dp[x][y] = max(dp[x][y], dp[x][y + 1] + 1);
+        }
+        ans = max(ans, dp[x][y]);
+    }
+    cend(ans);
+    
 }
 
-int main()
-{
+int main(){
 
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
 	tt = 1;
-	cin >> tt;
+	// cin >> tt;
 	for (ttt = 1; ttt <= tt; ttt++)
 	{
 		sol();

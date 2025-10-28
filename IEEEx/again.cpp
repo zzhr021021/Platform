@@ -45,7 +45,7 @@
 
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
-const ll MOOD = 676767677;
+const ll MOOD = 998244353;
 ll p = MOOD;
 const ll inf = 1e18;
 const ll INF = 1e18;
@@ -92,29 +92,49 @@ ll n, k, m, t, x, y, z, h, q, d, s;
 
 ll a[200500];
 ll b[200500];
+
 ll md(ll x, ll p)
 {
 	return (x % p + p) % p;
 }
-ll ask(ll l, ll r){
-	return b[r] - b[l-1];
+ll qpow(ll x,ll y){
+    ll ans = 1;
+    while(y){
+        if(y&1) ans = ans * x % p;
+        x = x * x % p,y>>=1;
+    }
+    return ans;
+}
+ll ladder(ll l, ll r){
+	return (l + r) * (r - l + 1) / 2;
 }
 
+bool rec[2000];
+double dp[2000];
+double dpn[2000];
+
+double spow(double x, ll po){
+	double ret = 1;
+	rep(ip,po){
+		ret *= x;
+	}
+	return ret;
+}
 
 void sol(){
-	
-
+    
 }
 
-
 int main(){
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+
+	// ios_base::sync_with_stdio(false);
+	// cin.tie(nullptr);
+	// cout.tie(nullptr);
 
 	tt = 1;
-//	cin>>tt;
-	for(ttt = 1;ttt <= tt;ttt++){
+	// cin >> tt;
+	for (ttt = 1; ttt <= tt; ttt++)
+	{
 		sol();
 	}
 	system("pause");

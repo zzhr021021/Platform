@@ -9,7 +9,7 @@ ll uld(ll a, ll b) { return uniform_int_distribution<ll>(a, b)(rng); }
 
 const int MOD = 998244353;
 
-template<ll mod> // template was not stolen from https://codeforces.com/profile/SharpEdged
+template<ll mod>
 struct modnum {
     static constexpr bool is_big_mod = mod > numeric_limits<int>::max();
 

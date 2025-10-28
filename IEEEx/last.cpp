@@ -17,16 +17,13 @@
 	for (int i = 0; i < (n); ++i) \
 		for (int j = 0; j < (m); ++j)
 
-#define ll long long
+#define ll int
 #define ull unsigned long long
 #define pll pair<long long, long long>
 #define vi vector<int>
 #define vll vector<long long>
 #define vb vector<bool>
 #define vpl vector<pair<long long, long long>>
-#define vstr vector<string>
-#define smpq priority_queue<long long, vector<long long>, greater<long long>>
-#define bgpq priority_queue<long long>
 
 #define yes cout << "YES\n"
 #define no cout << "NO\n"
@@ -37,84 +34,41 @@
 #define cgap cout << "--------------------" << endl
 #define pb push_back
 #define all(a) a.begin(), a.end()
-#define rall(a) a.rbegin(), a.rend()
 
-#define alice cout << "Alice\n"
-#define bob cout << "Bob\n"
-#define draw cout << "Draw\n"
-
-const ll MOD = 1e9 + 7;
-const ll MODD = 1e9 + 9;
-const ll MOOD = 676767677;
-ll p = MOOD;
-const ll inf = 1e18;
-const ll INF = 1e18;
+const ll inf = 1e9;
+const ll INF = 1e9;
 const ll N = 200500;
-// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
-// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
-mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-struct custom_hash {
-    static uint64_t splitmix64(uint64_t x) {
-        x += 0x9e3779b97f4a7c15;
-        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
-        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
-        return x ^ (x >> 31);
-    }
 
-    size_t operator()(uint64_t x) const {
-        static const uint64_t FIXED_RANDOM =
-            std::chrono::steady_clock::now().time_since_epoch().count();
-        return splitmix64(x + FIXED_RANDOM);
-    }
-};
 
-void ckmax(ll &x, ll y)
-{
-	if (y > x)
-		x = y;
-}
-void ckmin(ll &x, ll y)
-{
-	if (y < x)
-		x = y;
-}
-void printvec(vll &v)
-{
-	for (auto o : v)
-	{
-		csp(o);
-	}
-	cendl;
-}
 ll tt, ttt;
 ll n, k, m, t, x, y, z, h, q, d, s;
-
 ll a[200500];
-ll b[200500];
-ll md(ll x, ll p)
-{
-	return (x % p + p) % p;
+ll mat[1000][1000];
+ll dp[1050][1050];
+
+void sol(){ 
+    cin>>n;
+    rep1n(i,n){
+        cin>>a[i];
+    }
+    ll l = 1, r = n / 2;
+    while(l != r){
+        
+    }
+    
 }
-ll ask(ll l, ll r){
-	return b[r] - b[l-1];
-}
-
-
-void sol(){
-	
-
-}
-
 
 int main(){
+
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
 	cout.tie(nullptr);
 
 	tt = 1;
-//	cin>>tt;
-	for(ttt = 1;ttt <= tt;ttt++){
+	// cin >> tt;
+	for (ttt = 1; ttt <= tt; ttt++)
+	{
 		sol();
 	}
 	system("pause");
