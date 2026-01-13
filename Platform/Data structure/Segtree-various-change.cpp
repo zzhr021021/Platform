@@ -1,7 +1,7 @@
-# Codeforce Div 921 2D
-# this example of segtree uses to lazy mark to record 2 thing:
-# 1. add x to all element in the seg
-# 2. from right to left, add x, 2x, 3x,... nx
+// # Codeforce Div 921 2D
+// # this example of segtree uses to lazy mark to record 2 thing:
+// # 1. add x to all element in the seg
+// # 2. from right to left, add x, 2x, 3x,... nx
 
 #include<bits/stdc++.h>
 #define rep(i, n) for (int i = 0; i < (n); ++i)
