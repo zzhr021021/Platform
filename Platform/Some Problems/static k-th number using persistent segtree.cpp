@@ -6,7 +6,7 @@
 #define rep1(i, n) for (int i = 1; i < (n); ++i)
 #define rep1n(i, n) for (ll i = 1; i <= (n); ++i)
 
-#define ll int
+#define ll long long
 #define vll vector<long long>
 #define vb vector<bool>
 
@@ -83,6 +83,16 @@ ll single_get(ll node, ll l, ll r, ll pos){
     else{
         return single_get(tree[node].pr, mid + 1, r, pos);
     }
+}
+ll segment_get(ll node, ll l, ll r, ll L, ll R){
+    if(l >= L && r <= R){
+        return tree[node].sum;
+    }
+    if(r < L || l > R){
+        return 0;
+    }
+    ll mid = (l + r) >> 1;
+    return segment_get(tree[node].pl, l, mid, L, R) + segment_get(tree[node].pr, mid + 1, r, L, R);
 }
 
 map<ll, ll> inj;
