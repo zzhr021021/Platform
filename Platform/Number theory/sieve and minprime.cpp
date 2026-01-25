@@ -12,6 +12,7 @@ bool isp[MMint];
 int primes[MMint];
 int pp = 0;
 int minprime[MMint];
+int miu[MMint]; // mobius function
 
 void sol(){
 	

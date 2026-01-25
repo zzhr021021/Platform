@@ -5,142 +5,122 @@
 #define rep(i, n) for (int i = 0; i < (n); ++i)
 #define rep1(i, n) for (int i = 1; i < (n); ++i)
 #define rep1n(i, n) for (ll i = 1; i <= (n); ++i)
+#define rep1nr(i, n) for (int i = (n); i >= 1; --i)
+#define rep01n(i, n) for (int i = 0; i <= (n); ++i)
+#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
+#define replr(i, l, r) for (int i = l;i <= r;i++)
+#define repij(i, j, n, m) for (int i = 0; i < (n); ++i) for (int j = 0; j < (m); ++j)
 
-#define ll int
+#define ll long long
+#define ull unsigned long long
+#define pll pair<long long, long long>
+#define vi vector<int>
 #define vll vector<long long>
 #define vb vector<bool>
+#define vpl vector<pair<long long, long long>>
+#define vstr vector<string>
+#define smpq priority_queue<long long, vector<long long>, greater<long long>>
+#define bgpq priority_queue<long long>
 
+#define yes cout<<"YES\n"
+#define no cout<<"NO\n"
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
+#define ctest cout << "test   "
+#define cgap cout << "--------------------" << endl
+#define pb push_back
+#define all(a) a.begin(), a.end()
+#define rall(a) a.rbegin(), a.rend()
+
+#define alice cout<<"Alice\n"
+#define bob cout<<"Bob\n"
+#define draw cout<<"Draw\n"
+
+const ll MOD = 1e9 + 7;
+const ll MODD = 1e9 + 9;
+const ll MOOD = 998244353;
+ll p = MOOD;
+const ll inf = 1e18;
+const ll INF = 1e18;
+const ll N = 200500;
+// ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
+// ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+void ckmax(ll & x, ll y){
+    if(y > x)x = y;
+}
+void ckmin(ll & x, ll y){
+    if(y < x)x = y;
+}
+void printvec(vll & v){
+    for(auto o : v){
+        csp(o);
+    }
+    cendl;
+}
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q,d,s;
 
 ll a[200500];
-ll b[200500];
 
-struct node{
-    ll l, r, sum, pl, pr;
-};
-node tree[6000005];
-ll tree_size = 0;
-ll verpos[200500];
-ll version_count = 0;
-
-ll build_node(ll l, ll r){
-    tree_size += 1;
-    ll treepos = tree_size;
-    tree[treepos] = {l, r, -1, -1, -1};
-    if(l != r){
-        ll mid = (l + r) >> 1;
-        ll tl = tree[treepos].pl = build_node(l, mid);
-        ll tr = tree[treepos].pr = build_node(mid + 1, r);
-        tree[treepos].sum = tree[tl].sum + tree[tr].sum;
-    }
-    else{
-        tree[treepos].pl = -1;
-        tree[treepos].pr = -1;
-        tree[treepos].sum = a[l];
-    }
-    return treepos;
-}
-ll build_tree(ll n){
-    return build_node(1, n);
-}
-// node is the replaced node position
-ll update_node(ll node, ll l, ll r, ll pos, ll val){
-    tree_size += 1;
-    ll treepos = tree_size;
-    if(l == r){
-        tree[treepos] = {l, r, val, -1, -1};
-    }
-    else{
-        tree[treepos] = {l, r, -1, -1, -1};
-        ll mid = (l + r) >> 1;
-        if(pos <= mid){
-            ll tr = tree[treepos].pr = tree[node].pr;
-            ll tl = tree[treepos].pl = update_node(tree[node].pl, l, mid, pos, val);
-            tree[treepos].sum = tree[tl].sum + tree[tr].sum;
-        }
-        else{
-            ll tl = tree[treepos].pl = tree[node].pl;
-            ll tr = tree[treepos].pr = update_node(tree[node].pr, mid + 1, r, pos, val);
-            tree[treepos].sum = tree[tl].sum + tree[tr].sum;
-        }
-    }
-    return treepos;
-}
-// choose the right version
-ll single_get(ll node, ll l, ll r, ll pos){
-    if(l == r){
-        return tree[node].sum;
-    }
-    ll mid = (l + r) >> 1;
-    if(pos <= mid){
-        return single_get(tree[node].pl, l, mid, pos);
-    }
-    else{
-        return single_get(tree[node].pr, mid + 1, r, pos);
-    }
+void md(ll & x){
+    x = (x + p) % p;
 }
 
-map<ll, ll> inj;
-ll jni[200500];
-
-ll get_segment_kth_node(ll posl, ll posr, ll k){
-	if(tree[posl].l == tree[posl].r){
-		return jni[tree[posl].r];
-	}
-	ll tp = tree[tree[posr].pl].sum - tree[tree[posl].pl].sum;
-	
-	if(tp >= k){
-		return get_segment_kth_node(tree[posl].pl, tree[posr].pl, k);
-	}
-	else{
-		return get_segment_kth_node(tree[posl].pr, tree[posr].pr, k - tp);
-	}
+ll ladder(ll x){
+    return (1 + x) * x / 2;
 }
-ll get_segment_kth(ll l, ll r, ll k){
-	ll posl = verpos[l - 1];
-	ll posr = verpos[r];
-	return get_segment_kth_node(posl, posr, k);
+ll sq(ll x){
+    return x * x;
 }
-
+ll qpow(ll x, ll y){
+    ll ans = 1;
+    while(y){
+        if(y&1) ans = ans * x % p;
+        x = x * x % p,y>>=1;
+    }
+    return ans;
+}
 
 void sol(){
-	cin>>n>>m;
-	set<ll> st;
-	
-	ll cnt = 0;
-	rep1n(i,n){
-		a[i] = 0;
-		cin>>b[i];
-		st.insert(b[i]);
-	}
-	for(auto o : st){
-		cnt++;
-		inj[o] = cnt;
-		jni[cnt] = o;
-	}
-	
-	verpos[0] = build_tree(n);
-	rep1n(i,n){
-		ll pos = inj[b[i]];
-		a[pos]++;
-		version_count++;
-		verpos[version_count] = update_node(verpos[version_count - 1], 1, n, pos, a[pos]);
-	}
-
-	rep1n(ii,m){
-		cin>>x>>y>>z;
-		cend(get_segment_kth(x, y, z));
-	}
+    cin>>n;
+    rep1n(i,n){
+        cin>>a[i];
+    }
+    ll c1 = 0;
+    ll c2 = 0;
+    rep1n(i,n){
+        if((a[i] + i) % 2 == 0){
+            c1++;
+        }
+        else{
+            c2++;
+        }
+    }
+    if(c1 == 0 || c2 == 0){
+        yes;
+    }
+    else{
+        no;
+    }
 }
 
+ll tnt(){
+    while(1){
+    }
+    return 0;
+}
+
+
 int main(){
+//    ios_base::sync_with_stdio(false);
+//    cin.tie(nullptr);
+//    cout.tie(nullptr);
+
     tt = 1;
-    // cin>>tt;
+    cin>>tt;
     for(ttt = 1;ttt <= tt;ttt++){
         sol();
     }

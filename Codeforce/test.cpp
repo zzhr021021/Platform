@@ -24,6 +24,8 @@
 
 #define yes cout<<"YES\n"
 #define no cout<<"NO\n"
+#define bob cout<<"Bob\n"
+#define alice cout<<"Alice\n"
 #define csp(n) cout << n << " "
 #define cend(n) cout << n << endl
 #define cendl cout << endl
@@ -63,7 +65,10 @@ void printvec(vll & v){
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q,d,s;
 
-ll a[1000500];
+ll a[200050];
+ll b[200050];
+ll c[200050];
+ll cc[200500];
 
 void md(ll & x){
     x = (x + p) % p;
@@ -84,76 +89,8 @@ ll qpow(ll x, ll y){
     return ans;
 }
 
-ll tree[800500];
-void build(ll o, ll l, ll r){
-    if(l == r){
-        tree[o] = a[l];
-        return;
-    }
-    ll mid = (l + r) >> 1;
-    build(o << 1, l, mid);
-    build(o << 1 | 1, mid + 1, r);
-    tree[o] = min(tree[o << 1], tree[o << 1 | 1]);
-}
-void update(ll o, ll l, ll r, ll pos, ll val){
-    if(l == r){
-        tree[o] = val;
-        return;
-    }
-    ll mid = (l + r) >> 1;
-    if(pos <= mid){
-        update(o << 1, l, mid, pos, val);
-    }
-    else{
-        update(o << 1 | 1, mid + 1, r, pos, val);
-    }
-    tree[o] = min(tree[o << 1], tree[o << 1 | 1]);
-}
-ll segment_get(ll o, ll l, ll r, ll L, ll R){
-    if(l >= L && r <= R){
-        return tree[o];
-    }
-    if(l > R || r < L){
-        return inf;
-    }
-    ll mid = (l + r) >> 1;
-    ll o1 = segment_get(o << 1, l, mid, L, R);
-    ll o2 = segment_get(o << 1 | 1, mid + 1, r, L, R);
-    return min(o1, o2);
-}
-
 void sol(){
-    cin>>n>>m;
-    rep1n(i,n){
-        cin>>a[i];
-    }
-    build(1, 1, n);
-    rep(ii,m){
-        cin>>z;
-        cin>>x>>y;
-        if(z == 1){
-            update(1, 1, n, x, y);
-        }
-        else{
-            ll l = 0, r = y - x;
-            while(l != r){
-                ll mid = (l + r) >> 1;
-                ll vl = segment_get(1, 1, n, x, x + mid);
-                if(vl > mid){
-                    l = mid + 1;
-                }
-                else{
-                    r = mid;
-                }
-            }
-            if(l == segment_get(1, 1, n, x, x + l)){
-                cend(1);
-            }
-            else{
-                cend(0);
-            }
-        }
-    }
+    
 }
 
 ll tnt(){
@@ -164,9 +101,9 @@ ll tnt(){
 
 
 int main(){
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
+//    ios_base::sync_with_stdio(false);
+//    cin.tie(nullptr);
+//    cout.tie(nullptr);
 
     tt = 1;
     cin>>tt;
