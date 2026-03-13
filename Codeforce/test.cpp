@@ -67,8 +67,6 @@ ll n,k,m,t,x,y,z,h,q,d,s;
 
 ll a[200050];
 ll b[200050];
-ll c[200050];
-ll cc[200500];
 
 void md(ll & x){
     x = (x + p) % p;
@@ -90,7 +88,33 @@ ll qpow(ll x, ll y){
 }
 
 void sol(){
-    
+    cin>>n;
+    string s;cin>>s;
+    ll ansmin = 0, ansmax = 0;
+    rep(i,n){
+        if(s[i] == '1'){
+            ansmax++;
+        }
+        else{
+            if(i != 0 && i != n - 1 && s[i - 1] == '1' && s[i + 1] == '1'){
+                ansmax++;
+                s[i] = '1';
+            }
+        }
+    }
+    ll cur = 0;
+    rep(i,n){
+        if(s[i] == '1'){
+            cur++;
+        }
+        else{
+            if(cur)ansmin += (cur + 2) / 2;
+            cur = 0;
+        }
+    }
+    if(cur)ansmin += cur / 2 + 1;
+
+    csp(ansmin);cend(ansmax);
 }
 
 ll tnt(){

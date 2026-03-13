@@ -36,11 +36,16 @@ ll C(ll u, ll d){
     if(u > d)return 0;
     if(u == 0)return 1;
     ll ret = 1;
-    ret *= fac[d % MOD];ret %= MOD;
-    ret *= ifac[u % MOD];ret %= MOD;
-    ret *= ifac[d % MOD - u % MOD];ret %= MOD;
-    ret *= C(u / MOD, d / MOD);ret %= mod;
-	return ret;
+    if(d% p - u % p < 0){
+        return 0;
+    }
+    else{
+        ret *= fac[d % p];ret %= p;
+        ret *= ifac[u % p];ret %= p;
+        ret *= ifac[d % p - u % p];ret %= p;
+    }
+    ret *= C(u / p, d / p);ret %= p;
+    return ret;
 }
 
 int main() {
