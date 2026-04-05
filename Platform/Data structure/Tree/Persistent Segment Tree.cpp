@@ -20,9 +20,6 @@ ll n,k,m,t,x,y,z,h,q,d,s;
 
 // value PST
 // 权值可持久化线段树实现，离散化后可以静态查询区间第K小
-// l, r : for value
-// posl, posr : for position in original array, which is version
-// verl, verr : for version in verpos
 struct PersistentSegTree{
     struct Node{
         ll l, r, sum, pl, pr;
@@ -99,25 +96,13 @@ struct PersistentSegTree{
             return single_get(tree[node].pr, mid + 1, r, pos);
         }
     }
-    ll segment_get(ll node, ll l, ll r, ll L, ll R){
-        if(l >= L && r <= R){
-            return tree[node].sum;
-        }
-        if(l > R || r < L){
-            return 0;
-        }
-        ll mid = (l + r) >> 1;
-        ll ret = 0;
-        ret += segment_get(tree[node].pl, l, mid, L, R);
-        ret += segment_get(tree[node].pr, mid, r, L, R);
-        return ret;
-    }
     // kth
     ll get_segment_kth_node(ll posl, ll posr, ll k){
         if(tree[posl].l == tree[posl].r){
             return tree[posl].r;
         }
         ll tp = tree[tree[posr].pl].sum - tree[tree[posl].pl].sum;
+
         if(tp >= k){
             return get_segment_kth_node(tree[posl].pl, tree[posr].pl, k);
         }
@@ -129,10 +114,6 @@ struct PersistentSegTree{
         ll posl = verpos[l - 1];
         ll posr = verpos[r];
         return get_segment_kth_node(posl, posr, k);
-    }
-    // less than
-    ll get_segment_less_equal_count(ll l, ll r, ll x){
-        return segment_get(verpos[r], 1, n, 1, x) - segment_get(verpos[l - 1], 1, n, 1, x);
     }
 };
 

@@ -39,12 +39,10 @@
 #define bob cout<<"Bob\n"
 #define draw cout<<"Draw\n"
 
-#define M_PI 3.14159265358979323846
-
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
 const ll MOOD = 998244353;
-ll p = MOD;
+ll p = MOOD;
 const ll inf = 1e18;
 const ll INF = 1e18;
 const ll N = 200500;
@@ -67,17 +65,17 @@ void printvec(vll & v){
 ll tt, ttt;
 ll n,k,m,t,x,y,z,h,q,d,s;
 
-ll a[500500];
-ll b[500500];
+ll a[200050];
+ll b[200050];
+ll c[200050];
+ll cc[200500];
+
 void md(ll & x){
     x = (x + p) % p;
 }
 
 ll ladder(ll x){
     return (1 + x) * x / 2;
-}
-ll ladder(ll x, ll y){
-    return (x + y) * (y - x + 1) / 2;
 }
 ll sq(ll x){
     return x * x;
@@ -91,42 +89,38 @@ ll qpow(ll x, ll y){
     return ans;
 }
 
-void sol(){
-    cin>>x;
-    if(x == 1){
-        cend("yoink a\n"
-             "yoink b\n"
-             "*slaps a on top of b*\n"
-             "yeet b\n"
-             "go touch some grass");
+struct DSU{
+    vll fa;
+    vll sz;
+    explicit DSU(ll size){
+        fa.resize(size + 5);
+        sz.resize(size + 5);
+        rep1n(i,size){
+            fa[i] = i;
+            sz[i] = 1;
+        }
     }
-    else if(x == 2){
-        cend("yoink a\n"
-             "bruh b is lowkey just 0\n"
-             "rip this b fell off by a\n"
-             "vibe check a ratios b\n"
-             "simp for 7\n"
-             "bruh a is lowkey just b\n"
-             "yeet a\n"
-             "go touch some grass");
+    ll query(ll u){
+        if(fa[u] == u)return u;
+        ll tp = query(fa[u]);
+        fa[u] = tp;
+        return fa[u];
     }
-    else if(x == 3){
-        cend("yoink n\n"
-             "yoink a\n"
-             "bruh m is lowkey just a[0]\n"
-             "bruh i is lowkey just 1\n"
-             "vibe check n ratios i\n"
-             "simp for 9\n"
-             "yeet m\n"
-             "go touch some grass\n"
-             "vibe check a[i] ratios m\n"
-             "bruh m is lowkey just a[i]\n"
-             "*slaps 1 on top of i*\n"
-             "simp for 5");
+    ll unite(ll u, ll v){
+        u = query(u);
+        v = query(v);
+        if(sz[u] < sz[v])swap(u, v);
+        sz[u] += sz[v];
+        fa[v] = u;
+        return u;
     }
-    else{
+    bool is_united(ll u, ll v){
+        return query(u) == query(v);
+    }
+};
 
-    }
+void sol(){
+
 }
 
 ll tnt(){
@@ -135,13 +129,14 @@ ll tnt(){
     return 0;
 }
 
+
 int main(){
 //    ios_base::sync_with_stdio(false);
 //    cin.tie(nullptr);
 //    cout.tie(nullptr);
 
     tt = 1;
-//    cin>>tt;
+    cin>>tt;
     for(ttt = 1;ttt <= tt;ttt++){
         sol();
     }
