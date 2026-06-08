@@ -44,7 +44,7 @@
 const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
 const ll MOOD = 998244353;
-ll p = MOD;
+ll p = 676767677;
 const ll inf = 1e18;
 const ll INF = 1e18;
 const ll N = 200500;
@@ -91,42 +91,54 @@ ll qpow(ll x, ll y){
     return ans;
 }
 
+
 void sol(){
-    cin>>x;
-    if(x == 1){
-        cend("yoink a\n"
-             "yoink b\n"
-             "*slaps a on top of b*\n"
-             "yeet b\n"
-             "go touch some grass");
+    cin>>n;
+    multiset<ll> ost;
+    multiset<ll> st;
+    // omp[-inf] = mp[-inf] = 1;
+    // omp[inf] = mp[inf] = 1;
+    rep1n(i,n){
+        cin>>a[i];
+        ost.insert(a[i]);
     }
-    else if(x == 2){
-        cend("yoink a\n"
-             "bruh b is lowkey just 0\n"
-             "rip this b fell off by a\n"
-             "vibe check a ratios b\n"
-             "simp for 7\n"
-             "bruh a is lowkey just b\n"
-             "yeet a\n"
-             "go touch some grass");
-    }
-    else if(x == 3){
-        cend("yoink n\n"
-             "yoink a\n"
-             "bruh m is lowkey just a[0]\n"
-             "bruh i is lowkey just 1\n"
-             "vibe check n ratios i\n"
-             "simp for 9\n"
-             "yeet m\n"
-             "go touch some grass\n"
-             "vibe check a[i] ratios m\n"
-             "bruh m is lowkey just a[i]\n"
-             "*slaps 1 on top of i*\n"
-             "simp for 5");
-    }
-    else{
+
+    ll l = 0, r = n - 1;
+    while(l < r){
+        ll mid = (l + r + 1) >> 1;
+        ll fl = true;
+
+        st.clear();
+        for(auto o : ost){
+            st.insert(o);
+        }
+        for(int i = mid;i > 0;i--){
+            if(st.find(i) != st.end()){
+                st.erase(st.find(i));
+            }
+            else{
+                // get max key in st
+                auto it = st.end();
+                it--;
+                if((*it) >= i * 2 + 1){
+                    st.erase(it);
+                }
+                else{
+                    fl = false;
+                    break;
+                }
+            }
+        }
+        if(fl){
+            l = mid;
+        }
+        else{
+            r = mid - 1;
+        }
 
     }
+    cend(l + 1);
+
 }
 
 ll tnt(){
@@ -134,14 +146,13 @@ ll tnt(){
     }
     return 0;
 }
-
 int main(){
 //    ios_base::sync_with_stdio(false);
 //    cin.tie(nullptr);
 //    cout.tie(nullptr);
 
     tt = 1;
-//    cin>>tt;
+    cin>>tt;
     for(ttt = 1;ttt <= tt;ttt++){
         sol();
     }
