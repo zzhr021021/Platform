@@ -19,40 +19,62 @@ using namespace std;
 ll n,m,t,k;
 
 // maintain n listed elements
-// can add a value to a element in logn
-// can query the summation of a segment in logn
-struct BIT_sum{
+// 1-indexed: maintain n listed elements in [1, n]
+// supports point update and prefix/segment (product or xor) query in logn, space is n + 1
+class BIT_sum{
+private:
     int n;
     vll fenw;
-    // initialize 
+
+public:
+    ll size(){
+        return n;
+    }
     void init(ll pa_n){
         n = pa_n;
-        fenw.resize(pa_n);
-        for(auto & o : fenw){
-            o = 0;
+        fenw.assign(n + 1, 0);
+    }
+    void init(const vll & pa_ve){
+        n = pa_ve.size();
+        fenw.assign(n + 1, 0);
+        rep(i,n){
+            fenw[i + 1] = (pa_ve[i] % MOD + MOD) % MOD;
+        }
+        rep1n(i,n){
+            ll nxt = i + (i & -i);
+            if(nxt <= n){
+                fenw[nxt] += fenw[i];
+                fenw[nxt] %= MOD;
+            }
         }
     }
-    void init(vll & pa_ve){
-        n = pa_ve.size();
-        fenw.resize(n);
+    void init(ll a[], ll st, ll pa_n){
+        n = pa_n;
+        fenw.assign(n + 1, 0);
         rep(i,n){
-            add(i, pa_ve[i]);
+            fenw[i + 1] = (a[st + i] % MOD + MOD) % MOD;
+        }
+        rep1n(i,n){
+            ll nxt = i + (i & -i);
+            if(nxt <= n){
+                fenw[nxt] += fenw[i];
+                fenw[nxt] %= MOD;
+            }
         }
     }
     void add(ll pos, ll val){
-        while (pos < fenw.size()){
+        while (pos <= n){
             fenw[pos] += val;
             fenw[pos] = (fenw[pos] % MOD + MOD) % MOD;
-            pos |= (pos + 1);
+            pos += pos & -pos;
         }
     }
     ll get(ll pos){
         ll res = 0;
-        while (pos >= 0){
+        while (pos > 0){
             res += fenw[pos];
             res %= MOD;
-            pos &= (pos + 1);
-            pos--;
+            pos -= pos & -pos;
         }
         return res;
     }
