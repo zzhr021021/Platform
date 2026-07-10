@@ -87,34 +87,38 @@ ll qpow(ll x, ll y){
     return ans;
 }
 
+vll g[200500];
+pll dfs(ll o, ll fa){
+    ll ret = 1;
+    ll dep = 1;
+    vll dve;
+    for(auto ad : g[o]){
+        if(ad != fa){
+            auto tp = dfs(ad, o);
+            ret += tp.first;
+            dve.push_back(tp.second);
+        }
+    }
+    if(dve.size() >= 2){
+        sort(all(dve));
+        ret += dve[dve.size() - 2];
+    }
+    if(dve.size()){
+        dep += dve.back();
+    }
+    return {ret, dep};
+}
 void sol(){
     cin>>n;
-    string s;cin>>s;
-    ll ansmin = 0, ansmax = 0;
-    rep(i,n){
-        if(s[i] == '1'){
-            ansmax++;
-        }
-        else{
-            if(i != 0 && i != n - 1 && s[i - 1] == '1' && s[i + 1] == '1'){
-                ansmax++;
-                s[i] = '1';
-            }
-        }
+    rep(i,n + 5){
+        g[i].clear();
     }
-    ll cur = 0;
-    rep(i,n){
-        if(s[i] == '1'){
-            cur++;
-        }
-        else{
-            if(cur)ansmin += (cur + 2) / 2;
-            cur = 0;
-        }
+    for(int i = 2;i <= n;i++){
+        cin>>x;
+        g[i].push_back(x);
+        g[x].push_back(i);
     }
-    if(cur)ansmin += cur / 2 + 1;
-
-    csp(ansmin);cend(ansmax);
+    cend(dfs(1, -1).first);
 }
 
 ll tnt(){
