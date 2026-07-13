@@ -50,13 +50,13 @@ private:
 	Node* newNode(ll val){
 		return new Node(val, rnd());
 	}
-	void clear(Node* cur){
+	void _clear(Node* cur){
 		if (cur == nullptr) return;
-		clear(cur->le);
-		clear(cur->ri);
+		_clear(cur->le);
+		_clear(cur->ri);
 		delete cur;
 	}
-	void rotate_le(Node* & rt){
+	void _rotate_le(Node* & rt){
 		// this makes the root the son of its right son
 		if (rt == nullptr || rt->ri == nullptr) return;
 		Node* ri = rt->ri;
@@ -67,7 +67,7 @@ private:
 		ri->update();
 		rt = ri;
 	}
-	void rotate_ri(Node* & rt){
+	void _rotate_ri(Node* & rt){
 		// this makes the root the son of its left son
 		if (rt == nullptr || rt->le == nullptr) return;
 		Node* le = rt->le;
@@ -78,7 +78,7 @@ private:
 		le->update();
 		rt = le;
 	}
-	void insert(Node* & cur, ll val){
+	void _insert(Node* & cur, ll val){
 		if (cur == nullptr) {
 			// no node
 			cur = newNode(val);
@@ -90,31 +90,31 @@ private:
 		}
 		else if (val < cur->val) {
 			// less than
-			insert(cur->le, val);
+			_insert(cur->le, val);
 			if (cur->le->pri < cur->pri) {
-				rotate_ri(cur);
+				_rotate_ri(cur);
 			}
 			cur->update();
 		}
 		else {
 			// greater than
-			insert(cur->ri, val);
+			_insert(cur->ri, val);
 			if (cur->ri->pri < cur->pri) {
-				rotate_le(cur);
+				_rotate_le(cur);
 			}
 			cur->update();
 		}
 	}
-	bool erase(Node* & cur, ll val){
-		if (find(cur, val) == 0){
+	bool _erase(Node* & cur, ll val){
+		if (_find(cur, val) == 0){
 			return false;
 		}
 		if (val > cur->val) {
-			erase(cur->ri, val);
+			_erase(cur->ri, val);
 			cur->update();
 		}
 		else if (val < cur->val){
-			erase(cur->le, val);
+			_erase(cur->le, val);
 			cur->update();
 		}
 		else {
@@ -138,44 +138,44 @@ private:
 			}
 			else {
 				if (cur->le->pri < cur->ri->pri) {
-					rotate_ri(cur);
-					erase(cur->ri, val);
+					_rotate_ri(cur);
+					_erase(cur->ri, val);
 				}
 				else {
-					rotate_le(cur);
-					erase(cur->le, val);
+					_rotate_le(cur);
+					_erase(cur->le, val);
 				}
 				cur->update();
 			}
 		}
 		return true;
 	}
-	ll find(Node* & cur, ll val){
+	ll _find(Node* & cur, ll val){
 		if (cur == nullptr) return 0;
 		else if (cur->val == val) {
 			return cur->cnt;
 		}
 		else if (cur->val > val){
-			return find(cur->le, val);
+			return _find(cur->le, val);
 		}
 		else {
-			return find(cur->ri, val);
+			return _find(cur->ri, val);
 		}
 	}
-	ll kth(Node* & cur, ll k){
+	ll _kth(Node* & cur, ll k){
 		ll lesz = cur->le == nullptr ? 0 : cur->le->sz;
 		ll curcnt = cur->cnt;
 		if (lesz >= k) {
-			return kth(cur->le, k);
+			return _kth(cur->le, k);
 		}
 		else if (lesz + curcnt >= k){
 			return cur->val;
 		}
 		else {
-			return kth(cur->ri, k - lesz - curcnt);
+			return _kth(cur->ri, k - lesz - curcnt);
 		}
 	}
-	ll rank(Node* & cur, ll val){
+	ll _rank(Node* & cur, ll val){
 		if (cur == nullptr){
 			return 0;
 		}
@@ -185,14 +185,14 @@ private:
 			cnt = lesz;
 		}
 		else if (cur->val > val) {
-			cnt = rank(cur->le, val);
+			cnt = _rank(cur->le, val);
 		}
 		else {
-			cnt = rank(cur->ri, val) + lesz + cur->cnt;
+			cnt = _rank(cur->ri, val) + lesz + cur->cnt;
 		}
 		return cnt;
 	}
-	ll query_prev(Node* cur, ll val){
+	ll _query_prev(Node* cur, ll val){
 		ll ans = NIL;
 		while (cur != nullptr) {
 			if (cur->val < val) {
@@ -205,7 +205,7 @@ private:
 		}
 		return ans;
 	}
-	ll query_next(Node* cur, ll val){
+	ll _query_next(Node* cur, ll val){
 		ll ans = NIL;
 		while (cur != nullptr) {
 			if (cur->val > val) {
@@ -220,7 +220,7 @@ private:
 	}
 public:
 	void clear(){
-		clear(root);
+		_clear(root);
 		root = nullptr;
 	}
 	ll size(){
@@ -239,30 +239,30 @@ public:
 		}
 	}
 	void insert(ll val){
-		return insert(root, val);
+		return _insert(root, val);
 	}
 	bool erase(ll val){
-		return erase(root, val);
+		return _erase(root, val);
 	}
 	ll find(ll val){
 		// return cnt
-		return find(root, val);
+		return _find(root, val);
 	}
 	ll kth(ll k){
 		// make sure k <= sz
-		return kth(root, k);
+		return _kth(root, k);
 	}
 	ll rank(ll val){
 		// return the cnt of x that x < val, plus one
-		return rank(root, val) + 1;
+		return _rank(root, val) + 1;
 	}
 	ll query_prev(ll val){
 		// return the first node(value) that less than val
-		return query_prev(root, val);
+		return _query_prev(root, val);
 	}
 	ll query_next(ll val){
 		// return the first node(value) that greater than val
-		return query_next(root, val);
+		return _query_next(root, val);
 	}
 };
 

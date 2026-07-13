@@ -18,16 +18,12 @@ using namespace std;
 
 ll n,m,t,k;
 
-// FHQ Treap(non-rotation treap), every node has its val and priority, using min heap as priority
-// there are rotating treap and non-rotating treap, this is the implementation of the latter
-// insert, erase, find, rank, kth, query_prev, query_next 
-// rank(x) : count the number of y that y < x in treap
+// FHQ Treap with segment operations
+// this flip is segmentation, for Luogu P3391
 class Treap{
 private:
 	class Node{
 	public:
-		// cnt is the repeat count
-		// sz is the size of subtree
 		ll val, pri, cnt, sz;
 		Node *le, *ri;
 		Node(ll pa_val, ll pa_pri)
@@ -216,6 +212,9 @@ public:
 	}
 	ll query_next(ll val){
 		return _query_next(val);
+	}
+	void flip(){
+		
 	}
 };
 
