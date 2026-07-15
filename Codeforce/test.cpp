@@ -49,7 +49,8 @@ const ll N = 200500;
 // ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
 // ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
 using namespace std;
-mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+
+
 void ckmax(ll & x, ll y){
     if(y > x)x = y;
 }
@@ -87,38 +88,237 @@ ll qpow(ll x, ll y){
     return ans;
 }
 
-vll g[200500];
-pll dfs(ll o, ll fa){
-    ll ret = 1;
-    ll dep = 1;
-    vll dve;
-    for(auto ad : g[o]){
-        if(ad != fa){
-            auto tp = dfs(ad, o);
-            ret += tp.first;
-            dve.push_back(tp.second);
+class Treap{
+public:
+	class Node{
+	public:
+		// sz is the size of subtree
+		ll val, pri, sz;
+		Node *le, *ri, *fa;
+		Node(ll pa_val, ll pa_pri)
+            : val(pa_val), pri(pa_pri), sz(1), le(nullptr), ri(nullptr), fa(nullptr) {}
+		Node(ll pa_val, ll pa_pri, Node* pa_le, Node* pa_ri)
+            : val(pa_val), pri(pa_pri), sz(1), le(pa_le), ri(pa_ri), fa(nullptr) {
+			update();
+		}
+		void update() {
+			sz = 1;
+			if (le != nullptr) sz += le->sz;
+			if (ri != nullptr) sz += ri->sz;
+		}
+	};
+	Node* root = nullptr;
+	mt19937_64 rnd;
+	constexpr static ll NIL = -1; // query node not exist
+
+	Node* newNode(ll val){
+		return new Node(val, rnd());
+	}
+	pair<Node*, Node*> split(Node* cur, ll key){
+		// split : 1(... , key] , 2(key, ...)
+		if (cur == nullptr) return {nullptr, nullptr};
+		if (cur->val <= key) {
+			pair<Node*, Node*> pa = split(cur->ri, key);
+			cur->ri = pa.first;
+            if(cur->ri != nullptr)cur->ri->fa = cur;
+			cur->update();
+			return {cur, pa.second};
+		}
+		else {
+			pair<Node*, Node*> pa = split(cur->le, key);
+			cur->le = pa.second;
+            if(cur->le != nullptr)cur->le->fa = cur;
+			cur->update();
+			return {pa.first, cur};
+		}
+	}
+	tuple<Node*, Node*, Node*> split_by_rank(Node* cur, ll rk){
+		// split : 1(... , rk), 2[rk](only node) 3(rk, ...)
+		if (cur == nullptr) return {nullptr, nullptr, nullptr};
+		ll lsize = cur->le == nullptr ? 0 : cur->le->sz;
+		if (rk <= lsize) {
+			Node *l, *mid, *r;
+			tie(l, mid, r) = split_by_rank(cur->le, rk);
+			cur->le = r;
+            if(r != nullptr)r->fa = cur;
+			cur->update();
+			return {l, mid, cur};
+		}
+		else if (rk <= lsize + 1) {
+			Node *tpl = cur->le;
+			Node *tpr = cur->ri;
+			cur->le = cur->ri = nullptr;
+			cur->update();
+			return {tpl, cur, tpr};
+		}
+		else {
+			Node *l, *mid, *r;
+			ll minu = lsize + 1;
+			tie(l, mid, r) = split_by_rank(cur->ri, rk - minu);
+			cur->ri = l;
+            if(l != nullptr)l->fa = cur;
+			cur->update();
+			return {cur, mid, r};
+		}
+	}
+	Node* merge(Node* u, Node* v){
+		if (u == nullptr && v == nullptr) return nullptr;
+		if (u == nullptr) return v;
+		if (v == nullptr) return u;
+		if (u->pri < v->pri) {
+			u->ri = merge(u->ri, v);
+            u->ri->fa = u;
+            u->fa = nullptr;
+			u->update();
+			return u;
+		}
+		else {
+			v->le = merge(u, v->le);
+            v->le->fa = v;
+            v->fa = nullptr;
+			v->update();
+			return v;
+		}
+	}
+
+	Node* _insert(ll val){
+		auto [temp, tri] = split(root, val);
+		auto [tle, tar] = split(temp, val - 1);
+		Node * newnode;
+        newnode = newNode(val);
+		auto comb = merge(tle, tar == nullptr ? newnode : tar);
+		root = merge(comb, tri);
+        return newnode;
+	}
+	ll _kth(Node* cur, ll k){
+		auto [tle, tar, tri] = split_by_rank(cur, k);
+		ll ret = tar->val;
+		root = merge(merge(tle, tar), tri);
+		return ret;
+	}
+	ll _rank(Node* cur, ll val){
+		auto [tle, tri] = split(cur, val - 1);
+		ll ret = (tle == nullptr ? 0 : tle->sz) + 1;
+		root = merge(tle, tri);
+		return ret;
+	}
+    tuple<Node*, Node*, Node*> split_by_pointer(Node* finalNode){
+        // smartly use sz
+        ll sz = 1;
+        sz += finalNode->le == nullptr ? 0 : finalNode->le->sz;
+        Node* cur = finalNode;
+        while(cur != root){
+            if(cur == cur->fa->ri){
+                sz += 1;
+                sz += cur->fa->le == nullptr ? 0 : cur->fa->le->sz;
+            }
+            cur = cur->fa;
+        }
+        
+        return split_by_rank(root, sz);
+    }
+
+public:
+    // permutation pointers
+    Node* nodes[200005];
+	ll size(){
+		return root == nullptr ? 0 : root->sz;
+	}
+	Node* insert(ll val){
+        return _insert(val);
+	}
+	ll kth(ll k){
+		// make sure k <= sz
+		return _kth(root, k);
+	}
+	ll rank(ll val){
+		// return the count of x that x < val, plus one
+		return _rank(root, val);
+	}
+    // problem
+    void query_top(ll num){
+        auto [tpl, tar, tpr] = split_by_pointer(nodes[num]);
+        root = merge(merge(tar, tpl), tpr);
+    }
+    void query_bottom(ll num){
+        auto [tpl, tar, tpr] = split_by_pointer(nodes[num]);
+        root = merge(merge(tpl, tpr), tar);
+    }
+    void query_insert(ll num, ll dir){
+        if(dir == 0){
+            return;
+        }
+        auto [tpl, tar, tpr] = split_by_pointer(nodes[num]);
+        // ensured
+        if(dir == -1){
+            ll sz = tpl->sz;
+            auto [ttpl, ttar, ttpr] = split_by_rank(tpl, sz);
+            root = merge(merge(ttpl, tar), merge(ttar, tpr));
+        }
+        else if(dir == 1){
+            ll sz = tpr->sz;
+            auto [ttpl, ttar, ttpr] = split_by_rank(tpr, 1);
+            root = merge(merge(tpl, ttar), merge(tar, ttpr));
         }
     }
-    if(dve.size() >= 2){
-        sort(all(dve));
-        ret += dve[dve.size() - 2];
+    ll query_ask(ll num){
+        auto [tpl, tar, tpr] = split_by_pointer(nodes[num]);
+        ll ret = tpl == nullptr ? 0 : tpl->sz;
+        root = merge(merge(tpl, tar), tpr);
+        return ret;
     }
-    if(dve.size()){
-        dep += dve.back();
+    ll query_query(ll num){
+        auto [tpl, tar, tpr] = split_by_rank(root, num);
+        ll ret = tar->val;
+        root = merge(merge(tpl, tar), tpr);
+        return ret;
     }
-    return {ret, dep};
-}
+
+    // debug
+    void output(Node* cur){
+        if(cur == nullptr){
+            return;
+        }
+        output(cur->le);
+        csp(cur->val);
+        output(cur->ri);
+    }
+};
+
 void sol(){
-    cin>>n;
-    rep(i,n + 5){
-        g[i].clear();
+    cin>>n>>m;
+    Treap treap;
+    rep1n(i,n){
+        // actually the i, value is not use
+        cin>>a[i];
+        auto o = treap.insert(i);
+        treap.nodes[a[i]] = o;
     }
-    for(int i = 2;i <= n;i++){
-        cin>>x;
-        g[i].push_back(x);
-        g[x].push_back(i);
+    rep1n(i,n){
+        treap.nodes[a[i]]->val = a[i];
     }
-    cend(dfs(1, -1).first);
+
+    rep1n(i,m){
+        string s;cin>>s>>x;
+        if(s == "Top"){
+            treap.query_top(x);
+        }
+        else if(s == "Bottom"){
+            treap.query_bottom(x);
+        }
+        else if(s == "Insert"){
+            cin>>y;
+            treap.query_insert(x, y);
+        }
+        else if(s == "Ask"){
+            cend(treap.query_ask(x));
+        }
+        else{
+            cend(treap.query_query(x));
+        }
+
+        // ctest;treap.output(treap.root);cendl;
+    }
 }
 
 ll tnt(){
@@ -134,7 +334,7 @@ int main(){
 //    cout.tie(nullptr);
 
     tt = 1;
-    cin>>tt;
+    // cin>>tt;
     for(ttt = 1;ttt <= tt;ttt++){
         sol();
     }

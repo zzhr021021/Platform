@@ -20,21 +20,22 @@ ll n,m,t,k;
 
 // FHQ Treap with segment operations
 // this flip is segmentation, for Luogu P3391
+// just init it as 1,2,...n via insert
 class Treap{
 private:
 	class Node{
 	public:
-		ll val, pri, cnt, sz;
+		ll val, pri, sz; // in this problem, value is just an indicator of index
 		Node *le, *ri;
+		bool flip;
 		Node(ll pa_val, ll pa_pri)
-            : val(pa_val), pri(pa_pri), cnt(1), sz(1), le(nullptr), ri(nullptr) {}
+            : val(pa_val), pri(pa_pri), sz(1), le(nullptr), ri(nullptr), flip(false) {}
 		Node(ll pa_val, ll pa_pri, Node* pa_le, Node* pa_ri)
-            : val(pa_val), pri(pa_pri), cnt(1), sz(1), le(pa_le), ri(pa_ri) {
+            : val(pa_val), pri(pa_pri), sz(1), le(pa_le), ri(pa_ri), flip(false) {
 			update();
 		}
 		void update() {
-			// update sz and cnt
-			sz = cnt;
+			sz = 1;
 			if (le != nullptr) sz += le->sz;
 			if (ri != nullptr) sz += ri->sz;
 		}
@@ -62,38 +63,45 @@ private:
 			return {pa.first, cur};
 		}
 	}
-	tuple<Node*, Node*, Node*> split_by_rank(Node* cur, ll rk){
-		// split : 1(... , rk), 2[rk](only node) 3(rk, ...)
-		if (cur == nullptr) return {nullptr, nullptr, nullptr};
+	void pushdown(Node* cur){
+		if (cur->flip) {
+			if (cur->le) cur->le->flip = !cur->le->flip;
+			if (cur->ri) cur->ri->flip = !cur->ri->flip;
+			swap(cur->le, cur->ri);
+			cur->flip = false;
+		}
+	}
+	pair<Node*, Node*> split_by_size(Node* cur, ll size){
+		// split : 1(sz = size), 2(remain)
+		if (cur == nullptr) return {nullptr, nullptr};
+
+		// flip mark
+		pushdown(cur);
+		
 		ll lsize = cur->le == nullptr ? 0 : cur->le->sz;
-		if (rk <= lsize) {
-			Node *l, *mid, *r;
-			tie(l, mid, r) = split_by_rank(cur->le, rk);
+		if (size <= lsize) {
+			auto [l, r] = split_by_size(cur->le, size);
 			cur->le = r;
 			cur->update();
-			return {l, mid, cur};
-		}
-		else if (rk <= lsize + cur->cnt) {
-			Node *tpl = cur->le;
-			Node *tpr = cur->ri;
-			cur->le = cur->ri = nullptr;
-			cur->update();
-			return {tpl, cur, tpr};
+			return {l, cur};
 		}
 		else {
-			Node *l, *mid, *r;
-			ll minu = lsize + cur->cnt;
-			tie(l, mid, r) = split_by_rank(cur->ri, rk - minu);
+			ll minu = lsize + 1;
+			auto [l, r] = split_by_size(cur->ri, size - minu);
 			cur->ri = l;
 			cur->update();
-			return {cur, mid, r};
+			return {cur, r};
 		}
 	}
 	Node* merge(Node* u, Node* v){
-		// make sure all val in u are less than any val in v
 		if (u == nullptr && v == nullptr) return nullptr;
 		if (u == nullptr) return v;
 		if (v == nullptr) return u;
+
+		// flip mark
+		pushdown(u);
+		pushdown(v);
+
 		if (u->pri < v->pri) {
 			u->ri = merge(u->ri, v);
 			u->update();
@@ -105,8 +113,7 @@ private:
 			return v;
 		}
 	}
-
-	void clear(Node* cur){
+	void _clear(Node* cur){
 		if (cur == nullptr) return;
 		clear(cur->le);
 		clear(cur->ri);
@@ -126,99 +133,58 @@ private:
 		auto comb = merge(tle, tar == nullptr ? newnode : tar);
 		root = merge(comb, tri);
 	}
-	bool _erase(ll val){
-		auto [temp, tri] = split(root, val);
-		auto [tle, tar] = split(temp, val - 1);
-		if (tar == nullptr) {
-			root = merge(tle, tri);
-			return false;
+	vll _output(Node* cur, vll & ans){
+		if (cur != nullptr) {
+			if (cur->flip) {
+				_output(cut->ri, ans);
+				ans.push_back(cur->val);
+				_output(cut->le, ans);
+			}
+			else {
+				_output(cut->le, ans);
+				ans.push_back(cur->val);
+				_output(cut->ri, ans);
+			}
 		}
-		if (tar->cnt > 1) {
-			tar->cnt--;
-			tar->update();
-			root = merge(merge(tle, tar), tri);
-		}
-		else {
-			delete tar;
-			root = merge(tle, tri);
-		}
-		return true;
-	}
-	ll _kth(Node* cur, ll k){
-		auto [tle, tar, tri] = split_by_rank(cur, k);
-		ll ret = tar->val;
-		root = merge(merge(tle, tar), tri);
-		return ret;
-	}
-	ll _rank(Node* cur, ll val){
-		auto [tle, tri] = split(cur, val - 1);
-		ll ret = (tle == nullptr ? 0 : tle->sz) + 1;
-		root = merge(tle, tri);
-		return ret;
-	}
-	ll _query_prev(ll val){
-		auto [tle, tri] = split(root, val - 1);
-		if (tle == nullptr) return NIL;
-		ll ret = _kth(tle, tle->sz);
-		root = merge(tle, tri);
-		return ret;
-	}
-	ll _query_next(ll val){
-		auto [tle, tri] = split(root, val);
-		if (tri == nullptr) return NIL;
-		ll ret = _kth(tri, 1);
-		root = merge(tle, tri);
-		return ret;
 	}
 
 public:
 	void clear(){
-		clear(root);
+		_clear(root);
 		root = nullptr;
 	}
 	ll size(){
 		return root == nullptr ? 0 : root->sz;
 	}
-	void init(vll ve){
-		// O(nlogn)
-		clear();
-		for(ll o : ve){
-			insert(o);
-		}
-		// TODO : implement O(n) init function
-	}
-	void init(ll a[], ll st, ll len){
-		clear();
-		for(ll i = st;i <= st + len - 1;i++){
-			insert(a[i]);
-		}
-	}
 	void insert(ll val){
 		return _insert(val);
 	}
-	bool erase(ll val){
-		return _erase(val);
+	vll output(){
+		vll ans;
+		return _output(root, ans);
 	}
-	ll kth(ll k){
-		// make sure k <= sz
-		return _kth(root, k);
-	}
-	ll rank(ll val){
-		// return the cnt of x that x < val, plus one
-		return _rank(root, val);
-	}
-	ll query_prev(ll val){
-		return _query_prev(val);
-	}
-	ll query_next(ll val){
-		return _query_next(val);
-	}
-	void flip(){
-		
+	void reverse(ll l, ll r){
+		// l and r >= 1
+		auto [tp, r] = split_by_size(root, r);
+		auto [l, tar] = split_by_size(tp, l - 1);
+		tar->flip = !tar->flip;
+		root = merge(merge(l, tar), r);
 	}
 };
 
 int main(){
-    
+    cin>>n>>m;
+	Treap treap;
+	rep1n(i,n){
+		treap.insert(i);
+	}
+	rep1n(i,m){
+		ll x, y;
+		cin>>x>>y;
+	}
+	auto ans = treap.output();
+	for(auto o : ans){
+		csp(o);
+	}
 	return 0;
 }
