@@ -113,46 +113,24 @@ private:
 			return v;
 		}
 	}
-	void _clear(Node* cur){
-		if (cur == nullptr) return;
-		clear(cur->le);
-		clear(cur->ri);
-		delete cur;
-	}
 	void _insert(ll val){
 		auto [temp, tri] = split(root, val);
 		auto [tle, tar] = split(temp, val - 1);
 		Node * newnode;
-		if (tar == nullptr) {
-			newnode = newNode(val);
-		}
-		else {
-			tar->cnt++;
-			tar->update();
-		}
+        newnode = newNode(val);
 		auto comb = merge(tle, tar == nullptr ? newnode : tar);
 		root = merge(comb, tri);
 	}
-	vll _output(Node* cur, vll & ans){
+	void _output(Node* cur, vll & ans){
 		if (cur != nullptr) {
-			if (cur->flip) {
-				_output(cut->ri, ans);
-				ans.push_back(cur->val);
-				_output(cut->le, ans);
-			}
-			else {
-				_output(cut->le, ans);
-				ans.push_back(cur->val);
-				_output(cut->ri, ans);
-			}
+            pushdown(cur);
+            _output(cur->le, ans);
+            ans.push_back(cur->val);
+            _output(cur->ri, ans);
 		}
 	}
 
 public:
-	void clear(){
-		_clear(root);
-		root = nullptr;
-	}
 	ll size(){
 		return root == nullptr ? 0 : root->sz;
 	}
@@ -161,14 +139,15 @@ public:
 	}
 	vll output(){
 		vll ans;
-		return _output(root, ans);
+        _output(root, ans);
+		return ans;
 	}
 	void reverse(ll l, ll r){
 		// l and r >= 1
-		auto [tp, r] = split_by_size(root, r);
-		auto [l, tar] = split_by_size(tp, l - 1);
+		auto [tp, tri] = split_by_size(root, r);
+		auto [tle, tar] = split_by_size(tp, l - 1);
 		tar->flip = !tar->flip;
-		root = merge(merge(l, tar), r);
+		root = merge(merge(tle, tar), tri);
 	}
 };
 
@@ -181,6 +160,7 @@ int main(){
 	rep1n(i,m){
 		ll x, y;
 		cin>>x>>y;
+        treap.reverse(x, y);
 	}
 	auto ans = treap.output();
 	for(auto o : ans){

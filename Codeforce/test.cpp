@@ -88,28 +88,72 @@ ll qpow(ll x, ll y){
     return ans;
 }
 
+struct Vals{
+        ll sum, suml, sumr, summax;
+    };
+Vals merge_vals(const Vals & u, const Vals & v){
+    Vals ret;
+    ret.sum = u.sum + v.sum;
+    ret.suml = max(u.suml, u.sum + v.suml);
+    ret.sumr = max(v.sumr, u.sumr + v.sum);
+    ret.summax = max(u.summax, v.summax);
+    ckmax(ret.summax, u.sumr + v.suml);
+    return ret;
+}
+Vals single_val(ll val){
+    Vals ret;
+    ret.sum = val;
+    if(val > 0){
+        ret.suml = ret.sumr = ret.summax = val;
+    }
+    return ret;
+}
+static Vals ZEROVAL = {0,0,0,0};
 class Treap{
 public:
 	class Node{
 	public:
-		// sz is the size of subtree
-		ll val, pri, sz;
-		Node *le, *ri, *fa;
+		ll val, pri;
+        ll sz;
+        Vals vals;
+		Node *le, *ri;
+        // lazy
+		bool flip, change;
+        ll changenum;
 		Node(ll pa_val, ll pa_pri)
-            : val(pa_val), pri(pa_pri), sz(1), le(nullptr), ri(nullptr), fa(nullptr) {}
+            : val(pa_val), pri(pa_pri), sz(1), le(nullptr), ri(nullptr), 
+            flip(false), change(false) 
+        {
+            if (pa_val > 0) {
+                this->vals = {pa_val, pa_val, pa_val, pa_val};
+            }
+            else {
+                this->vals = {pa_val, 0,0,0};
+            }
+        }
 		Node(ll pa_val, ll pa_pri, Node* pa_le, Node* pa_ri)
-            : val(pa_val), pri(pa_pri), sz(1), le(pa_le), ri(pa_ri), fa(nullptr) {
+            : val(pa_val), pri(pa_pri), sz(1), le(pa_le), ri(pa_ri), 
+            flip(false), change(false) 
+        {
 			update();
 		}
+        // pushdown before update
 		void update() {
 			sz = 1;
-			if (le != nullptr) sz += le->sz;
-			if (ri != nullptr) sz += ri->sz;
+            vals = single_val(val);
+			if (le != nullptr) {
+                sz += le->sz;
+                vals = merge_vals(le->vals, vals);
+            }
+			if (ri != nullptr) {
+                sz += ri->sz;
+                vals = merge_vals(vals, ri->vals);
+            }
 		}
 	};
+
 	Node* root = nullptr;
 	mt19937_64 rnd;
-	constexpr static ll NIL = -1; // query node not exist
 
 	Node* newNode(ll val){
 		return new Node(val, rnd());
@@ -120,204 +164,221 @@ public:
 		if (cur->val <= key) {
 			pair<Node*, Node*> pa = split(cur->ri, key);
 			cur->ri = pa.first;
-            if(cur->ri != nullptr)cur->ri->fa = cur;
 			cur->update();
 			return {cur, pa.second};
 		}
 		else {
 			pair<Node*, Node*> pa = split(cur->le, key);
 			cur->le = pa.second;
-            if(cur->le != nullptr)cur->le->fa = cur;
 			cur->update();
 			return {pa.first, cur};
 		}
 	}
-	tuple<Node*, Node*, Node*> split_by_rank(Node* cur, ll rk){
-		// split : 1(... , rk), 2[rk](only node) 3(rk, ...)
-		if (cur == nullptr) return {nullptr, nullptr, nullptr};
-		ll lsize = cur->le == nullptr ? 0 : cur->le->sz;
-		if (rk <= lsize) {
-			Node *l, *mid, *r;
-			tie(l, mid, r) = split_by_rank(cur->le, rk);
-			cur->le = r;
-            if(r != nullptr)r->fa = cur;
-			cur->update();
-			return {l, mid, cur};
+	void pushdown(Node* cur){
+        Vals vals;
+        if (cur->change) {
+            ll cn = cur->changenum;
+            cur->val = cn;
+            cur->vals.sum = cn * cur->sz;
+            if (cn > 0) {
+                cur->vals.suml = cur->vals.sumr = cur->vals.summax = cn * cur->sz;
+            }
+            else {
+                cur->vals.suml = cur->vals.sumr = cur->vals.summax = 0;
+            }
+        }
+        if (cur->flip) {
+            swap(cur->vals.suml, cur->vals.sumr);
+        }
+		if (cur->flip) {
+			if (cur->le) cur->le->flip = !cur->le->flip;
+			if (cur->ri) cur->ri->flip = !cur->ri->flip;
+			swap(cur->le, cur->ri);
+			cur->flip = false;
 		}
-		else if (rk <= lsize + 1) {
-			Node *tpl = cur->le;
-			Node *tpr = cur->ri;
-			cur->le = cur->ri = nullptr;
+        if (cur->change) {
+            if (cur->le) {
+                cur->le->change = true;
+                cur->le->changenum = cur->changenum;
+            }
+			if (cur->ri) {
+                cur->ri->change = true;
+                cur->ri->changenum = cur->changenum;
+            }
+			cur->change = false;
+        }
+	}
+	pair<Node*, Node*> split_by_size(Node* cur, ll size){
+		// split : 1(sz = size), 2(remain)
+		if (cur == nullptr) return {nullptr, nullptr};
+
+		// lazy mark
+		pushdown(cur);
+		
+		ll lsize = cur->le == nullptr ? 0 : cur->le->sz;
+		if (size <= lsize) {
+			auto [l, r] = split_by_size(cur->le, size);
+			cur->le = r;
 			cur->update();
-			return {tpl, cur, tpr};
+			return {l, cur};
 		}
 		else {
-			Node *l, *mid, *r;
 			ll minu = lsize + 1;
-			tie(l, mid, r) = split_by_rank(cur->ri, rk - minu);
+			auto [l, r] = split_by_size(cur->ri, size - minu);
 			cur->ri = l;
-            if(l != nullptr)l->fa = cur;
 			cur->update();
-			return {cur, mid, r};
+			return {cur, r};
 		}
 	}
 	Node* merge(Node* u, Node* v){
 		if (u == nullptr && v == nullptr) return nullptr;
 		if (u == nullptr) return v;
 		if (v == nullptr) return u;
+        
+        ctest;ctest;ctest;csp(u->val);csp(v->val);cendl;
+		// lazy mark
+		pushdown(u);
+		pushdown(v);
+
 		if (u->pri < v->pri) {
 			u->ri = merge(u->ri, v);
-            u->ri->fa = u;
-            u->fa = nullptr;
 			u->update();
 			return u;
 		}
 		else {
 			v->le = merge(u, v->le);
-            v->le->fa = v;
-            v->fa = nullptr;
 			v->update();
 			return v;
 		}
 	}
-
-	Node* _insert(ll val){
+	void _insert(ll val){
 		auto [temp, tri] = split(root, val);
 		auto [tle, tar] = split(temp, val - 1);
 		Node * newnode;
         newnode = newNode(val);
 		auto comb = merge(tle, tar == nullptr ? newnode : tar);
 		root = merge(comb, tri);
-        return newnode;
 	}
-	ll _kth(Node* cur, ll k){
-		auto [tle, tar, tri] = split_by_rank(cur, k);
-		ll ret = tar->val;
-		root = merge(merge(tle, tar), tri);
-		return ret;
-	}
-	ll _rank(Node* cur, ll val){
-		auto [tle, tri] = split(cur, val - 1);
-		ll ret = (tle == nullptr ? 0 : tle->sz) + 1;
-		root = merge(tle, tri);
-		return ret;
-	}
-    tuple<Node*, Node*, Node*> split_by_pointer(Node* finalNode){
-        // smartly use sz
-        ll sz = 1;
-        sz += finalNode->le == nullptr ? 0 : finalNode->le->sz;
-        Node* cur = finalNode;
-        while(cur != root){
-            if(cur == cur->fa->ri){
-                sz += 1;
-                sz += cur->fa->le == nullptr ? 0 : cur->fa->le->sz;
-            }
-            cur = cur->fa;
-        }
-        
-        return split_by_rank(root, sz);
+    Node* _push_back(Node* cur, ll val){
+        return merge(cur, newNode(val));
     }
 
 public:
-    // permutation pointers
-    Node* nodes[200005];
 	ll size(){
 		return root == nullptr ? 0 : root->sz;
 	}
-	Node* insert(ll val){
-        return _insert(val);
+	void insert(ll val){
+		_insert(val);
 	}
-	ll kth(ll k){
-		// make sure k <= sz
-		return _kth(root, k);
+    void push_back(ll val){
+        root = _push_back(root, val);
+    }
+	void reverse(ll l, ll r){
+		// l and r >= 1
+		auto [tp, tpr] = split_by_size(root, r);
+		auto [tpl, tar] = split_by_size(tp, l - 1);
+		tar->flip = !tar->flip;
+		root = merge(merge(tpl, tar), tpr);
 	}
-	ll rank(ll val){
-		// return the count of x that x < val, plus one
-		return _rank(root, val);
-	}
-    // problem
-    void query_top(ll num){
-        auto [tpl, tar, tpr] = split_by_pointer(nodes[num]);
-        root = merge(merge(tar, tpl), tpr);
-    }
-    void query_bottom(ll num){
-        auto [tpl, tar, tpr] = split_by_pointer(nodes[num]);
-        root = merge(merge(tpl, tpr), tar);
-    }
-    void query_insert(ll num, ll dir){
-        if(dir == 0){
-            return;
-        }
-        auto [tpl, tar, tpr] = split_by_pointer(nodes[num]);
-        // ensured
-        if(dir == -1){
-            ll sz = tpl->sz;
-            auto [ttpl, ttar, ttpr] = split_by_rank(tpl, sz);
-            root = merge(merge(ttpl, tar), merge(ttar, tpr));
-        }
-        else if(dir == 1){
-            ll sz = tpr->sz;
-            auto [ttpl, ttar, ttpr] = split_by_rank(tpr, 1);
-            root = merge(merge(tpl, ttar), merge(tar, ttpr));
-        }
-    }
-    ll query_ask(ll num){
-        auto [tpl, tar, tpr] = split_by_pointer(nodes[num]);
-        ll ret = tpl == nullptr ? 0 : tpl->sz;
-        root = merge(merge(tpl, tar), tpr);
-        return ret;
-    }
-    ll query_query(ll num){
-        auto [tpl, tar, tpr] = split_by_rank(root, num);
-        ll ret = tar->val;
-        root = merge(merge(tpl, tar), tpr);
-        return ret;
-    }
 
-    // debug
-    void output(Node* cur){
-        if(cur == nullptr){
-            return;
-        }
+    void output(Node * cur){
+        if (cur == nullptr) return;
+        pushdown(cur);
         output(cur->le);
         csp(cur->val);
         output(cur->ri);
     }
+
+    // problem
+    void query_insert(ll pos, vll ve){
+        auto [tpl, tpr] = split_by_size(root, pos);
+        for(auto o : ve){
+            _push_back(tpl, o);
+            ctest;cend(o);
+            output(tpl);ctest;csp(tpl->sz);
+            cendl;
+        }
+        root = merge(tpl, tpr);
+    }
+    void query_delete(ll pos, ll tot){
+        auto [tpl, tpr] = split_by_size(root, pos - 1);
+        auto [tpll, tprr] = split_by_size(tpr, tot);
+        root = merge(tpl, tprr);
+    }
+    void query_make_same(ll pos, ll tot, ll c){
+        auto [tpl, tpr] = split_by_size(root, pos - 1);
+        auto [tpll, tprr] = split_by_size(tpr, tot);
+        tpll->change = true;
+        tpll->changenum = c;
+        root = merge(merge(tpl, tpll), tprr);
+    }
+    void query_reverse(ll pos, ll tot){
+        auto [tpl, tpr] = split_by_size(root, pos - 1);
+        auto [tpll, tprr] = split_by_size(tpr, tot);
+        tpll->flip = true;
+        root = merge(merge(tpl, tpll), tprr);
+    }
+    ll query_get_sum(ll pos, ll tot){
+        auto [tpl, tpr] = split_by_size(root, pos - 1);
+        auto [tpll, tprr] = split_by_size(tpr, tot);
+
+        pushdown(tpll);
+        ll ret = tpll->vals.sum;
+        root = merge(merge(tpl, tpll), tprr);
+        return ret;
+    }
+    ll query_max_sum(){
+        pushdown(root);
+        ll ret = root->vals.summax;
+        return ret;
+    }
 };
 
 void sol(){
-    cin>>n>>m;
     Treap treap;
+    cin>>n>>m;
     rep1n(i,n){
-        // actually the i, value is not use
-        cin>>a[i];
-        auto o = treap.insert(i);
-        treap.nodes[a[i]] = o;
+        cin>>x;
+        treap.push_back(x);
     }
-    rep1n(i,n){
-        treap.nodes[a[i]]->val = a[i];
-    }
-
     rep1n(i,m){
-        string s;cin>>s>>x;
-        if(s == "Top"){
-            treap.query_top(x);
-        }
-        else if(s == "Bottom"){
-            treap.query_bottom(x);
-        }
-        else if(s == "Insert"){
-            cin>>y;
-            treap.query_insert(x, y);
-        }
-        else if(s == "Ask"){
-            cend(treap.query_ask(x));
-        }
-        else{
-            cend(treap.query_query(x));
-        }
+        ctest;
+        treap.output(treap.root);
+        ctest;csp(treap.root->sz);
+        cendl;
 
-        // ctest;treap.output(treap.root);cendl;
+        string s;cin>>s;
+        ll pos, tot, c, ans;
+        if (s == "INSERT") {
+            cin>>pos>>tot;
+            vll toadd;
+            rep1n(j,tot){
+                cin>>x;
+                toadd.push_back(x);
+            }
+            treap.query_insert(pos, toadd);
+        }
+        else if (s == "DELETE") {
+            cin>>pos>>tot;
+            treap.query_delete(pos, tot);
+        }
+        else if (s == "MAKE-SAME") {
+            cin>>pos>>tot>>c;
+            treap.query_make_same(pos, tot, c);
+        }
+        else if (s == "REVERSE") {
+            cin>>pos>>tot;
+            treap.query_reverse(pos, tot);
+        }
+        else if (s == "GET-SUM") {
+            cin>>pos>>tot;
+            ans = treap.query_get_sum(pos, tot);
+            cend(ans);
+        }
+        else {
+            ans = treap.query_max_sum();
+            cend(ans);
+        }
     }
 }
 
