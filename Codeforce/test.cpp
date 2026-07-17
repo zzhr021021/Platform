@@ -11,7 +11,7 @@
 #define replr(i, l, r) for (int i = l;i <= r;i++)
 #define repij(i, j, n, m) for (int i = 0; i < (n); ++i) for (int j = 0; j < (m); ++j)
 
-#define ll long long
+#define ll int
 #define ull unsigned long long
 #define pll pair<long long, long long>
 #define vi vector<int>
@@ -43,8 +43,8 @@ const ll MOD = 1e9 + 7;
 const ll MODD = 1e9 + 9;
 const ll MOOD = 998244353;
 ll p = MOOD;
-const ll inf = 1e18;
-const ll INF = 1e18;
+// const ll inf = 1e18;
+// const ll INF = 1e18;
 const ll N = 200500;
 // ll dix[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
 // ll diy[8] = {2, 1, -1, -2, -2, -1, 1, 2};
@@ -89,8 +89,9 @@ ll qpow(ll x, ll y){
 }
 
 struct Vals{
-        ll sum, suml, sumr, summax;
-    };
+    ll sum, suml, sumr, summax, mx;
+};
+static Vals ZEROVAL = {0,0,0,0,(int)-1e9};
 Vals merge_vals(const Vals & u, const Vals & v){
     Vals ret;
     ret.sum = u.sum + v.sum;
@@ -98,64 +99,87 @@ Vals merge_vals(const Vals & u, const Vals & v){
     ret.sumr = max(v.sumr, u.sumr + v.sum);
     ret.summax = max(u.summax, v.summax);
     ckmax(ret.summax, u.sumr + v.suml);
+    ret.mx = max(u.mx, v.mx);
     return ret;
 }
 Vals single_val(ll val){
-    Vals ret;
+    Vals ret = ZEROVAL;
     ret.sum = val;
     if(val > 0){
         ret.suml = ret.sumr = ret.summax = val;
     }
+    ret.mx = val;
     return ret;
 }
-static Vals ZEROVAL = {0,0,0,0};
-class Treap{
+
+class Node{
 public:
-	class Node{
-	public:
-		ll val, pri;
-        ll sz;
-        Vals vals;
-		Node *le, *ri;
-        // lazy
-		bool flip, change;
-        ll changenum;
-		Node(ll pa_val, ll pa_pri)
-            : val(pa_val), pri(pa_pri), sz(1), le(nullptr), ri(nullptr), 
-            flip(false), change(false) 
-        {
-            if (pa_val > 0) {
-                this->vals = {pa_val, pa_val, pa_val, pa_val};
+    ll val, pri;
+    ll sz;
+    Vals vals;
+    Node *le, *ri;
+    // lazy
+    bool flip, change;
+    ll changenum;
+    Node(ll pa_val, ll pa_pri)
+        : val(pa_val), pri(pa_pri), sz(1), le(nullptr), ri(nullptr), 
+        flip(false), change(false) 
+    {
+        if (pa_val > 0) {
+            this->vals = {pa_val, pa_val, pa_val, pa_val, pa_val};
+        }
+        else {
+            this->vals = {pa_val, 0,0,0, pa_val};
+        }
+    }
+    Node(ll pa_val, ll pa_pri, Node* pa_le, Node* pa_ri)
+        : val(pa_val), pri(pa_pri), sz(1), le(pa_le), ri(pa_ri), 
+        flip(false), change(false) 
+    {
+        update();
+    }
+    // pushdown before update
+    void update() {
+        sz = 1;
+        vals = single_val(val);
+        if (le != nullptr) {
+            sz += le->sz;
+            vals = merge_vals(le->get_vals(), vals);
+        }
+        if (ri != nullptr) {
+            sz += ri->sz;
+            vals = merge_vals(vals, ri->get_vals());
+        }
+    }
+    Vals get_vals(){
+        if (change) {
+            if (changenum > 0) {
+                return {changenum * sz, changenum * sz, changenum * sz, changenum * sz, changenum};
             }
             else {
-                this->vals = {pa_val, 0,0,0};
+                return {changenum * sz, 0, 0, 0, changenum};
             }
         }
-		Node(ll pa_val, ll pa_pri, Node* pa_le, Node* pa_ri)
-            : val(pa_val), pri(pa_pri), sz(1), le(pa_le), ri(pa_ri), 
-            flip(false), change(false) 
-        {
-			update();
-		}
-        // pushdown before update
-		void update() {
-			sz = 1;
-            vals = single_val(val);
-			if (le != nullptr) {
-                sz += le->sz;
-                vals = merge_vals(le->vals, vals);
-            }
-			if (ri != nullptr) {
-                sz += ri->sz;
-                vals = merge_vals(vals, ri->vals);
-            }
-		}
-	};
+        else {
+            return vals;
+        }
+    }
+};
 
+vector<Node*> pool;
+
+class Treap{
+public:
+	
 	Node* root = nullptr;
 	mt19937_64 rnd;
 
 	Node* newNode(ll val){
+        if (pool.size()) {
+            auto o = pool.back();
+            pool.pop_back();
+            return o;
+        }
 		return new Node(val, rnd());
 	}
 	pair<Node*, Node*> split(Node* cur, ll key){
@@ -176,23 +200,15 @@ public:
 	}
 	void pushdown(Node* cur){
         Vals vals;
-        if (cur->change) {
-            ll cn = cur->changenum;
-            cur->val = cn;
-            cur->vals.sum = cn * cur->sz;
-            if (cn > 0) {
-                cur->vals.suml = cur->vals.sumr = cur->vals.summax = cn * cur->sz;
-            }
-            else {
-                cur->vals.suml = cur->vals.sumr = cur->vals.summax = 0;
-            }
-        }
-        if (cur->flip) {
-            swap(cur->vals.suml, cur->vals.sumr);
-        }
 		if (cur->flip) {
-			if (cur->le) cur->le->flip = !cur->le->flip;
-			if (cur->ri) cur->ri->flip = !cur->ri->flip;
+			if (cur->le) {
+                cur->le->flip = !cur->le->flip;
+                apply_flip(cur->le);
+            }
+			if (cur->ri) {
+                cur->ri->flip = !cur->ri->flip;
+                apply_flip(cur->ri);
+            }
 			swap(cur->le, cur->ri);
 			cur->flip = false;
 		}
@@ -200,14 +216,29 @@ public:
             if (cur->le) {
                 cur->le->change = true;
                 cur->le->changenum = cur->changenum;
+                apply_same(cur->le, cur->changenum);
             }
 			if (cur->ri) {
                 cur->ri->change = true;
                 cur->ri->changenum = cur->changenum;
+                apply_same(cur->ri, cur->changenum);
             }
 			cur->change = false;
         }
 	}
+    // use this right after change mark
+    void apply_same(Node * cur, ll c){
+        if (c > 0){
+            cur->vals = {c * cur->sz, c * cur->sz, c * cur->sz, c * cur->sz, c};
+        }
+        else {
+            cur->vals = {c * cur->sz, 0, 0, 0, c};
+        }
+        cur->val = c;
+    }
+    void apply_flip(Node * cur){
+        swap(cur->vals.suml, cur->vals.sumr);
+    }
 	pair<Node*, Node*> split_by_size(Node* cur, ll size){
 		// split : 1(sz = size), 2(remain)
 		if (cur == nullptr) return {nullptr, nullptr};
@@ -235,7 +266,6 @@ public:
 		if (u == nullptr) return v;
 		if (v == nullptr) return u;
         
-        ctest;ctest;ctest;csp(u->val);csp(v->val);cendl;
 		// lazy mark
 		pushdown(u);
 		pushdown(v);
@@ -262,6 +292,13 @@ public:
     Node* _push_back(Node* cur, ll val){
         return merge(cur, newNode(val));
     }
+    void _clear(Node* cur){
+        if (cur == nullptr) return;
+        _clear(cur->le);
+        _clear(cur->ri);
+        pool.push_back(cur);
+        // delete cur;
+    }
 
 public:
 	ll size(){
@@ -278,6 +315,7 @@ public:
 		auto [tp, tpr] = split_by_size(root, r);
 		auto [tpl, tar] = split_by_size(tp, l - 1);
 		tar->flip = !tar->flip;
+        apply_flip(tar);
 		root = merge(merge(tpl, tar), tpr);
 	}
 
@@ -293,16 +331,14 @@ public:
     void query_insert(ll pos, vll ve){
         auto [tpl, tpr] = split_by_size(root, pos);
         for(auto o : ve){
-            _push_back(tpl, o);
-            ctest;cend(o);
-            output(tpl);ctest;csp(tpl->sz);
-            cendl;
+            tpl = _push_back(tpl, o);
         }
         root = merge(tpl, tpr);
     }
     void query_delete(ll pos, ll tot){
         auto [tpl, tpr] = split_by_size(root, pos - 1);
         auto [tpll, tprr] = split_by_size(tpr, tot);
+        _clear(tpll);
         root = merge(tpl, tprr);
     }
     void query_make_same(ll pos, ll tot, ll c){
@@ -310,12 +346,14 @@ public:
         auto [tpll, tprr] = split_by_size(tpr, tot);
         tpll->change = true;
         tpll->changenum = c;
+        apply_same(tpll, c);
         root = merge(merge(tpl, tpll), tprr);
     }
     void query_reverse(ll pos, ll tot){
         auto [tpl, tpr] = split_by_size(root, pos - 1);
         auto [tpll, tprr] = split_by_size(tpr, tot);
-        tpll->flip = true;
+        tpll->flip = !tpll->flip;
+        apply_flip(tpll);
         root = merge(merge(tpl, tpll), tprr);
     }
     ll query_get_sum(ll pos, ll tot){
@@ -329,7 +367,10 @@ public:
     }
     ll query_max_sum(){
         pushdown(root);
-        ll ret = root->vals.summax;
+        ll ret = root->get_vals().summax;
+        if (ret == 0){
+            ret = root->get_vals().mx;
+        }
         return ret;
     }
 };
@@ -342,10 +383,9 @@ void sol(){
         treap.push_back(x);
     }
     rep1n(i,m){
-        ctest;
-        treap.output(treap.root);
-        ctest;csp(treap.root->sz);
-        cendl;
+        // ctest;
+        // treap.output(treap.root);
+        // cendl;
 
         string s;cin>>s;
         ll pos, tot, c, ans;

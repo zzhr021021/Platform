@@ -1,50 +1,144 @@
 #include<bits/stdc++.h>
-#define rep(i, n) for (ll i = 0; i < (n); ++i)
-#define rep1(i, n) for (ll i = 1; i < (n); ++i)
+#define debug(x) cout << #x << " = " << x << endl
+#define vdebug(a) cout << #a << " = "; for(auto x: a) cout << x << " "; cout << "\n";
+
+#define rep(i, n) for (int i = 0; i < (n); ++i)
+#define rep1(i, n) for (int i = 1; i < (n); ++i)
 #define rep1n(i, n) for (ll i = 1; i <= (n); ++i)
-#define rep01n(i, n) for (ll i = 0; i <= (n); ++i)
-#define repr(i, n) for (ll i = (n) - 1; i >= 0; --i)
-#define csp(n) cout << n << " ";
-#define cend(n) cout << n << endl;
-#define cendl cout << endl;
+#define rep1nr(i, n) for (int i = (n); i >= 1; --i)
+#define rep01n(i, n) for (int i = 0; i <= (n); ++i)
+#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
+#define replr(i, l, r) for (int i = l;i <= r;i++)
+#define repij(i, j, n, m) for (int i = 0; i < (n); ++i) for (int j = 0; j < (m); ++j)
 
-#define ll long long
+#define ll int
+#define ull unsigned long long
+#define pll pair<long long, long long>
+#define vi vector<int>
+#define vll vector<long long>
 
-#define vll vector<ll>
+#define csp(n) cout << n << " "
+#define cend(n) cout << n << endl
+#define cendl cout << endl
+#define ctest cout << "test   "
+#define all(a) a.begin(), a.end()
+#define rall(a) a.rbegin(), a.rend()
 
-const ll MOD = 1e9+7;
-const ll p = MOD;
 using namespace std;
 
-ll n,m,t,k;
+void ckmax(ll & x, ll y){
+    if(y > x)x = y;
+}
+void ckmin(ll & x, ll y){
+    if(y < x)x = y;
+}
+void printvec(vll & v){
+    for(auto o : v){
+        csp(o);
+    }
+    cendl;
+}
+ll tt, ttt;
+ll n,k,m,t,x,y,z,h,q,d,s;
 
-// FHQ Treap with segment operations
-// this flip is segmentation, for Luogu P3391
-// just init it as 1,2,...n via insert
+struct Vals{
+    ll sum, suml, sumr, summax, mx;
+};
+static Vals ZEROVAL = {0,0,0,0,(int)-1e9};
+Vals merge_vals(const Vals & u, const Vals & v){
+    Vals ret;
+    ret.sum = u.sum + v.sum;
+    ret.suml = max(u.suml, u.sum + v.suml);
+    ret.sumr = max(v.sumr, u.sumr + v.sum);
+    ret.summax = max(u.summax, v.summax);
+    ckmax(ret.summax, u.sumr + v.suml);
+    ret.mx = max(u.mx, v.mx);
+    return ret;
+}
+Vals single_val(ll val){
+    Vals ret = ZEROVAL;
+    ret.sum = val;
+    if(val > 0){
+        ret.suml = ret.sumr = ret.summax = val;
+    }
+    ret.mx = val;
+    return ret;
+}
+
+class Node{
+public:
+    ll val, pri;
+    ll sz;
+    Vals vals;
+    Node *le, *ri;
+    // lazy
+    bool flip, change;
+    ll changenum;
+    Node(ll pa_val, ll pa_pri)
+        : val(pa_val), pri(pa_pri), sz(1), le(nullptr), ri(nullptr), 
+        flip(false), change(false) 
+    {
+        if (pa_val > 0) {
+            this->vals = {pa_val, pa_val, pa_val, pa_val, pa_val};
+        }
+        else {
+            this->vals = {pa_val, 0,0,0, pa_val};
+        }
+    }
+    Node(ll pa_val, ll pa_pri, Node* pa_le, Node* pa_ri)
+        : val(pa_val), pri(pa_pri), sz(1), le(pa_le), ri(pa_ri), 
+        flip(false), change(false) 
+    {
+        update();
+    }
+    // pushdown before update
+    void update() {
+        sz = 1;
+        vals = single_val(val);
+        if (le != nullptr) {
+            sz += le->sz;
+            vals = merge_vals(le->get_vals(), vals);
+        }
+        if (ri != nullptr) {
+            sz += ri->sz;
+            vals = merge_vals(vals, ri->get_vals());
+        }
+    }
+    Vals get_vals(){
+        if (change) {
+            if (changenum > 0) {
+                return {changenum * sz, changenum * sz, changenum * sz, changenum * sz, changenum};
+            }
+            else {
+                return {changenum * sz, 0, 0, 0, changenum};
+            }
+        }
+        else {
+            return vals;
+        }
+    }
+};
+
+vector<Node*> pool;
+
 class Treap{
-private:
-	class Node{
-	public:
-		ll val, pri, sz; // in this problem, value is just an indicator of index
-		Node *le, *ri;
-		bool flip;
-		Node(ll pa_val, ll pa_pri)
-            : val(pa_val), pri(pa_pri), sz(1), le(nullptr), ri(nullptr), flip(false) {}
-		Node(ll pa_val, ll pa_pri, Node* pa_le, Node* pa_ri)
-            : val(pa_val), pri(pa_pri), sz(1), le(pa_le), ri(pa_ri), flip(false) {
-			update();
-		}
-		void update() {
-			sz = 1;
-			if (le != nullptr) sz += le->sz;
-			if (ri != nullptr) sz += ri->sz;
-		}
-	};
+public:
+	
 	Node* root = nullptr;
 	mt19937_64 rnd;
-	constexpr static ll NIL = -1; // query node not exist
 
 	Node* newNode(ll val){
+        if (pool.size()) {
+            auto o = pool.back();
+            pool.pop_back();
+            o->val = val;
+            o->pri = rnd();
+            o->flip = o->change = false;
+            o->sz = 1;
+            o->vals = single_val(val);
+            o->le = o->ri = nullptr;
+            return o;
+        }
 		return new Node(val, rnd());
 	}
 	pair<Node*, Node*> split(Node* cur, ll key){
@@ -65,17 +159,48 @@ private:
 	}
 	void pushdown(Node* cur){
 		if (cur->flip) {
-			if (cur->le) cur->le->flip = !cur->le->flip;
-			if (cur->ri) cur->ri->flip = !cur->ri->flip;
+			if (cur->le) {
+                cur->le->flip = !cur->le->flip;
+                apply_flip(cur->le);
+            }
+			if (cur->ri) {
+                cur->ri->flip = !cur->ri->flip;
+                apply_flip(cur->ri);
+            }
 			swap(cur->le, cur->ri);
 			cur->flip = false;
 		}
+        if (cur->change) {
+            if (cur->le) {
+                cur->le->change = true;
+                cur->le->changenum = cur->changenum;
+                apply_same(cur->le, cur->changenum);
+            }
+			if (cur->ri) {
+                cur->ri->change = true;
+                cur->ri->changenum = cur->changenum;
+                apply_same(cur->ri, cur->changenum);
+            }
+			cur->change = false;
+        }
 	}
+    // use this right after change mark
+    void apply_same(Node * cur, ll c){
+        if (c > 0){
+            cur->vals = {c * cur->sz, c * cur->sz, c * cur->sz, c * cur->sz, c};
+        }
+        else {
+            cur->vals = {c * cur->sz, 0, 0, 0, c};
+        }
+        cur->val = c;
+    }
+    void apply_flip(Node * cur){
+        swap(cur->vals.suml, cur->vals.sumr);
+    }
 	pair<Node*, Node*> split_by_size(Node* cur, ll size){
 		// split : 1(sz = size), 2(remain)
 		if (cur == nullptr) return {nullptr, nullptr};
-
-		// flip mark
+		// lazy mark
 		pushdown(cur);
 		
 		ll lsize = cur->le == nullptr ? 0 : cur->le->sz;
@@ -97,8 +222,8 @@ private:
 		if (u == nullptr && v == nullptr) return nullptr;
 		if (u == nullptr) return v;
 		if (v == nullptr) return u;
-
-		// flip mark
+        
+		// lazy mark
 		pushdown(u);
 		pushdown(v);
 
@@ -121,50 +246,156 @@ private:
 		auto comb = merge(tle, tar == nullptr ? newnode : tar);
 		root = merge(comb, tri);
 	}
-	void _output(Node* cur, vll & ans){
-		if (cur != nullptr) {
-            pushdown(cur);
-            _output(cur->le, ans);
-            ans.push_back(cur->val);
-            _output(cur->ri, ans);
-		}
-	}
+    Node* _push_back(Node* cur, ll val){
+        return merge(cur, newNode(val));
+    }
+    void _clear(Node* cur){
+        if (cur == nullptr) return;
+        _clear(cur->le);
+        _clear(cur->ri);
+        pool.push_back(cur);
+        // delete cur;
+    }
 
 public:
 	ll size(){
 		return root == nullptr ? 0 : root->sz;
 	}
 	void insert(ll val){
-		return _insert(val);
+		_insert(val);
 	}
-	vll output(){
-		vll ans;
-        _output(root, ans);
-		return ans;
-	}
+    void push_back(ll val){
+        root = _push_back(root, val);
+    }
 	void reverse(ll l, ll r){
 		// l and r >= 1
-		auto [tp, tri] = split_by_size(root, r);
-		auto [tle, tar] = split_by_size(tp, l - 1);
+		auto [tp, tpr] = split_by_size(root, r);
+		auto [tpl, tar] = split_by_size(tp, l - 1);
 		tar->flip = !tar->flip;
-		root = merge(merge(tle, tar), tri);
+        apply_flip(tar);
+		root = merge(merge(tpl, tar), tpr);
 	}
+
+    void output(Node * cur){
+        if (cur == nullptr) return;
+        pushdown(cur);
+        output(cur->le);
+        csp(cur->val);
+        output(cur->ri);
+    }
+
+    // problem
+    void query_insert(ll pos, vi ve){
+        auto [tpl, tpr] = split_by_size(root, pos);
+        for(auto o : ve){
+            tpl = _push_back(tpl, o);
+        }
+        root = merge(tpl, tpr);
+    }
+    void query_delete(ll pos, ll tot){
+        auto [tpl, tpr] = split_by_size(root, pos - 1);
+        auto [tpll, tprr] = split_by_size(tpr, tot);
+        _clear(tpll);
+        root = merge(tpl, tprr);
+    }
+    void query_make_same(ll pos, ll tot, ll c){
+        auto [tpl, tpr] = split_by_size(root, pos - 1);
+        auto [tpll, tprr] = split_by_size(tpr, tot);
+        tpll->change = true;
+        tpll->changenum = c;
+        apply_same(tpll, c);
+        root = merge(merge(tpl, tpll), tprr);
+    }
+    void query_reverse(ll pos, ll tot){
+        auto [tpl, tpr] = split_by_size(root, pos - 1);
+        auto [tpll, tprr] = split_by_size(tpr, tot);
+        tpll->flip = !tpll->flip;
+        apply_flip(tpll);
+        root = merge(merge(tpl, tpll), tprr);
+    }
+    ll query_get_sum(ll pos, ll tot){
+        auto [tpl, tpr] = split_by_size(root, pos - 1);
+        auto [tpll, tprr] = split_by_size(tpr, tot);
+
+        pushdown(tpll);
+        ll ret = tpll->vals.sum;
+        root = merge(merge(tpl, tpll), tprr);
+        return ret;
+    }
+    ll query_max_sum(){
+        pushdown(root);
+        ll ret = root->get_vals().summax;
+        if (ret == 0){
+            ret = root->get_vals().mx;
+        }
+        return ret;
+    }
 };
 
-int main(){
+void sol(){
+    Treap treap;
     cin>>n>>m;
-	Treap treap;
-	rep1n(i,n){
-		treap.insert(i);
-	}
-	rep1n(i,m){
-		ll x, y;
-		cin>>x>>y;
-        treap.reverse(x, y);
-	}
-	auto ans = treap.output();
-	for(auto o : ans){
-		csp(o);
-	}
-	return 0;
+    rep1n(i,n){
+        cin>>x;
+        treap.push_back(x);
+    }
+    rep1n(i,m){
+        // ctest;
+        // treap.output(treap.root);
+        // cendl;
+
+        string s;cin>>s;
+        ll pos, tot, c, ans;
+        if (s == "INSERT") {
+            cin>>pos>>tot;
+            vi toadd;
+            rep1n(j,tot){
+                cin>>x;
+                toadd.push_back(x);
+            }
+            treap.query_insert(pos, toadd);
+        }
+        else if (s == "DELETE") {
+            cin>>pos>>tot;
+            treap.query_delete(pos, tot);
+        }
+        else if (s == "MAKE-SAME") {
+            cin>>pos>>tot>>c;
+            treap.query_make_same(pos, tot, c);
+        }
+        else if (s == "REVERSE") {
+            cin>>pos>>tot;
+            treap.query_reverse(pos, tot);
+        }
+        else if (s == "GET-SUM") {
+            cin>>pos>>tot;
+            ans = treap.query_get_sum(pos, tot);
+            cend(ans);
+        }
+        else {
+            ans = treap.query_max_sum();
+            cend(ans);
+        }
+    }
+}
+
+ll tnt(){
+    while(1){
+    }
+    return 0;
+}
+
+
+int main(){
+   ios_base::sync_with_stdio(false);
+   cin.tie(nullptr);
+   cout.tie(nullptr);
+
+    tt = 1;
+    // cin>>tt;
+    for(ttt = 1;ttt <= tt;ttt++){
+        sol();
+    }
+    system("pause");
+    return 0;
 }
