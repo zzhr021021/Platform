@@ -1,0 +1,30 @@
+[2026-08-11T02:22:57.395Z] [INFO] ========================================================================================================================
+[2026-08-11T02:22:57.395Z] [INFO] Initializing MAM Client.
+App: com.microsoft.edge 151.0.4129.72
+SDK: 2.1.367.0
+OS: windows 10.0.26200.8457
+DeviceType: Desktop
+Manufacturer: LENOVO
+Model: 90TY0004CD
+Telemetry: yes
+Managed device support: enabled
+[2026-08-11T02:22:57.395Z] [INFO] Telemetry session 25eef5f2-eba1-4e8a-be70-9d704602c24a.
+[2026-08-11T02:22:57.395Z] [INFO] Initializing cache (v1).
+[2026-08-11T02:22:58.113Z] [INFO] Shutting down.
+[2026-08-11T02:22:58.113Z] [INFO] Stopping the task scheduler and canceling any outstanding work items...
+[2026-08-11T02:22:58.113Z] [INFO] Task scheduler has stopped, and all work has been canceled.
+[2026-08-11T02:23:23.676Z] [INFO] ========================================================================================================================
+[2026-08-11T02:23:23.676Z] [INFO] Initializing MAM Client.
+App: com.microsoft.edge 151.0.4129.72
+SDK: 2.1.367.0
+OS: windows 10.0.26200.8457
+DeviceType: Desktop
+Manufacturer: LENOVO
+Model: 90TY0004CD
+Telemetry: yes
+Managed device support: enabled
+[2026-08-11T02:23:23.677Z] [INFO] Telemetry session e79a3960-509c-4ec6-8dcf-d73661fb6374.
+[2026-08-11T02:23:23.678Z] [INFO] Reinitialized cache (v1).
+[2026-08-11T02:23:24.732Z] [INFO] Shutting down.
+[2026-08-11T02:23:24.732Z] [INFO] Stopping the task scheduler and canceling any outstanding work items...
+[2026-08-11T02:23:24.732Z] [INFO] Task scheduler has stopped, and all work has been canceled.

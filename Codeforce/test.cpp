@@ -112,75 +112,40 @@ ll qpow(ll x, ll y){
     return ans;
 }
 
-vll mat[100500];
-ll rsm[100500];
-ll csm[100500];
-
-ll calct(ll need, ll val){
-    // calc the number of ops need to be done, make sure need > 0
-    if(need <= 0)return 0;
-    return (need + val - 1) / val;
-}
-
 void sol(){
-    cin>>n>>m>>k;
-    if(m == 1){
-        swap(n, m);
-    }
-    rep(i,n + 5)rsm[i] = 0;
-    rep(j,m + 5)csm[i] = 0;
-    rep1n(i,n){
-        mat[i].resize(m + 5);
-        rep1n(j,m){
-            cin>>mat[i][j];
-            rsm[i] += mat[i][j];
-            csm[j] += mat[i][j];
+    cin>>n;
+    rep1n(i,n)cin>>a[i];
+    // b search
+    ll l = n, r = 30 + n;
+    while(l != r){
+        ll mid = (l + r) >> 1;
+        bgpq pq;
+        rep1n(i,n){
+            pq.push(a[i]);
         }
-    }
-    
-    if(n == 1 && m == 1){
-        if(mat[1][1] < 0){
-            cend(-1);
+        for(int i = mid - 1;i >= 0;i--){
+            if(pq.size()){
+                if(i >= 30){
+                    pq.pop();
+                }
+                else if((1 << i) >= pq.top()){
+                    pq.pop();
+                }
+                else{
+                    ll tp = pq.top() - (1 << i);
+                    pq.pop();
+                    pq.push(tp);
+                }
+            }
+        }
+        if(pq.size()){
+            l = mid + 1;
         }
         else{
-            cend(0);
-        }
-        return;
-    }
-    ll ans = inf;
-    // calc all mat
-    vll needs;
-    rep1n(i,n){
-        rep1n(j,m){
-            ll to = rsm[i] + csm[j] - 3 * mat[i][j];
-            times = calct(to, n + m - 3);
-            needs.push_back(times);
+            r = mid;
         }
     }
-    sort(all(needs));
-    ckmin(ans, needs[k - 1]);
-    if(n >= 2 && m >= 2){
-        cend(ans);return;
-    }
-    // use [1, n] and [2, n]
-    // [1, n] ' s sub condition : n - 2 , n - 2, ... , n - 2
-    // [2, n] ' s sub condition : n - 1, n - 3, ... n - 3, 
-    // then mat11 is chosen, and needs[k - 1] in right is chosen
-
-    // two number : x1 and x2, 
-    // op1 makes x1 sub z, x2 sub z;
-    // op2 makes x1 sub z + 1, x2 sub z - 1
-    // do op1 and op2 some times, question : min total ops makes x1 x2 both less or equal than 0
-    if(k == 1){
-        ckmin(ans, calct(mat[1][1], m - 1));
-        ckmin(ans, calct(mat[1][n], m - 1));
-    }
-    else{
-        
-    }
-    cend(ans);
-
-    
+    cend(l);
 }
 
 
